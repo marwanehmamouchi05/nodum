@@ -1,93 +1,17 @@
 from datetime import datetime
+from fastapi import APIRouter, Depends
 
-from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel
-
-from app.api.guests import guest_permissions
-from app.models.access import AccessRequest
-from app.models.building import Person, PersonRole, WorkOrder, Zone, ZoneType
-from app.services.access_engine import evaluate_access
+from app.api.dependencies import get_repository, utc_now
+from app.models.access import AccessCheckInput, AccessDecision
+from app.repository import Repository
+from app.services.access import check_access as evaluate_stored_access
 
 
 router = APIRouter(prefix="/access", tags=["access"])
 
 
-class AccessCheckInput(BaseModel):
-    person_id: str
-    zone_id: str
-    purpose: str
-
-
-people = {
-    "contractor-1": Person(
-        id="contractor-1",
-        name="Ahmed",
-        role=PersonRole.CONTRACTOR,
-    ),
-    "guest-1": Person(
-        id="guest-1",
-        name="Sara",
-        role=PersonRole.GUEST,
-    ),
-}
-
-
-zones = {
-    "machine-room": Zone(
-        id="machine-room",
-        name="Elevator Machine Room",
-        zone_type=ZoneType.MAINTENANCE,
-        floor=-1,
-    ),
-    "floor-5": Zone(
-        id="floor-5",
-        name="Residential Floor 5",
-        zone_type=ZoneType.RESIDENTIAL,
-        floor=5,
-    ),
-}
-
-
-work_orders = [
-    WorkOrder(
-        id="wo-001",
-        contractor_id="contractor-1",
-        description="Repair Elevator 2",
-        allowed_zone_ids=["machine-room"],
-        active=True,
-    )
-]
-
-
-@router.post("/check")
-def check_access(payload: AccessCheckInput):
-    person = people.get(payload.person_id)
-
-    if not person:
-        raise HTTPException(
-            status_code=404,
-            detail="Person not found",
-        )
-
-    zone = zones.get(payload.zone_id)
-
-    if not zone:
-        raise HTTPException(
-            status_code=404,
-            detail="Zone not found",
-        )
-
-    request = AccessRequest(
-        person_id=payload.person_id,
-        zone_id=payload.zone_id,
-        purpose=payload.purpose,
-        requested_at=datetime.now(),
-    )
-
-    return evaluate_access(
-        request=request,
-        person=person,
-        zone=zone,
-        permissions=guest_permissions,
-        work_orders=work_orders,
-    )
+@router.post("/check", response_model=AccessDecision)
+def check_access(payload: AccessCheckInput,
+                 repository: Repository = Depends(get_repository),
+                 now: datetime = Depends(utc_now)):
+    return evaluate_stored_access(repository, payload, now)

@@ -1,5 +1,5 @@
 from enum import Enum
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
 
 
@@ -28,12 +28,14 @@ class Zone(BaseModel):
     name: str
     zone_type: ZoneType
     floor: Optional[int] = None
+    restricted: bool = False
 
 
 class Person(BaseModel):
     id: str
     name: str
     role: PersonRole
+    guest_zone_ids: list[str] = Field(default_factory=list)
 
 
 class WorkOrder(BaseModel):

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from app.models.access import AccessPermission, AccessRequest
 from app.models.building import Person, PersonRole, WorkOrder, Zone, ZoneType
@@ -23,7 +23,7 @@ def test_contractor_allowed_by_work_order():
         person_id=person.id,
         zone_id=zone.id,
         purpose="Elevator repair",
-        requested_at=datetime.now(),
+        requested_at=datetime.now(timezone.utc),
     )
 
     work_order = WorkOrder(
@@ -63,7 +63,7 @@ def test_contractor_denied_without_work_order():
         person_id=person.id,
         zone_id=zone.id,
         purpose="Maintenance",
-        requested_at=datetime.now(),
+        requested_at=datetime.now(timezone.utc),
     )
 
     decision = evaluate_access(
@@ -91,7 +91,7 @@ def test_guest_allowed_with_temporary_permission():
         floor=5,
     )
 
-    now = datetime.now()
+    now = datetime.now(timezone.utc)
 
     permission = AccessPermission(
         person_id=person.id,
