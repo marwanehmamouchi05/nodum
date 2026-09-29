@@ -19,4 +19,5 @@ def check_access(repository: Repository, payload: AccessCheckInput, now: datetim
             repository.list_permissions(), repository.list_work_orders(),
             appointments=repository.list_appointments(),
             businesses=repository.list_businesses(),
+            emergencies=repository.list_emergencies(),
         )

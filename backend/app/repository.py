@@ -10,6 +10,7 @@ from typing import ContextManager, Iterable, Protocol
 from app.models.access import AccessPermission
 from app.models.building import Person, PersonRole, WorkOrder, Zone, ZoneType
 from app.models.business import Appointment, Business
+from app.models.emergency import EmergencyIncident
 
 
 class Repository(Protocol):
@@ -28,6 +29,10 @@ class Repository(Protocol):
     def add_appointment(self, appointment: Appointment) -> None: ...
     def record_check_in(self, visitor: Person, appointment: Appointment,
                         permission: AccessPermission) -> None: ...
+    def get_emergency(self, emergency_id: str) -> EmergencyIncident | None: ...
+    def list_emergencies(self) -> list[EmergencyIncident]: ...
+    def add_emergency(self, incident: EmergencyIncident) -> None: ...
+    def update_emergency(self, incident: EmergencyIncident) -> None: ...
 
 
 class InMemoryRepository:
@@ -39,6 +44,7 @@ class InMemoryRepository:
         work_orders: Iterable[WorkOrder] = (),
         businesses: Iterable[Business] = (),
         appointments: Iterable[Appointment] = (),
+        emergencies: Iterable[EmergencyIncident] = (),
     ):
         self._lock = RLock()
         self._people = {p.id: p.model_copy(deep=True) for p in people}
@@ -47,6 +53,7 @@ class InMemoryRepository:
         self._work_orders = [w.model_copy(deep=True) for w in work_orders]
         self._businesses = {b.id: b.model_copy(deep=True) for b in businesses}
         self._appointments = {a.id: a.model_copy(deep=True) for a in appointments}
+        self._emergencies = {e.emergency_id: e.model_copy(deep=True) for e in emergencies}
 
     @contextmanager
     def transaction(self):
@@ -109,6 +116,29 @@ class InMemoryRepository:
             self._appointments[appointment.id] = appointment_copy
             self._permissions.append(permission_copy)
 
+    def get_emergency(self, emergency_id: str) -> EmergencyIncident | None:
+        with self._lock:
+            incident = self._emergencies.get(emergency_id)
+            return incident.model_copy(deep=True) if incident else None
+
+    def list_emergencies(self) -> list[EmergencyIncident]:
+        with self._lock:
+            return [self._emergencies[key].model_copy(deep=True)
+                    for key in sorted(self._emergencies)]
+
+    def add_emergency(self, incident: EmergencyIncident) -> None:
+        with self._lock:
+            if incident.emergency_id in self._emergencies:
+                raise ValueError("Emergency ID already exists")
+            self._emergencies[incident.emergency_id] = incident.model_copy(deep=True)
+
+    def update_emergency(self, incident: EmergencyIncident) -> None:
+        """Services validate a transition under transaction before replacing."""
+        with self._lock:
+            if incident.emergency_id not in self._emergencies:
+                raise ValueError("Emergency not found")
+            self._emergencies[incident.emergency_id] = incident.model_copy(deep=True)
+
     def add_guest_permission(self, guest: Person, permission: AccessPermission) -> None:
         """Called inside a transaction after service validation."""
         with self._lock:
@@ -126,6 +156,9 @@ def create_demo_repository() -> InMemoryRepository:
             Person(id="resident-1", name="Demo resident", role=PersonRole.RESIDENT,
                    guest_zone_ids=["floor-5", "lobby"]),
             Person(id="manager-1", name="Demo manager", role=PersonRole.MANAGER),
+            Person(id="responder-1", name="Demo emergency responder",
+                   role=PersonRole.EMERGENCY_RESPONDER),
+            Person(id="plumber-1", name="Demo plumbing contractor", role=PersonRole.CONTRACTOR),
         ],
         zones=[
             Zone(id="machine-room", name="Elevator Machine Room",
@@ -135,10 +168,15 @@ def create_demo_repository() -> InMemoryRepository:
             Zone(id="lobby", name="Lobby", zone_type=ZoneType.LOBBY, floor=0),
             Zone(id="office-106", name="Atlas Dental - Office 106",
                  zone_type=ZoneType.BUSINESS, floor=1),
+            Zone(id="utility-room", name="Water Utility Room",
+                 zone_type=ZoneType.MAINTENANCE, floor=-1, restricted=True),
         ],
         work_orders=[WorkOrder(id="wo-001", contractor_id="contractor-1",
                               description="Repair Elevator 2",
-                              allowed_zone_ids=["machine-room"], active=True)],
+                              allowed_zone_ids=["machine-room"], active=True),
+                     WorkOrder(id="wo-plumbing-001", contractor_id="plumber-1",
+                               description="Inspect and repair water utility piping",
+                               allowed_zone_ids=["utility-room"], active=True)],
         businesses=[Business(id="atlas-dental", name="Atlas Dental",
                              destination_zone_ids=["office-106"])],
     )

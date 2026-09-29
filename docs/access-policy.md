@@ -1,4 +1,4 @@
-# Guest invitations, business appointments, and access policy
+# Guest invitations, business appointments, emergencies, and access policy
 
 This prototype uses one process-local repository. There is no database, AI
 decision logic, hardware actuation, or caller authentication.
@@ -10,7 +10,7 @@ decision logic, hardware actuation, or caller authentication.
 - The invitation service validates authority, zones, identities, and overlap
   before registering the guest and storing the permission in one locked operation.
 - Services depend on the Repository protocol. InMemoryRepository owns people,
-  zones, permissions, work orders, businesses, and appointments and returns
+  zones, permissions, work orders, businesses, appointments, and emergencies and returns
   defensive copies.
 - Transactions serialize reads and writes within this process. They do not
   provide general rollback; the service completes validation before writing.
@@ -19,6 +19,10 @@ decision logic, hardware actuation, or caller authentication.
 - The appointment service schedules visits without permissions. Check-in validates
   the appointment and visitor, then records the visitor, permission, and appointment
   transition together under the repository transaction.
+- The emergency service validates operators, zones, and responder eligibility.
+  Creation, additive assignments, and resolution each persist the incident and
+  its chronological audit history together under the same repository transaction.
+  Access checks consume an emergency snapshot inside that transaction.
 
 ## Invitation policy
 
@@ -58,23 +62,113 @@ or tamper-proof audit log. IDs are references, not authentication credentials.
 
 1. Validate context and require request person/zone IDs to match the supplied
    records. Inconsistent IDs or invalid context are denied before any override.
+   Validate emergency records and their status/history consistency; malformed
+   records or duplicate incident IDs fail closed, including for privileged roles.
 2. Preserve the existing manager/emergency-responder building-wide override.
-3. Contractors are allowed only by an active work order matching their person ID
+3. Apply all active incidents affecting the requested zone. Guests, business
+   visitors, and all other non-privileged roles are denied. Contractors may
+   proceed to the work-order check only for a MAINTENANCE zone when every applicable
+   incident is a water leak or elevator failure and explicitly assigns them.
+   Fire/security incidents block contractors even if an assignment exists.
+   Multiple incidents combine restrictively; resolving one does not clear others.
+4. Contractors are allowed only by an active work order matching their person ID
    and the requested zone. Temporary permissions are ignored. If several orders
    match, use the lexicographically smallest order ID for the decision reason.
    Work orders currently have an active flag and no scheduled time window.
-4. Guests require a guest-safe requested zone and exactly one matching permission
+5. Guests require a guest-safe requested zone and exactly one matching permission
    valid at the request time. Invalid permission data or multiple active matches
    fail closed. Expired or future permissions cannot authorize entry.
-5. Business visitors require a non-restricted BUSINESS zone and exactly one
+6. Business visitors require a non-restricted BUSINESS zone and exactly one
    currently valid permission. The permission must reference exactly one checked-in
    appointment and one active business. Visitor ID/name, business ownership,
    destination, check-in/start timestamp, expiry, and permission provenance must
    agree. The permission must contain only the appointment's exact destination.
    Missing, invalid, or inconsistent records fail closed. No access follows merely
    from a scheduled appointment.
-6. Deny everything else. Residents and other roles do not gain a new direct-entry
+7. Deny everything else. Residents and other roles do not gain a new direct-entry
    policy from their invitation authority.
+
+## Emergency mode
+
+An incident records emergency_id, emergency_type, severity, affected_zone_ids,
+description, status, created_at, resolved_at, created_by, resolved_by, assigned
+responder IDs, and a chronological history of actions with actor IDs and UTC
+timestamps. History records triggering, responder additions, and resolution.
+
+Supported types: water_leak, fire_alarm, elevator_failure, security_incident.
+Severities: low, medium, high, critical. Severity is recorded for operational
+triage; it does not weaken access restrictions or grant entry. Status is active
+or resolved. A resolved incident cannot be reopened or assigned new responders.
+
+Creation requires a unique ID, at least one existing zone, a nonblank description,
+and an existing manager or emergency responder as created_by. Affected zone and
+assignment IDs are sorted and deduplicated. The ID active is reserved for the
+active-list endpoint. Callers cannot provide server-owned timestamps, history,
+or status through the creation endpoint.
+
+Only existing managers/emergency responders may create incidents, assign
+responders, or resolve incidents. These checks validate stored roles, not caller
+authentication. Assigned people must be emergency responders or eligible
+contractors. A contractor is eligible only for water_leak/elevator_failure and
+must have an active work order covering at least one affected MAINTENANCE zone.
+Assignments never create permissions, change roles, or substitute for work orders.
+At each access decision the work order must still be active and match the exact
+requested maintenance zone. Assigned responders do not get additional authority
+beyond their existing emergency-responder role.
+
+Assignments are additive. Each audit event names only newly assigned responders;
+an entirely repeated assignment returns 409. Mixed valid/invalid assignments
+make no changes. Resolution records resolved_at and resolved_by and appends the
+resolution event atomically. Duplicate resolution returns 409. Timestamps are
+aware UTC and cannot precede the last audit event. No edits or deletion of prior
+audit events are exposed through the API.
+
+All active incidents affecting a zone apply, regardless of permission creation
+time. Unaffected zones retain normal policy. Resolved incidents no longer block
+access: normal permissions and work orders are evaluated again and still must be
+valid. The engine evaluates the supplied current emergency state; it is not a
+historical replay API. Resolution does not renew an expired permission.
+
+Guest invitations and business check-ins remain record/permission workflows.
+They do not authorize entry into an affected zone: POST /access/check always
+applies current emergency restrictions. The engine uses explicit records only,
+with no AI calls or clock reads.
+
+### Emergency endpoints
+
+| Method | Path | Result |
+| --- | --- | --- |
+| POST | /emergencies | 201: trigger incident |
+| GET | /emergencies | 200: all incidents, sorted by ID |
+| GET | /emergencies/active | 200: active incidents only |
+| GET | /emergencies/{emergency_id} | 200: incident including history |
+| POST | /emergencies/{emergency_id}/responders | 200: assign eligible responders |
+| POST | /emergencies/{emergency_id}/resolve | 200: resolve incident |
+
+Unknown incidents, zones, actors, or responders return 404. Ineligible roles or
+contractors return 403. Duplicate IDs/transitions/assignments return 409.
+Invalid enums, empty zones, malformed requests, or backdated transitions return 422.
+
+Example water-leak body for POST /emergencies:
+
+    {
+      "emergency_id": "leak-001",
+      "emergency_type": "water_leak",
+      "severity": "high",
+      "affected_zone_ids": ["utility-room"],
+      "description": "Water leaking from the supply valve",
+      "created_by": "manager-1",
+      "assigned_responder_ids": ["plumber-1"]
+    }
+
+For an elevator failure use a new ID, emergency_type elevator_failure, zone
+machine-room, and assigned contractor-1. To add an emergency responder:
+
+    {"assigned_by": "manager-1", "responder_ids": ["responder-1"]}
+
+Resolve with:
+
+    {"resolved_by": "manager-1"}
 
 ## Business appointments and check-in
 
@@ -165,6 +259,10 @@ Existing contractor-1, guest-1, machine-room, floor-5, and wo-001 remain.
 resident-1 may invite into floor-5 and lobby. manager-1 is the demo manager.
 atlas-dental is Atlas Dental on floor 1, Office 106 (zone office-106). No demo
 appointments or business access permissions are pre-created.
+utility-room is a restricted maintenance zone with plumber-1 and active work
+order wo-plumbing-001. The existing machine-room/contractor-1/wo-001 support the
+elevator incident demo. responder-1 is a demo emergency responder. No incident
+is created automatically at startup.
 
 From the backend directory in PowerShell:
 
@@ -189,6 +287,15 @@ ID/name against an appointment is record matching, not proof of physical identit
 Appointment details contain personal data. Authentication, scoped business access,
 and a trusted check-in identity-verification mechanism remain required before
 public or physical-access deployment.
+
+Emergency management has the same caller-authentication limitation: a caller
+can claim a stored manager/responder ID. Incident resolution is a recorded operator
+assertion, not sensor confirmation that a physical hazard is cleared. The prototype
+does not control evacuation, egress, fire alarms, or physical locks and is not a
+certified life-safety system. Audit history is inspectable in memory, not durable
+or tamper-proof; loss of process state also loses active incidents. Production
+operation needs durable emergency state, authenticated operators, and a reviewed
+hardware/egress safety design.
 
 State and audit history disappear on restart and are not shared between workers.
 Use one process for this prototype. Revocation, persistent decision auditing,

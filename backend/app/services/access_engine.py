@@ -1,6 +1,7 @@
 """Pure deterministic policy: no clock reads, repository access, or AI.
 
-Precedence: consistency checks -> manager/emergency override -> contractor work
+Precedence: context/emergency validation -> manager/emergency override ->
+affected-zone emergency restrictions -> contractor work
 orders only -> guest permissions in guest-safe zones -> checked-in business
 visitor permissions in their exact destination -> default deny.
 Time windows are half-open: valid_from <= requested_at < valid_until.
@@ -10,6 +11,7 @@ from pydantic import ValidationError
 from app.models.access import AccessDecision, AccessPermission, AccessRequest
 from app.models.building import Person, PersonRole, WorkOrder, Zone, ZoneType
 from app.models.business import Appointment, AppointmentStatus, Business
+from app.models.emergency import EmergencyIncident, EmergencyStatus, MAINTENANCE_EMERGENCY_TYPES
 
 
 GUEST_ZONE_TYPES = {ZoneType.RESIDENTIAL, ZoneType.LOBBY, ZoneType.PARKING}
@@ -28,6 +30,7 @@ def evaluate_access(
     *,
     appointments: list[Appointment] | None = None,
     businesses: list[Business] | None = None,
+    emergencies: list[EmergencyIncident] | None = None,
 ) -> AccessDecision:
     def deny(reason):
         return AccessDecision(allowed=False, reason=reason)
@@ -42,8 +45,33 @@ def evaluate_access(
     if request.person_id != person.id or request.zone_id != zone.id:
         return deny("Request identity or zone does not match the access context.")
 
+    try:
+        incidents = [EmergencyIncident.model_validate(e.model_dump())
+                     for e in (emergencies if emergencies is not None else [])]
+    except (ValidationError, ValueError, TypeError, AttributeError):
+        return deny("Invalid emergency data.")
+    if len({e.emergency_id for e in incidents}) != len(incidents):
+        return deny("Conflicting emergency records.")
+    affected = sorted(
+        (e for e in incidents if e.status == EmergencyStatus.ACTIVE
+         and zone.id in e.affected_zone_ids),
+        key=lambda e: e.emergency_id,
+    )
+
     if person.role in {PersonRole.MANAGER, PersonRole.EMERGENCY_RESPONDER}:
         return AccessDecision(allowed=True, reason=f"{person.role.value} has building-wide access.")
+
+    # Every active incident must permit maintenance. An assignment never replaces
+    # a work order; the normal contractor branch below still checks that order.
+    if affected:
+        incident_ids = ", ".join(e.emergency_id for e in affected)
+        if person.role != PersonRole.CONTRACTOR:
+            return deny(f"Active emergencies restrict access to this zone: {incident_ids}.")
+        if zone.zone_type != ZoneType.MAINTENANCE or any(
+            e.emergency_type not in MAINTENANCE_EMERGENCY_TYPES
+            or person.id not in e.assigned_responder_ids for e in affected
+        ):
+            return deny(f"Emergency maintenance access is not authorized: {incident_ids}.")
 
     if person.role == PersonRole.CONTRACTOR:
         try:
