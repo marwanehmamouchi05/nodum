@@ -26,6 +26,8 @@ class AccessPermission(BaseModel):
     id: str = ""
     granted_by: str | None = None
     created_at: UTCTimestamp | None = None
+    appointment_id: NonEmptyString | None = None
+    business_id: NonEmptyString | None = None
 
     @model_validator(mode="after")
     def validate_period(self):

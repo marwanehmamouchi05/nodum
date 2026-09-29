@@ -1,15 +1,11 @@
 """Service, policy, concurrency, and HTTP regression tests; no external services."""
-import asyncio
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
-import json
 from threading import Barrier
 
 import pytest
 from pydantic import ValidationError
 
-from app.api.dependencies import get_repository, utc_now
-from app.main import app
 from app.models.access import AccessPermission, AccessRequest, GuestInviteInput
 from app.models.building import Person, PersonRole, WorkOrder, Zone, ZoneType
 from app.repository import InMemoryRepository, create_demo_repository
@@ -19,11 +15,6 @@ from app.services.guests import create_invitation
 
 
 NOW = datetime(2026, 9, 29, 12, tzinfo=timezone.utc)
-
-
-@pytest.fixture
-def repo():
-    return create_demo_repository()
 
 
 def invitation(**changes):
@@ -47,48 +38,6 @@ def decision(repo, *, person_id="guest-1", zone_id="floor-5",
     return evaluate_access(request, repo.get_person(person_id), repo.get_zone(zone_id),
                            list(permissions), list(work_orders))
 
-
-@pytest.fixture
-def api(repo):
-    """Exercise actual FastAPI routing, validation, dependencies, and responses.
-
-    Tiny one-request ASGI transport keeps tests independent of an HTTP client
-    dependency. No network or running server is needed.
-    """
-    app.dependency_overrides[get_repository] = lambda: repo
-    app.dependency_overrides[utc_now] = lambda: NOW
-
-    def request(method, path, payload=None):
-        async def execute():
-            body = json.dumps(payload).encode() if payload is not None else b""
-            sent = []
-            received = False
-
-            async def receive():
-                nonlocal received
-                if not received:
-                    received = True
-                    return {"type": "http.request", "body": body, "more_body": False}
-                # The app does not need another request message for JSON responses.
-                await asyncio.Event().wait()
-
-            async def send(message):
-                sent.append(message)
-
-            scope = {"type": "http", "asgi": {"version": "3.0"},
-                     "http_version": "1.1", "method": method, "scheme": "http",
-                     "path": path, "raw_path": path.encode(), "root_path": "",
-                     "query_string": b"", "headers": [(b"content-type", b"application/json")],
-                     "client": ("127.0.0.1", 1234), "server": ("test", 80)}
-            await asyncio.wait_for(app(scope, receive, send), timeout=5)
-            status = next(m["status"] for m in sent if m["type"] == "http.response.start")
-            content = b"".join(m.get("body", b"") for m in sent if m["type"] == "http.response.body")
-            return status, json.loads(content)
-
-        return asyncio.run(execute())
-
-    yield request
-    app.dependency_overrides.clear()
 
 
 def test_valid_resident_invitation_registers_guest_and_grants_access(api, repo):

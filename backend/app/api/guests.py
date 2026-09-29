@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends
 from app.api.dependencies import get_repository, utc_now
 from app.models.access import AccessPermission, GuestInviteInput
 from app.repository import Repository
-from app.services.guests import create_invitation
+from app.services.guests import create_invitation, list_guest_permissions as get_guest_permissions
 
 
 router = APIRouter(prefix="/guests", tags=["guests"])
@@ -19,4 +19,4 @@ def invite_guest(payload: GuestInviteInput,
 
 @router.get("/permissions", response_model=list[AccessPermission])
 def list_guest_permissions(repository: Repository = Depends(get_repository)):
-    return repository.list_permissions()
+    return get_guest_permissions(repository)

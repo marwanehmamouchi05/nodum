@@ -17,4 +17,6 @@ def check_access(repository: Repository, payload: AccessCheckInput, now: datetim
         return evaluate_access(
             AccessRequest(**payload.model_dump(), requested_at=now), person, zone,
             repository.list_permissions(), repository.list_work_orders(),
+            appointments=repository.list_appointments(),
+            businesses=repository.list_businesses(),
         )

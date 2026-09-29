@@ -9,6 +9,7 @@ from typing import ContextManager, Iterable, Protocol
 
 from app.models.access import AccessPermission
 from app.models.building import Person, PersonRole, WorkOrder, Zone, ZoneType
+from app.models.business import Appointment, Business
 
 
 class Repository(Protocol):
@@ -20,6 +21,13 @@ class Repository(Protocol):
     def list_permissions(self) -> list[AccessPermission]: ...
     def list_work_orders(self) -> list[WorkOrder]: ...
     def add_guest_permission(self, guest: Person, permission: AccessPermission) -> None: ...
+    def get_business(self, business_id: str) -> Business | None: ...
+    def list_businesses(self) -> list[Business]: ...
+    def get_appointment(self, appointment_id: str) -> Appointment | None: ...
+    def list_appointments(self) -> list[Appointment]: ...
+    def add_appointment(self, appointment: Appointment) -> None: ...
+    def record_check_in(self, visitor: Person, appointment: Appointment,
+                        permission: AccessPermission) -> None: ...
 
 
 class InMemoryRepository:
@@ -29,12 +37,16 @@ class InMemoryRepository:
         zones: Iterable[Zone] = (),
         permissions: Iterable[AccessPermission] = (),
         work_orders: Iterable[WorkOrder] = (),
+        businesses: Iterable[Business] = (),
+        appointments: Iterable[Appointment] = (),
     ):
         self._lock = RLock()
         self._people = {p.id: p.model_copy(deep=True) for p in people}
         self._zones = {z.id: z.model_copy(deep=True) for z in zones}
         self._permissions = [p.model_copy(deep=True) for p in permissions]
         self._work_orders = [w.model_copy(deep=True) for w in work_orders]
+        self._businesses = {b.id: b.model_copy(deep=True) for b in businesses}
+        self._appointments = {a.id: a.model_copy(deep=True) for a in appointments}
 
     @contextmanager
     def transaction(self):
@@ -60,6 +72,43 @@ class InMemoryRepository:
         with self._lock:
             return [w.model_copy(deep=True) for w in self._work_orders]
 
+    def get_business(self, business_id: str) -> Business | None:
+        with self._lock:
+            business = self._businesses.get(business_id)
+            return business.model_copy(deep=True) if business else None
+
+    def list_businesses(self) -> list[Business]:
+        with self._lock:
+            return [self._businesses[key].model_copy(deep=True)
+                    for key in sorted(self._businesses)]
+
+    def get_appointment(self, appointment_id: str) -> Appointment | None:
+        with self._lock:
+            appointment = self._appointments.get(appointment_id)
+            return appointment.model_copy(deep=True) if appointment else None
+
+    def list_appointments(self) -> list[Appointment]:
+        with self._lock:
+            return [self._appointments[key].model_copy(deep=True)
+                    for key in sorted(self._appointments)]
+
+    def add_appointment(self, appointment: Appointment) -> None:
+        with self._lock:
+            if appointment.id in self._appointments:
+                raise ValueError("Appointment ID already exists")
+            self._appointments[appointment.id] = appointment.model_copy(deep=True)
+
+    def record_check_in(self, visitor: Person, appointment: Appointment,
+                        permission: AccessPermission) -> None:
+        """Service validates under transaction; all copies precede writes."""
+        with self._lock:
+            visitor_copy = visitor.model_copy(deep=True)
+            appointment_copy = appointment.model_copy(deep=True)
+            permission_copy = permission.model_copy(deep=True)
+            self._people[visitor.id] = visitor_copy
+            self._appointments[appointment.id] = appointment_copy
+            self._permissions.append(permission_copy)
+
     def add_guest_permission(self, guest: Person, permission: AccessPermission) -> None:
         """Called inside a transaction after service validation."""
         with self._lock:
@@ -84,8 +133,12 @@ def create_demo_repository() -> InMemoryRepository:
             Zone(id="floor-5", name="Residential Floor 5",
                  zone_type=ZoneType.RESIDENTIAL, floor=5),
             Zone(id="lobby", name="Lobby", zone_type=ZoneType.LOBBY, floor=0),
+            Zone(id="office-106", name="Atlas Dental - Office 106",
+                 zone_type=ZoneType.BUSINESS, floor=1),
         ],
         work_orders=[WorkOrder(id="wo-001", contractor_id="contractor-1",
                               description="Repair Elevator 2",
                               allowed_zone_ids=["machine-room"], active=True)],
+        businesses=[Business(id="atlas-dental", name="Atlas Dental",
+                             destination_zone_ids=["office-106"])],
     )

@@ -11,6 +11,11 @@ from app.services.access_engine import guest_zone_allowed
 from app.services.errors import DomainError
 
 
+def list_guest_permissions(repository: Repository) -> list[AccessPermission]:
+    return [permission for permission in repository.list_permissions()
+            if permission.appointment_id is None]
+
+
 def create_invitation(repository: Repository, payload: GuestInviteInput, now: datetime):
     payload = GuestInviteInput.model_validate(payload.model_dump())
     now = TypeAdapter(UTCTimestamp).validate_python(now)
