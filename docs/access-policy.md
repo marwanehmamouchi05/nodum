@@ -3,6 +3,11 @@
 This prototype uses one process-local repository. There is no database, AI
 decision logic, hardware actuation, or caller authentication.
 
+The optional [agent layer](agent-layer.md) uses Bedrock to interpret requests and
+explain results. It cannot authorize access: check_access calls this deterministic
+policy, and proposed writes require explicit confirmation through existing domain
+services. Model explanations are never permission credentials.
+
 ## Architecture
 
 - FastAPI routes parse inputs and delegate to services. Dependencies supply the

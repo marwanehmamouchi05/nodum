@@ -7,6 +7,8 @@ from app.api.access import router as access_router
 from app.api.guests import router as guests_router
 from app.api.appointments import router as appointments_router
 from app.api.emergencies import router as emergencies_router
+from app.api.agent import router as agent_router
+from app.services.agent_actions import PendingActionStore
 
 
 app = FastAPI(
@@ -19,7 +21,9 @@ app.include_router(access_router)
 app.include_router(guests_router)
 app.include_router(appointments_router)
 app.include_router(emergencies_router)
+app.include_router(agent_router)
 app.state.repository = create_demo_repository()
+app.state.agent_actions = PendingActionStore()
 
 
 @app.exception_handler(DomainError)
