@@ -3,6 +3,7 @@ from datetime import datetime
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
+from app.api.guests import guest_permissions
 from app.models.access import AccessRequest
 from app.models.building import Person, PersonRole, WorkOrder, Zone, ZoneType
 from app.services.access_engine import evaluate_access
@@ -23,7 +24,13 @@ people = {
         name="Ahmed",
         role=PersonRole.CONTRACTOR,
     ),
+    "guest-1": Person(
+        id="guest-1",
+        name="Sara",
+        role=PersonRole.GUEST,
+    ),
 }
+
 
 zones = {
     "machine-room": Zone(
@@ -40,6 +47,7 @@ zones = {
     ),
 }
 
+
 work_orders = [
     WorkOrder(
         id="wo-001",
@@ -54,12 +62,20 @@ work_orders = [
 @router.post("/check")
 def check_access(payload: AccessCheckInput):
     person = people.get(payload.person_id)
+
     if not person:
-        raise HTTPException(status_code=404, detail="Person not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Person not found",
+        )
 
     zone = zones.get(payload.zone_id)
+
     if not zone:
-        raise HTTPException(status_code=404, detail="Zone not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Zone not found",
+        )
 
     request = AccessRequest(
         person_id=payload.person_id,
@@ -72,6 +88,6 @@ def check_access(payload: AccessCheckInput):
         request=request,
         person=person,
         zone=zone,
-        permissions=[],
+        permissions=guest_permissions,
         work_orders=work_orders,
     )
