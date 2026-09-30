@@ -51,6 +51,7 @@ exchange service is implemented and tested; inbound live delivery remains gated.
 | Endpoint | Purpose / protection |
 | --- | --- |
 | `POST /ring/token-exchange` | Exchange code from a verified Ring transport adapter; returns only status |
+| `GET /ring/link?nonce=...&time=...` | Ring browser redirect; required query parameters; same authenticated claim service |
 | `POST /ring/link` | `{nonce, time}`; verified manager/responder session; identity never comes from the body |
 | `GET /ring/accounts/{account_id}/devices` | Discover devices for the linked account's owner |
 | `POST /ring/webhooks` | Public signed webhook receipt, max 1 MiB; no synchronous network/emergency calls |
@@ -67,10 +68,20 @@ proxy headers. Only existing managers/responders may link and manage building in
 inbound delivery contract and an authenticated adapter is supplied. Override this
 FastAPI dependency from the deployment composition layer once verified. Never
 configure an unverified guessed webhook envelope as the token callback.
-The Account Link URL must point to a future sign-in UI, not directly to this API.
+The Account Link URL must provide sign-in before account claiming. The GET API
+now accepts Ring's documented redirect parameters but does not provide a login UI
+or bypass authentication: a well-formed redirect still returns 503 until the
+authentication adapter is configured. The POST JSON completion API remains compatible.
 Tests override these dependencies with trusted fixtures; deployment does not.
 
 ## Events and deterministic safety
+
+The [generic building inventory](building-integrations.md) can import a device
+returned by this owner-authenticated discovery service through
+`POST /building/ring/accounts/{account_id}/devices/{device_id}/register`.
+It remains read-only sensing inventory, clearly separate from simulator actuators.
+Verified motion/doorbell event IDs may supply journey arrival context but never
+identity proof, permission or confirmed indoor location.
 
 Normalized signals cover motion, doorbell button, contact open/closed, flood
 detected/cleared, freeze detected/cleared, tamper detected/cleared, device

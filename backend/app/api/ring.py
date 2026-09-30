@@ -2,8 +2,10 @@
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Request
-from pydantic import BaseModel, ConfigDict
+from fastapi import APIRouter, Depends, Query, Request
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from pydantic import BaseModel, ConfigDict, ValidationError
 from starlette.concurrency import run_in_threadpool
 
 from app.api.dependencies import get_repository, utc_now
@@ -47,6 +49,27 @@ def token_exchange(service: Service, now: Now,
 @router.post("/link")
 def claim_account(payload: RingLinkInput, principal: Principal, service: Service, now: Now):
     return service.claim(payload, principal, now)
+
+
+def link_redirect_input(nonce: Annotated[str, Query()],
+                        time: Annotated[str, Query(pattern=r"^[0-9]+$", max_length=20)]):
+    # Query values arrive as strings; retain the existing strict body/domain model
+    # and its nonce constraints rather than weakening it to coerce JSON inputs.
+    try:
+        return RingLinkInput(nonce=nonce, time=int(time))
+    except ValidationError as exc:
+        raise RequestValidationError([
+            dict(error, loc=("query", *error["loc"])) for error in exc.errors()
+        ]) from None
+
+
+@router.get("/link")
+def claim_account_redirect(payload: Annotated[RingLinkInput, Depends(link_redirect_input)],
+                           principal: Principal, service: Service, now: Now):
+    """Handle Ring's browser redirect only after verified Nodum sign-in."""
+    return JSONResponse(service.claim(payload, principal, now), headers={
+        "Cache-Control": "no-store", "Referrer-Policy": "no-referrer",
+    })
 
 
 @router.get("/accounts/{account_id}/devices")

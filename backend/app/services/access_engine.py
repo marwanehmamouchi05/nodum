@@ -3,7 +3,8 @@
 Precedence: context/emergency validation -> manager/emergency override ->
 affected-zone emergency restrictions -> contractor work
 orders only -> guest permissions in guest-safe zones -> checked-in business
-visitor permissions in their exact destination -> default deny.
+visitor permissions in their exact destination (or explicit ground-floor lobby
+journey transit after that destination passes the same policy) -> default deny.
 Time windows are half-open: valid_from <= requested_at < valid_until.
 """
 from pydantic import ValidationError
@@ -31,6 +32,7 @@ def evaluate_access(
     appointments: list[Appointment] | None = None,
     businesses: list[Business] | None = None,
     emergencies: list[EmergencyIncident] | None = None,
+    journey_destination: Zone | None = None,
 ) -> AccessDecision:
     def deny(reason):
         return AccessDecision(allowed=False, reason=reason)
@@ -40,6 +42,8 @@ def evaluate_access(
         request = AccessRequest.model_validate(request.model_dump())
         person = Person.model_validate(person.model_dump())
         zone = Zone.model_validate(zone.model_dump())
+        if journey_destination is not None:
+            journey_destination = Zone.model_validate(journey_destination.model_dump())
     except (ValidationError, ValueError, TypeError, AttributeError):
         return deny("Invalid access context.")
     if request.person_id != person.id or request.zone_id != zone.id:
@@ -84,6 +88,21 @@ def evaluate_access(
         return deny("No active work order authorizes access to this zone.")
 
     if person.role == PersonRole.BUSINESS_VISITOR:
+        # Narrow, opt-in transit context used only by the journey service. This
+        # never expands stored guest/business permissions or ordinary access checks.
+        # Both this lobby's emergency checks above and the destination policy must
+        # allow transit. No residential/technical lobby or other floor is admitted.
+        if (journey_destination is not None and zone.zone_type == ZoneType.LOBBY
+                and zone.floor == 0 and not zone.restricted):
+            destination_decision = evaluate_access(
+                request.model_copy(update={"zone_id": journey_destination.id}), person,
+                journey_destination, permissions, work_orders, appointments=appointments,
+                businesses=businesses, emergencies=emergencies,
+            )
+            if destination_decision.allowed:
+                return AccessDecision(allowed=True, permission=destination_decision.permission,
+                                      reason=f"Journey transit to authorized destination {journey_destination.id}.")
+            return deny("Journey destination is not currently authorized.")
         if zone.restricted or zone.zone_type != ZoneType.BUSINESS:
             return deny("Business visitors may only access their business destination.")
     elif person.role != PersonRole.GUEST or not guest_zone_allowed(zone):

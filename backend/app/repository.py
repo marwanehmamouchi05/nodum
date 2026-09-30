@@ -14,10 +14,40 @@ from app.models.building import Person, PersonRole, WorkOrder, Zone, ZoneType
 from app.models.business import Appointment, Business
 from app.models.emergency import EmergencyIncident
 from app.models.ring import RingAccount, RingEvent
+from app.models.integrations import (BuildingIntegration, BuildingDevice, DeviceMapping, DeviceState, CredentialBinding, CredentialEvent, ActuatorEvent, Journey, JourneyTransition)
+
 
 
 class Repository(Protocol):
     """Service-facing contract; implementations must serialize transactions."""
+
+    def get_integration(self, identifier: str) -> BuildingIntegration | None: ...
+    def list_building_integrations(self) -> list[BuildingIntegration]: ...
+    def save_integration(self, record: BuildingIntegration) -> None: ...
+    def get_device(self, identifier: str) -> BuildingDevice | None: ...
+    def list_building_devices(self) -> list[BuildingDevice]: ...
+    def save_device(self, record: BuildingDevice) -> None: ...
+    def get_device_mapping(self, identifier: str) -> DeviceMapping | None: ...
+    def list_device_zone_mappings(self) -> list[DeviceMapping]: ...
+    def save_device_mapping(self, record: DeviceMapping) -> None: ...
+    def get_device_state(self, identifier: str) -> DeviceState | None: ...
+    def list_device_states(self) -> list[DeviceState]: ...
+    def save_device_state(self, record: DeviceState) -> None: ...
+    def get_credential(self, identifier: str) -> CredentialBinding | None: ...
+    def list_credentials(self) -> list[CredentialBinding]: ...
+    def save_credential(self, record: CredentialBinding) -> None: ...
+    def get_credential_event(self, identifier: str) -> CredentialEvent | None: ...
+    def list_credential_events(self) -> list[CredentialEvent]: ...
+    def save_credential_event(self, record: CredentialEvent) -> None: ...
+    def get_actuator_event(self, identifier: str) -> ActuatorEvent | None: ...
+    def list_actuator_events(self) -> list[ActuatorEvent]: ...
+    def save_actuator_event(self, record: ActuatorEvent) -> None: ...
+    def get_journey(self, identifier: str) -> Journey | None: ...
+    def list_journeys(self) -> list[Journey]: ...
+    def save_journey(self, record: Journey) -> None: ...
+    def get_journey_transition(self, identifier: str) -> JourneyTransition | None: ...
+    def list_journey_transitions(self) -> list[JourneyTransition]: ...
+    def save_journey_transition(self, record: JourneyTransition) -> None: ...
 
     def ring_receipt_transaction(self) -> ContextManager["Repository"]: ...
     def find_ring_event(self, environment: str, account_id: str, request_id: str, event_id: str) -> RingEvent | None: ...
@@ -75,6 +105,16 @@ class InMemoryRepository:
         self._pending_actions: dict[str, PendingAction] = {}
         self._ring_accounts: dict[str, RingAccount] = {}
         self._ring_events: dict[str, RingEvent] = {}
+        self._building_integrations: dict[str, BuildingIntegration] = {}
+        self._building_devices: dict[str, BuildingDevice] = {}
+        self._device_zone_mappings: dict[str, DeviceMapping] = {}
+        self._device_states: dict[str, DeviceState] = {}
+        self._credentials: dict[str, CredentialBinding] = {}
+        self._credential_events: dict[str, CredentialEvent] = {}
+        self._actuator_events: dict[str, ActuatorEvent] = {}
+        self._journeys: dict[str, Journey] = {}
+        self._journey_transitions: dict[str, JourneyTransition] = {}
+
 
     @contextmanager
     def transaction(self):
@@ -235,8 +275,126 @@ class InMemoryRepository:
             self._ring_events[record.id] = RingEvent.model_validate(record.model_dump())
 
 
+    def get_integration(self, identifier: str) -> BuildingIntegration | None:
+        with self._lock:
+            record = self._building_integrations.get(identifier)
+            return record.model_copy(deep=True) if record else None
+
+    def list_building_integrations(self) -> list[BuildingIntegration]:
+        with self._lock:
+            return [self._building_integrations[key].model_copy(deep=True) for key in sorted(self._building_integrations)]
+
+    def save_integration(self, record: BuildingIntegration) -> None:
+        with self._lock:
+            self._building_integrations[record.id] = BuildingIntegration.model_validate(record.model_dump())
+
+    def get_device(self, identifier: str) -> BuildingDevice | None:
+        with self._lock:
+            record = self._building_devices.get(identifier)
+            return record.model_copy(deep=True) if record else None
+
+    def list_building_devices(self) -> list[BuildingDevice]:
+        with self._lock:
+            return [self._building_devices[key].model_copy(deep=True) for key in sorted(self._building_devices)]
+
+    def save_device(self, record: BuildingDevice) -> None:
+        with self._lock:
+            self._building_devices[record.id] = BuildingDevice.model_validate(record.model_dump())
+
+    def get_device_mapping(self, identifier: str) -> DeviceMapping | None:
+        with self._lock:
+            record = self._device_zone_mappings.get(identifier)
+            return record.model_copy(deep=True) if record else None
+
+    def list_device_zone_mappings(self) -> list[DeviceMapping]:
+        with self._lock:
+            return [self._device_zone_mappings[key].model_copy(deep=True) for key in sorted(self._device_zone_mappings)]
+
+    def save_device_mapping(self, record: DeviceMapping) -> None:
+        with self._lock:
+            self._device_zone_mappings[record.id] = DeviceMapping.model_validate(record.model_dump())
+
+    def get_device_state(self, identifier: str) -> DeviceState | None:
+        with self._lock:
+            record = self._device_states.get(identifier)
+            return record.model_copy(deep=True) if record else None
+
+    def list_device_states(self) -> list[DeviceState]:
+        with self._lock:
+            return [self._device_states[key].model_copy(deep=True) for key in sorted(self._device_states)]
+
+    def save_device_state(self, record: DeviceState) -> None:
+        with self._lock:
+            self._device_states[record.id] = DeviceState.model_validate(record.model_dump())
+
+    def get_credential(self, identifier: str) -> CredentialBinding | None:
+        with self._lock:
+            record = self._credentials.get(identifier)
+            return record.model_copy(deep=True) if record else None
+
+    def list_credentials(self) -> list[CredentialBinding]:
+        with self._lock:
+            return [self._credentials[key].model_copy(deep=True) for key in sorted(self._credentials)]
+
+    def save_credential(self, record: CredentialBinding) -> None:
+        with self._lock:
+            self._credentials[record.id] = CredentialBinding.model_validate(record.model_dump())
+
+    def get_credential_event(self, identifier: str) -> CredentialEvent | None:
+        with self._lock:
+            record = self._credential_events.get(identifier)
+            return record.model_copy(deep=True) if record else None
+
+    def list_credential_events(self) -> list[CredentialEvent]:
+        with self._lock:
+            return [self._credential_events[key].model_copy(deep=True) for key in sorted(self._credential_events)]
+
+    def save_credential_event(self, record: CredentialEvent) -> None:
+        with self._lock:
+            self._credential_events[record.id] = CredentialEvent.model_validate(record.model_dump())
+
+    def get_actuator_event(self, identifier: str) -> ActuatorEvent | None:
+        with self._lock:
+            record = self._actuator_events.get(identifier)
+            return record.model_copy(deep=True) if record else None
+
+    def list_actuator_events(self) -> list[ActuatorEvent]:
+        with self._lock:
+            return [self._actuator_events[key].model_copy(deep=True) for key in sorted(self._actuator_events)]
+
+    def save_actuator_event(self, record: ActuatorEvent) -> None:
+        with self._lock:
+            self._actuator_events[record.id] = ActuatorEvent.model_validate(record.model_dump())
+
+    def get_journey(self, identifier: str) -> Journey | None:
+        with self._lock:
+            record = self._journeys.get(identifier)
+            return record.model_copy(deep=True) if record else None
+
+    def list_journeys(self) -> list[Journey]:
+        with self._lock:
+            return [self._journeys[key].model_copy(deep=True) for key in sorted(self._journeys)]
+
+    def save_journey(self, record: Journey) -> None:
+        with self._lock:
+            self._journeys[record.id] = Journey.model_validate(record.model_dump())
+
+    def get_journey_transition(self, identifier: str) -> JourneyTransition | None:
+        with self._lock:
+            record = self._journey_transitions.get(identifier)
+            return record.model_copy(deep=True) if record else None
+
+    def list_journey_transitions(self) -> list[JourneyTransition]:
+        with self._lock:
+            return [self._journey_transitions[key].model_copy(deep=True) for key in sorted(self._journey_transitions)]
+
+    def save_journey_transition(self, record: JourneyTransition) -> None:
+        with self._lock:
+            self._journey_transitions[record.id] = JourneyTransition.model_validate(record.model_dump())
+
+
 def create_demo_repository() -> InMemoryRepository:
-    return InMemoryRepository(
+    repository = InMemoryRepository(
         people=[
             Person(id="contractor-1", name="Ahmed", role=PersonRole.CONTRACTOR),
             Person(id="guest-1", name="Sara", role=PersonRole.GUEST),
@@ -267,3 +425,8 @@ def create_demo_repository() -> InMemoryRepository:
         businesses=[Business(id="atlas-dental", name="Atlas Dental",
                              destination_zone_ids=["office-106"])],
     )
+    from app.building_demo import demo_records
+    for method, records in demo_records():
+        for record in records:
+            getattr(repository, method)(record)
+    return repository

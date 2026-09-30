@@ -1,5 +1,12 @@
 # nodum
-Nodum is an AI operating system for smart buildings, combining Ring and AWS to manage access, visitors, businesses, maintenance, emergencies, and intelligent building workflows through agentic AI and policy-based automation.
+Nodum is the intelligent operating system for buildings, combining Ring sensing, AWS AI orchestration, and deterministic policies for visitors, businesses, maintenance and emergencies.
+
+The [building connector and journey foundation](docs/building-integrations.md)
+adds persistent device mappings and software simulators for access control,
+credentials, elevators and wayfinding. The Atlas Dental backend demo verifies
+an appointment before simulated entrance, Floor 1 and navigation actions.
+Without connectors it reports manual actions. Other manufacturers are not yet
+integrated; Ring remains the real Partner API integration layer.
 
 See [the access and emergency policy](docs/access-policy.md) for the current
 repository architecture, policy precedence, test commands, and deployment limits.

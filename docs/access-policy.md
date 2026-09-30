@@ -2,7 +2,8 @@
 
 The running backend uses a persistent SQLite repository. An in-memory
 implementation remains for isolated tests. There is no AI decision logic,
-hardware actuation, or caller authentication.
+physical hardware actuation, or caller authentication. Policy-guarded software
+simulator commands are described in [building integrations](building-integrations.md).
 
 The optional [agent layer](agent-layer.md) uses Bedrock to interpret requests and
 explain results. It cannot authorize access: check_access calls this deterministic
@@ -30,6 +31,17 @@ services. Model explanations are never permission credentials.
   Creation, additive assignments, and resolution each persist the incident and
   its chronological audit history together under the same repository transaction.
   Access checks consume an emergency snapshot inside that transaction.
+
+## Journey transit policy
+
+Journey orchestration adds an explicit, narrow transit context: a checked-in
+business visitor may enter an unrestricted floor-0 lobby only if the exact
+destination passes the normal business policy. Context validation, manager/responder
+override, emergency restrictions and contractor work-order precedence run first.
+Both lobby and destination emergency state must permit the business visitor.
+Ordinary access requests and stored permissions are unchanged. Each journey
+command rechecks all authorized journey zones before dispatch; an adapter never
+grants permission. No residential or maintenance transit is inferred.
 
 ## Invitation policy
 

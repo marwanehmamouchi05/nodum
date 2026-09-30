@@ -56,6 +56,21 @@ The access engine still takes domain records and is completely storage-independe
 | pending_actions | Exact agent proposal arguments, actor, creation time, expiry |
 | ring_accounts | Environment-scoped Ring identity, encrypted tokens, owner/link state, UTC expiry |
 | ring_events | Signed webhook inbox, raw JSON, normalized signals, deduplication IDs, processing outcome |
+| building_integrations | Provider kind, simulation mode and enabled configuration |
+| building_devices | Inventory, capabilities, safe metadata and connection snapshot |
+| device_zone_mappings | Device scope and mapping operator/time |
+| device_states | Simulated lock, elevator and wayfinding state |
+| credentials | Person-bound simulated credential fingerprints |
+| credential_events | Scan resolutions and deterministic outcomes |
+| actuator_events | Issued simulator command audits and policy decisions |
+| journeys | Appointment context, authorized zones, steps and confirmed progress |
+| journey_transitions | Explicit confirmed simulator events |
+
+Migration 3 adds the nine building connector tables, a unique credential
+fingerprint index and a journey-transition index. Their JSON references are
+validated by services under repository transactions. It seeds four disabled
+simulator integrations, six devices/mappings/states and one resident demo card
+without overwriting existing configuration. See [building integrations](building-integrations.md).
 
 Migration 2 adds the Ring tables and unique delivery/event identity indexes without
 changing migration 1. Ring is optional and startup makes no Ring network requests.

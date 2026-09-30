@@ -13,6 +13,7 @@ from app.api.appointments import router as appointments_router
 from app.api.emergencies import router as emergencies_router
 from app.api.agent import router as agent_router
 from app.api.ring import router as ring_router
+from app.api.building import router as building_router
 from app.services.agent_actions import PendingActionStore
 
 
@@ -39,7 +40,7 @@ def create_app():
         allow_headers=["Authorization", "Content-Type", "X-CSRF-Token"],
     )
     for router in (access_router, guests_router, appointments_router,
-                   emergencies_router, agent_router, ring_router):
+                   emergencies_router, agent_router, ring_router, building_router):
         application.include_router(router)
 
     @application.exception_handler(DomainError)

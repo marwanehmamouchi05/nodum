@@ -16,6 +16,8 @@ from app.models.building import Person, Zone, WorkOrder
 from app.models.business import Appointment, Business
 from app.models.emergency import EmergencyIncident
 from app.models.ring import RingAccount, RingEvent
+from app.models.integrations import (BuildingIntegration, BuildingDevice, DeviceMapping, DeviceState, CredentialBinding, CredentialEvent, ActuatorEvent, Journey, JourneyTransition)
+
 from app.repository import create_demo_repository
 
 
@@ -40,6 +42,22 @@ class SQLiteRepository:
             for table, records in (
                 ("people", demo.list_people()), ("zones", demo.list_zones()),
                 ("businesses", demo.list_businesses()),
+            ):
+                for record in records:
+                    connection.execute(
+                        f"INSERT INTO {table} (id, data) VALUES (?, ?) ON CONFLICT(id) DO NOTHING",
+                        (record.id, record.model_dump_json()),
+                    )
+            for table, records in (
+                ("building_integrations", demo.list_building_integrations()),
+                ("building_devices", demo.list_building_devices()),
+                ("device_zone_mappings", demo.list_device_zone_mappings()),
+                ("device_states", demo.list_device_states()),
+                ("credentials", demo.list_credentials()),
+                ("credential_events", demo.list_credential_events()),
+                ("actuator_events", demo.list_actuator_events()),
+                ("journeys", demo.list_journeys()),
+                ("journey_transitions", demo.list_journey_transitions()),
             ):
                 for record in records:
                     connection.execute(
@@ -244,3 +262,138 @@ class SQLiteRepository:
                 (environment, account_id, request_id, event_id),
             ).fetchone()
             return RingEvent.model_validate_json(row["data"]) if row else None
+
+    def get_integration(self, identifier: str) -> BuildingIntegration | None:
+        return self._get("building_integrations", identifier, BuildingIntegration)
+
+    def list_building_integrations(self) -> list[BuildingIntegration]:
+        return self._list("building_integrations", BuildingIntegration)
+
+    def save_integration(self, record: BuildingIntegration) -> None:
+        record = BuildingIntegration.model_validate(record.model_dump())
+        with self.database.transaction() as connection:
+            connection.execute(
+                "INSERT INTO building_integrations (id, data) VALUES (?, ?) "
+                "ON CONFLICT(id) DO UPDATE SET data=excluded.data",
+                (record.id, record.model_dump_json()),
+            )
+
+    def get_device(self, identifier: str) -> BuildingDevice | None:
+        return self._get("building_devices", identifier, BuildingDevice)
+
+    def list_building_devices(self) -> list[BuildingDevice]:
+        return self._list("building_devices", BuildingDevice)
+
+    def save_device(self, record: BuildingDevice) -> None:
+        record = BuildingDevice.model_validate(record.model_dump())
+        with self.database.transaction() as connection:
+            connection.execute(
+                "INSERT INTO building_devices (id, data) VALUES (?, ?) "
+                "ON CONFLICT(id) DO UPDATE SET data=excluded.data",
+                (record.id, record.model_dump_json()),
+            )
+
+    def get_device_mapping(self, identifier: str) -> DeviceMapping | None:
+        return self._get("device_zone_mappings", identifier, DeviceMapping)
+
+    def list_device_zone_mappings(self) -> list[DeviceMapping]:
+        return self._list("device_zone_mappings", DeviceMapping)
+
+    def save_device_mapping(self, record: DeviceMapping) -> None:
+        record = DeviceMapping.model_validate(record.model_dump())
+        with self.database.transaction() as connection:
+            connection.execute(
+                "INSERT INTO device_zone_mappings (id, data) VALUES (?, ?) "
+                "ON CONFLICT(id) DO UPDATE SET data=excluded.data",
+                (record.id, record.model_dump_json()),
+            )
+
+    def get_device_state(self, identifier: str) -> DeviceState | None:
+        return self._get("device_states", identifier, DeviceState)
+
+    def list_device_states(self) -> list[DeviceState]:
+        return self._list("device_states", DeviceState)
+
+    def save_device_state(self, record: DeviceState) -> None:
+        record = DeviceState.model_validate(record.model_dump())
+        with self.database.transaction() as connection:
+            connection.execute(
+                "INSERT INTO device_states (id, data) VALUES (?, ?) "
+                "ON CONFLICT(id) DO UPDATE SET data=excluded.data",
+                (record.id, record.model_dump_json()),
+            )
+
+    def get_credential(self, identifier: str) -> CredentialBinding | None:
+        return self._get("credentials", identifier, CredentialBinding)
+
+    def list_credentials(self) -> list[CredentialBinding]:
+        return self._list("credentials", CredentialBinding)
+
+    def save_credential(self, record: CredentialBinding) -> None:
+        record = CredentialBinding.model_validate(record.model_dump())
+        with self.database.transaction() as connection:
+            connection.execute(
+                "INSERT INTO credentials (id, data) VALUES (?, ?) "
+                "ON CONFLICT(id) DO UPDATE SET data=excluded.data",
+                (record.id, record.model_dump_json()),
+            )
+
+    def get_credential_event(self, identifier: str) -> CredentialEvent | None:
+        return self._get("credential_events", identifier, CredentialEvent)
+
+    def list_credential_events(self) -> list[CredentialEvent]:
+        return self._list("credential_events", CredentialEvent)
+
+    def save_credential_event(self, record: CredentialEvent) -> None:
+        record = CredentialEvent.model_validate(record.model_dump())
+        with self.database.transaction() as connection:
+            connection.execute(
+                "INSERT INTO credential_events (id, data) VALUES (?, ?) "
+                "ON CONFLICT(id) DO UPDATE SET data=excluded.data",
+                (record.id, record.model_dump_json()),
+            )
+
+    def get_actuator_event(self, identifier: str) -> ActuatorEvent | None:
+        return self._get("actuator_events", identifier, ActuatorEvent)
+
+    def list_actuator_events(self) -> list[ActuatorEvent]:
+        return self._list("actuator_events", ActuatorEvent)
+
+    def save_actuator_event(self, record: ActuatorEvent) -> None:
+        record = ActuatorEvent.model_validate(record.model_dump())
+        with self.database.transaction() as connection:
+            connection.execute(
+                "INSERT INTO actuator_events (id, data) VALUES (?, ?) "
+                "ON CONFLICT(id) DO UPDATE SET data=excluded.data",
+                (record.id, record.model_dump_json()),
+            )
+
+    def get_journey(self, identifier: str) -> Journey | None:
+        return self._get("journeys", identifier, Journey)
+
+    def list_journeys(self) -> list[Journey]:
+        return self._list("journeys", Journey)
+
+    def save_journey(self, record: Journey) -> None:
+        record = Journey.model_validate(record.model_dump())
+        with self.database.transaction() as connection:
+            connection.execute(
+                "INSERT INTO journeys (id, data) VALUES (?, ?) "
+                "ON CONFLICT(id) DO UPDATE SET data=excluded.data",
+                (record.id, record.model_dump_json()),
+            )
+
+    def get_journey_transition(self, identifier: str) -> JourneyTransition | None:
+        return self._get("journey_transitions", identifier, JourneyTransition)
+
+    def list_journey_transitions(self) -> list[JourneyTransition]:
+        return self._list("journey_transitions", JourneyTransition)
+
+    def save_journey_transition(self, record: JourneyTransition) -> None:
+        record = JourneyTransition.model_validate(record.model_dump())
+        with self.database.transaction() as connection:
+            connection.execute(
+                "INSERT INTO journey_transitions (id, data) VALUES (?, ?) "
+                "ON CONFLICT(id) DO UPDATE SET data=excluded.data",
+                (record.id, record.model_dump_json()),
+            )

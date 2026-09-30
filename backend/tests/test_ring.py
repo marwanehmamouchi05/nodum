@@ -7,6 +7,7 @@ import hmac
 import json
 from unittest.mock import Mock
 from urllib.error import HTTPError, URLError
+from urllib.parse import urlencode
 
 from cryptography.fernet import Fernet
 import pytest
@@ -341,7 +342,7 @@ def test_restart_preserves_tokens_events_and_emergency(tmp_path, settings, remot
     assert second.process_event(key, PRINCIPAL, "utility-room", NOW) == result
     assert restarted.get_emergency(result.emergency_id).status == "active"
     with restarted.database.transaction() as connection:
-        assert [r[0] for r in connection.execute("SELECT version FROM schema_migrations ORDER BY version")] == [1, 2]
+        assert [r[0] for r in connection.execute("SELECT version FROM schema_migrations ORDER BY version")] == [1, 2, 3]
 
 
 def test_http_webhook_and_core_outage(api, service):
@@ -484,7 +485,12 @@ def test_schema_upgrade_preserves_existing_data(tmp_path, monkeypatch):
     migrations = database.MIGRATIONS
     monkeypatch.setattr(database, "MIGRATIONS", migrations[:1])
     repo = SQLiteRepository(url)
-    repo.initialize()
+    # Construct an actual v1 database without invoking today's v3 demo seeder.
+    repo.database.initialize()
+    from app.repository import create_demo_repository
+    for person in create_demo_repository().list_people():
+        with repo.database.transaction() as connection:
+            connection.execute("INSERT INTO people (id,data) VALUES (?,?)", (person.id, person.model_dump_json()))
     before = repo.list_people()
     monkeypatch.setattr(database, "MIGRATIONS", migrations)
     repo.initialize()
@@ -516,4 +522,90 @@ def test_nonoperators_cannot_claim(service, person):
         service.claim(RingLinkInput(time=timestamp, nonce=nonce_for(
             service.settings.signing_key, timestamp, ACCOUNT)),
             RingPrincipal(person_id=person, masked_account_identifier="x***x@test"), NOW)
+    service.client.confirm.assert_not_called()
+
+
+def redirect_url(service, *, offset=0, nonce=None):
+    timestamp = int(NOW.timestamp() * 1000) + offset
+    return "/ring/link?" + urlencode({
+        "nonce": nonce if nonce is not None else nonce_for(service.settings.signing_key, timestamp, ACCOUNT),
+        "time": timestamp,
+    })
+
+
+def test_get_link_is_documented_and_post_remains():
+    operations = app.openapi()["paths"]["/ring/link"]
+    assert {"get", "post"} <= operations.keys()
+    parameters = {p["name"]: p for p in operations["get"]["parameters"]}
+    for name in ("nonce", "time"):
+        assert parameters[name]["in"] == "query" and parameters[name]["required"]
+    assert "requestBody" not in operations["get"]
+
+
+def test_get_link_valid_redirect_uses_existing_verification(api, service):
+    app.dependency_overrides[get_ring_service] = lambda: service
+    app.dependency_overrides[require_ring_principal] = lambda: PRINCIPAL
+    service.receive_code("verified-code", NOW)
+    status, result = api("GET", redirect_url(service))
+    assert status == 200 and result == {"account_id": ACCOUNT, "status": "completed"}
+    timestamp = int(NOW.timestamp() * 1000)
+    service.client.confirm.assert_called_once_with(
+        "access-secret", PRINCIPAL.masked_account_identifier,
+        nonce_for(service.settings.signing_key, timestamp, ACCOUNT))
+    service.client.complete.assert_called_once()
+    assert service.repository.get_ring_account(service.account_key(ACCOUNT)).owner_id == PRINCIPAL.person_id
+    assert api("GET", redirect_url(service))[0] == 409  # Existing replay protection.
+
+
+@pytest.mark.parametrize("query", ["", "nonce=" + "x" * 43, "time=1790683200000"])
+def test_get_link_missing_parameters(api, service, query):
+    app.dependency_overrides[get_ring_service] = lambda: service
+    app.dependency_overrides[require_ring_principal] = lambda: PRINCIPAL
+    status, body = api("GET", "/ring/link" + ("?" + query if query else ""))
+    assert status == 422
+    assert all(error["loc"][0] == "query" for error in body["detail"])
+    service.client.confirm.assert_not_called()
+
+
+@pytest.mark.parametrize("nonce", ["", "short", "=" * 43, "x" * 44])
+def test_get_link_invalid_nonce_format(api, service, nonce):
+    app.dependency_overrides[get_ring_service] = lambda: service
+    app.dependency_overrides[require_ring_principal] = lambda: PRINCIPAL
+    assert api("GET", redirect_url(service, nonce=nonce))[0] == 422
+    service.client.confirm.assert_not_called()
+
+
+def test_get_link_wrong_hmac_rejected(api, service):
+    app.dependency_overrides[get_ring_service] = lambda: service
+    app.dependency_overrides[require_ring_principal] = lambda: PRINCIPAL
+    service.receive_code("verified-code", NOW)
+    assert api("GET", redirect_url(service, nonce="x" * 43))[0] == 409
+    assert service.repository.get_ring_account(service.account_key(ACCOUNT)).status == "unclaimed"
+    service.client.confirm.assert_not_called()
+
+
+@pytest.mark.parametrize("offset", [-600001, 1])
+def test_get_link_expired_or_future_timestamp(api, service, offset):
+    app.dependency_overrides[get_ring_service] = lambda: service
+    app.dependency_overrides[require_ring_principal] = lambda: PRINCIPAL
+    service.receive_code("verified-code", NOW)
+    assert api("GET", redirect_url(service, offset=offset))[0] == 400
+    service.client.confirm.assert_not_called()
+    assert service.repository.get_ring_account(service.account_key(ACCOUNT)).status == "unclaimed"
+
+
+@pytest.mark.parametrize("time", ["", "not-a-time", "1.0", "-1"])
+def test_get_link_invalid_time_format(api, service, time):
+    app.dependency_overrides[get_ring_service] = lambda: service
+    app.dependency_overrides[require_ring_principal] = lambda: PRINCIPAL
+    assert api("GET", "/ring/link?" + urlencode({"nonce": "x" * 43, "time": time}))[0] == 422
+    service.client.confirm.assert_not_called()
+
+
+def test_get_link_cannot_bypass_sign_in(api, service):
+    app.dependency_overrides[get_ring_service] = lambda: service
+    service.receive_code("verified-code", NOW)
+    status, body = api("GET", redirect_url(service))
+    assert status == 503 and "authentication adapter" in body["detail"]
+    assert service.repository.get_ring_account(service.account_key(ACCOUNT)).owner_id is None
     service.client.confirm.assert_not_called()

@@ -47,6 +47,19 @@ MIGRATIONS = (
         "CREATE UNIQUE INDEX ring_event_identity ON ring_events "
         "(json_extract(data, '$.environment'), json_extract(data, '$.account_id'), json_extract(data, '$.event_id'))",
     )),
+    (3, (
+        "CREATE TABLE building_integrations (id TEXT PRIMARY KEY NOT NULL, data TEXT NOT NULL CHECK(json_valid(data)))",
+        "CREATE TABLE building_devices (id TEXT PRIMARY KEY NOT NULL, data TEXT NOT NULL CHECK(json_valid(data)))",
+        "CREATE TABLE device_zone_mappings (id TEXT PRIMARY KEY NOT NULL, data TEXT NOT NULL CHECK(json_valid(data)))",
+        "CREATE TABLE device_states (id TEXT PRIMARY KEY NOT NULL, data TEXT NOT NULL CHECK(json_valid(data)))",
+        "CREATE TABLE credentials (id TEXT PRIMARY KEY NOT NULL, data TEXT NOT NULL CHECK(json_valid(data)))",
+        "CREATE TABLE credential_events (id TEXT PRIMARY KEY NOT NULL, data TEXT NOT NULL CHECK(json_valid(data)))",
+        "CREATE TABLE actuator_events (id TEXT PRIMARY KEY NOT NULL, data TEXT NOT NULL CHECK(json_valid(data)))",
+        "CREATE TABLE journeys (id TEXT PRIMARY KEY NOT NULL, data TEXT NOT NULL CHECK(json_valid(data)))",
+        "CREATE TABLE journey_transitions (id TEXT PRIMARY KEY NOT NULL, data TEXT NOT NULL CHECK(json_valid(data)))",
+        "CREATE UNIQUE INDEX credential_fingerprint ON credentials (json_extract(data, '$.fingerprint'))",
+        "CREATE INDEX transition_journey ON journey_transitions (json_extract(data, '$.journey_id'))",
+    )),
 )
 
 
