@@ -2,7 +2,7 @@
 Nodum is an AI operating system for smart buildings, combining Ring and AWS to manage access, visitors, businesses, maintenance, emergencies, and intelligent building workflows through agentic AI and policy-based automation.
 
 See [the access and emergency policy](docs/access-policy.md) for the current
-in-memory architecture, policy precedence, test commands, and deployment limits.
+repository architecture, policy precedence, test commands, and deployment limits.
 
 The backend supports guest invitations, business appointments/check-in, and
 deterministic emergency incidents with responder assignments and resolution.
@@ -15,3 +15,8 @@ in eu-north-1 (development model: eu.amazon.nova-2-lite-v1:0) to interpret reque
 and call safe tools. AI explanations cannot authorize access. Mutations require
 review and confirmation and still pass through existing services. Bedrock outages
 do not disable the normal building APIs.
+
+SQLite persistence is enabled by default. DATABASE_URL=sqlite:///./nodum.db stores
+data in backend/nodum.db; startup initializes the schema and inserts missing demo
+records without resetting existing data. See [database setup and persistence](docs/persistence.md)
+for configuration, migrations, backups, and verification commands.

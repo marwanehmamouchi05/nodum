@@ -12,8 +12,18 @@ from app.repository import create_demo_repository
 NOW = datetime(2026, 9, 29, 12, tzinfo=timezone.utc)
 
 
+def pytest_addoption(parser):
+    parser.addoption("--repository-backend", choices=["memory", "sqlite"], default="memory")
+
+
 @pytest.fixture
-def repo():
+def repo(request, tmp_path):
+    if request.config.getoption("--repository-backend") == "sqlite":
+        from app.sqlite_repository import SQLiteRepository
+
+        repository = SQLiteRepository(f"sqlite:///{tmp_path / 'test.db'}")
+        repository.initialize()
+        return repository
     return create_demo_repository()
 
 

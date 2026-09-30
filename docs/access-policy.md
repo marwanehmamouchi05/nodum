@@ -1,7 +1,8 @@
 # Guest invitations, business appointments, emergencies, and access policy
 
-This prototype uses one process-local repository. There is no database, AI
-decision logic, hardware actuation, or caller authentication.
+The running backend uses a persistent SQLite repository. An in-memory
+implementation remains for isolated tests. There is no AI decision logic,
+hardware actuation, or caller authentication.
 
 The optional [agent layer](agent-layer.md) uses Bedrock to interpret requests and
 explain results. It cannot authorize access: check_access calls this deterministic
@@ -14,11 +15,12 @@ services. Model explanations are never permission credentials.
   repository and a timezone-aware UTC clock.
 - The invitation service validates authority, zones, identities, and overlap
   before registering the guest and storing the permission in one locked operation.
-- Services depend on the Repository protocol. InMemoryRepository owns people,
-  zones, permissions, work orders, businesses, appointments, and emergencies and returns
-  defensive copies.
-- Transactions serialize reads and writes within this process. They do not
-  provide general rollback; the service completes validation before writing.
+- Services depend on the Repository protocol. SQLiteRepository stores people,
+  zones, permissions, work orders, businesses, appointments, emergencies/history,
+  and pending agent actions; reads reconstruct validated models.
+- SQLite transactions serialize service validation and writes across connections
+  to the same database file and roll back failed operations. Nested scopes use
+  savepoints. InMemoryRepository retains its original lock-based test behavior.
 - The access engine receives explicit records and a request timestamp. It does
   not read the clock, repository, network, or AI output.
 - The appointment service schedules visits without permissions. Check-in validates
@@ -56,12 +58,12 @@ and at least one shared zone returns 409, including pending future permissions.
 This applies to repeated requests and invitations from different inviters.
 Disjoint zones and renewal exactly at expiry are allowed. Failed invitations do
 not partially register people or permissions. Duplicate checks and writes share
-the same lock, including concurrent HTTP requests in one process.
+the same transaction, including concurrent HTTP requests using the same database.
 
 Created permissions retain a deterministic content-derived ID, inviter ID,
 creation timestamp, reason, zone scope, and validity window. Old permissions are
-retained for inspection. This is inspectable permission history, not a durable
-or tamper-proof audit log. IDs are references, not authentication credentials.
+retained for inspection and survive restarts. This is persisted permission history,
+not a tamper-proof audit log. IDs are references, not authentication credentials.
 
 ## Exact engine precedence
 
@@ -297,12 +299,13 @@ Emergency management has the same caller-authentication limitation: a caller
 can claim a stored manager/responder ID. Incident resolution is a recorded operator
 assertion, not sensor confirmation that a physical hazard is cleared. The prototype
 does not control evacuation, egress, fire alarms, or physical locks and is not a
-certified life-safety system. Audit history is inspectable in memory, not durable
-or tamper-proof; loss of process state also loses active incidents. Production
-operation needs durable emergency state, authenticated operators, and a reviewed
+certified life-safety system. Incident state and append-only application audit
+events persist in SQLite, but local database access can tamper with them. Production
+operation needs protected backups, authenticated operators, and a reviewed
 hardware/egress safety design.
 
-State and audit history disappear on restart and are not shared between workers.
-Use one process for this prototype. Revocation, persistent decision auditing,
+State and incident history survive restart and are shared by connections using
+the same SQLite file. See [persistence](persistence.md) for initialization,
+transaction semantics, and backup limitations. Revocation, access-decision auditing,
 tenant isolation, rate limits, work-order scheduling, and emergency verification
-remain future work. No database or integration has been introduced here.
+remain future work.

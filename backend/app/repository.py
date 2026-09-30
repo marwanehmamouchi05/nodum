@@ -1,13 +1,15 @@
-"""Process-local repository with serialized invitation validation and writes.
+"""Repository contract and in-memory test implementation.
 
-Copies at the boundary prevent accidental mutations. Swap the API dependency
-when adding persistence; the access engine has no repository dependency.
+SQLiteRepository implements this interface for the running application.
+Copies at the boundary prevent accidental mutations; the access engine has no
+repository dependency.
 """
 from contextlib import contextmanager
 from threading import RLock
 from typing import ContextManager, Iterable, Protocol
 
 from app.models.access import AccessPermission
+from app.models.agent import PendingAction
 from app.models.building import Person, PersonRole, WorkOrder, Zone, ZoneType
 from app.models.business import Appointment, Business
 from app.models.emergency import EmergencyIncident
@@ -35,6 +37,10 @@ class Repository(Protocol):
     def list_emergencies(self) -> list[EmergencyIncident]: ...
     def add_emergency(self, incident: EmergencyIncident) -> None: ...
     def update_emergency(self, incident: EmergencyIncident) -> None: ...
+    def get_pending_action(self, action_id: str) -> PendingAction | None: ...
+    def list_pending_actions(self) -> list[PendingAction]: ...
+    def add_pending_action(self, action: PendingAction) -> None: ...
+    def delete_pending_action(self, action_id: str) -> None: ...
 
 
 class InMemoryRepository:
@@ -56,6 +62,7 @@ class InMemoryRepository:
         self._businesses = {b.id: b.model_copy(deep=True) for b in businesses}
         self._appointments = {a.id: a.model_copy(deep=True) for a in appointments}
         self._emergencies = {e.emergency_id: e.model_copy(deep=True) for e in emergencies}
+        self._pending_actions: dict[str, PendingAction] = {}
 
     @contextmanager
     def transaction(self):
@@ -148,6 +155,26 @@ class InMemoryRepository:
             if incident.emergency_id not in self._emergencies:
                 raise ValueError("Emergency not found")
             self._emergencies[incident.emergency_id] = incident.model_copy(deep=True)
+
+    def get_pending_action(self, action_id: str) -> PendingAction | None:
+        with self._lock:
+            action = self._pending_actions.get(action_id)
+            return action.model_copy(deep=True) if action else None
+
+    def list_pending_actions(self) -> list[PendingAction]:
+        with self._lock:
+            return [self._pending_actions[key].model_copy(deep=True)
+                    for key in sorted(self._pending_actions)]
+
+    def add_pending_action(self, action: PendingAction) -> None:
+        with self._lock:
+            if action.id in self._pending_actions:
+                raise ValueError("Pending action ID already exists")
+            self._pending_actions[action.id] = action.model_copy(deep=True)
+
+    def delete_pending_action(self, action_id: str) -> None:
+        with self._lock:
+            self._pending_actions.pop(action_id, None)
 
     def add_guest_permission(self, guest: Person, permission: AccessPermission) -> None:
         """Called inside a transaction after service validation."""

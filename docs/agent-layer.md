@@ -19,15 +19,15 @@ whether a person may enter a zone at the time of the check.
   availability or AWS credentials.
 - Read tools delegate to existing services or defensive repository reads. Write
   tools only produce proposals. No business rules are reimplemented in the agent.
-- The application owns a bounded, locked in-memory pending-action store. It stores
-  only short-lived proposals, not copies of building entities.
+- The application owns a bounded pending-action service backed by the shared
+  SQLite repository. Short-lived proposals survive restarts while still valid.
 - An explicit confirmation endpoint consumes a proposal once and invokes the
   existing domain service with its exact stored arguments and fresh server time.
   Service validation runs again against current state. Confirmation itself needs
   no AI and is not in the model's tool registry.
 
 No Bedrock Agents/AgentCore resources, Lambda functions, external agent framework,
-database, deployment, or hardware integration are required for this implementation.
+cloud database, deployment, or hardware integration are required.
 
 ## Configuration
 
@@ -128,8 +128,10 @@ POST /agent/actions/{action_id}/confirm:
 The endpoint does not accept replacement arguments. The proposal expires after
 five minutes; repeated/concurrent confirmations cannot repeat the write.
 An action is consumed before execution, including domain failures, so failed
-actions require a new proposal. This is at-most-once consumption in one process,
-not durable exactly-once delivery. Repeated identical pending proposals are
+actions require a new proposal. Consumption commits in SQLite before domain
+execution, preventing replay across processes/restarts. A crash between consumption
+and execution can lose an action without applying it; this is not exactly-once
+delivery. Repeated identical pending proposals are
 deduplicated for that actor. The store retains at most 1,000 unexpired actions.
 
 The agent requires inviter ID to match the request actor. Agent appointment
@@ -173,5 +175,6 @@ until identity, privacy scoping, and rate limits are implemented.
 
 Tool/model counts and timeouts bound each request, but there is no account-wide
 rate limit or cost budget in application code. Multiple requests may still incur
-cost or exhaust worker threads. Proposals and building state are process-local
-and disappear on restart; use one backend process for this prototype.
+cost or exhaust worker threads. Proposals and building state persist in the
+configured SQLite file. SQLite serializes writes and is intended for this small
+local deployment; see [persistence](persistence.md) for storage limits and backups.

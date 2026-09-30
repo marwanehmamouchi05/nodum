@@ -144,3 +144,13 @@ vite.config.ts.timestamp-*
 .venv/
 __pycache__/
 *.pyc
+
+# Local SQLite databases and journaling files
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite-journal

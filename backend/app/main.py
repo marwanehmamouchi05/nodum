@@ -1,6 +1,7 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-from app.repository import create_demo_repository
+from app.sqlite_repository import SQLiteRepository
 from app.services.errors import DomainError
 
 from app.api.access import router as access_router
@@ -11,9 +12,19 @@ from app.api.agent import router as agent_router
 from app.services.agent_actions import PendingActionStore
 
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    repository = SQLiteRepository()
+    repository.initialize()
+    app.state.repository = repository
+    app.state.agent_actions = PendingActionStore(repository)
+    yield
+
+
 app = FastAPI(
     title="Nodum API",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
 
@@ -22,8 +33,6 @@ app.include_router(guests_router)
 app.include_router(appointments_router)
 app.include_router(emergencies_router)
 app.include_router(agent_router)
-app.state.repository = create_demo_repository()
-app.state.agent_actions = PendingActionStore()
 
 
 @app.exception_handler(DomainError)
