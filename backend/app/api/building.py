@@ -32,6 +32,18 @@ Journeys = Annotated[JourneyService, Depends(get_journey_service)]
 Now = Annotated[datetime, Depends(utc_now)]
 
 
+@router.get("/catalog")
+def catalog(service: Building):
+    """Read-only frontend reference data; never expose credential fingerprints."""
+    with service.repo.transaction():
+        return {
+            "people": service.repo.list_people(), "zones": service.repo.list_zones(),
+            "businesses": service.repo.list_businesses(), "work_orders": service.repo.list_work_orders(),
+            "credentials": [{"id": c.id, "kind": c.kind, "person_id": c.person_id, "active": c.active}
+                            for c in service.repo.list_credentials()],
+        }
+
+
 class IntegrationRegistration(IntegrationInput):
     actor_id: NonEmptyString
 

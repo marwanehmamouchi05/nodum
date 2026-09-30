@@ -1,75 +1,50 @@
-# React + TypeScript + Vite
+# Nodum frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+React + TypeScript building operations interface. No new runtime dependencies.
 
-Currently, two official plugins are available:
+## Local startup
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Copy `.env.example` to `.env.local` and configure `VITE_API_BASE_URL` (default
+`http://127.0.0.1:8000`). Run `npm ci`, then `npm run dev` in this directory.
+Set the backend `CORS_ALLOWED_ORIGINS` to the exact frontend origin, for example
+`http://localhost:5173`. Origins using `127.0.0.1` and `localhost` are different.
 
-## React Compiler
+For an authenticated cross-origin gateway, set `VITE_API_USE_CREDENTIALS=true`
+and configure backend `CORS_ALLOW_CREDENTIALS=true` with an explicit allowed
+origin. This does not implement authentication or the Ring session adapter.
+Never put AWS/Ring secrets in Vite variables: they are public build-time values.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Production API URL: `https://nodum-production.up.railway.app`. Rebuild after
+changing Vite variables, and deploy the read-only `/building/catalog` endpoint
+with the backend. The UI was verified against an isolated local SQLite database;
+no production data or deployment was changed.
 
-## Expanding the ESLint configuration
+## Verification
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- `npm run lint`
+- `npx tsc -b --pretty false`
+- `npm run build`
+- From `backend`: `.\.venv\Scripts\python.exe -B -m pytest -p no:cacheprovider tests/test_frontend_catalog.py tests/test_building_integrations.py --repository-backend=sqlite`
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+All nine screens were inspected at 390, 820 and 1440 pixels. Browser checks covered
+appointment creation/check-in, guest invitations, policy allow/deny, denied NFC
+scan, incident creation/assignment/resolution, device status/mapping, Ring
+unavailable, AI disabled, backend disconnection/recovery, and both Atlas Dental
+paths. The simulated journey produced four actuator events and two confirmed
+transitions; the manual path produced no actuator events.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Boundaries
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
-```
-
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
-```
+- Simulator actions and explicit location confirmations are labeled. Ring discovery
+  is real API integration code, but live linking requires the backend session and
+  token-delivery adapters. No connected Ring hardware is claimed.
+- AI text is explanatory. Structured policy results and confirmation-required
+  proposals are separate. The existing chat API is single-turn; conversation
+  display is local to the Assistant screen.
+- Access checks are browser-session history, while scans/actions/journeys/incidents
+  persist in the backend. Data refresh is manual; status is a snapshot.
+- Generic operations currently use a prototype operator context, not sign-in.
+  Deploy behind an authenticated gateway. This UI does not change access policies.
+- Device mappings replace the selected zone set. Forms currently support one
+  destination per guest invitation and one affected zone per new incident.
+- Google Fonts are optional; system sans-serif fallbacks apply offline.

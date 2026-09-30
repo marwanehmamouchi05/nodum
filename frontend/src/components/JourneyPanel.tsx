@@ -1,0 +1,27 @@
+import { useState } from 'react'
+import { api } from '../api/client'
+import type { Journey } from '../api/types'
+import type { PageProps } from '../pages/shared'
+import { key } from '../pages/shared'
+import { Badge, Empty, TaskButton } from './ui'
+import { date, human } from './format'
+
+export function JourneyPanel({ data, actor, refresh }: Pick<PageProps, 'data' | 'actor' | 'refresh'>) {
+  const [selected, setSelected] = useState('')
+  const [manual, setManual] = useState(false)
+  const [checking, setChecking] = useState(false)
+  const journeys = [...data.journeys].sort((a, b) => b.created_at.localeCompare(a.created_at))
+  const journey = journeys.find(j => j.id === selected) || journeys[0]
+  async function start() { setChecking(true); try { const j = await api.demo(key(), actor, !manual); setSelected(j.id); await refresh() } finally { setChecking(false) } }
+  const appointment = data.appointments.find(a => a.id === journey?.appointment_id)
+  const rows = journey ? [
+    { name: journey.arrival_ring_event_id ? 'Ring arrival context' : 'Arrival context · simulation', status: 'completed', note: journey.arrival_ring_event_id ? 'Verified event reference; not identity proof' : 'Explicit demo context. No Ring detection claimed.' },
+    { name: 'Visitor identified', status: 'completed', note: data.catalog.people.find(p => p.id === journey.person_id)?.name || journey.person_id },
+    { name: 'Appointment verified', status: appointment?.status === 'checked_in' ? 'completed' : 'pending', note: appointment ? `${appointment.visitor_name} · ${date(appointment.checked_in_at)}` : 'No appointment evidence loaded' },
+    { name: 'Deterministic authorization', status: journey.status === 'denied' || journey.status === 'failed' ? 'denied' : 'authorized', note: `Recorded journey decision · ${journey.authorized_zone_ids.map(id => data.catalog.zones.find(z => z.id === id)?.name || id).join(' / ')}` },
+    ...journey.steps.map(step => ({ name: human(step.kind), status: step.result.executed && data.actuators.some(a => a.id === step.result.actuator_event_id && a.executed) ? 'completed' : step.result.status === 'executed' ? 'pending' : step.result.status, note: step.result.executed ? data.actuators.some(a => a.id === step.result.actuator_event_id && a.executed) ? `Simulation · ${step.result.message}` : 'Awaiting actuator audit evidence; execution not confirmed in this view.' : step.result.message })),
+    { name: 'Office 106 arrival', status: journey.current_confirmed_zone_id === journey.destination_zone_id ? 'completed' : 'pending', note: journey.current_confirmed_zone_id === journey.destination_zone_id ? 'Explicit simulated transition confirmed' : 'Awaiting explicit zone confirmation' },
+  ] : []
+  async function confirm(j: Journey) { const zone = j.current_confirmed_zone_id ? j.destination_zone_id : j.starting_zone_id; await api.transition(j.id, zone === 'lobby' ? 'demo-reader' : 'demo-office-reader', zone); await refresh() }
+  return <section className="journey-panel"><div className="section-heading"><div><div className="eyebrow">THE ARRIVAL EXPERIENCE</div><h2>One destination. A building in sync.</h2><p>Atlas Dental · Floor 1, Office 106</p></div><Badge tone="mint">DEMO SCENARIO</Badge></div><div className="demo-controls"><label className="toggle"><input type="checkbox" checked={manual} onChange={e => setManual(e.target.checked)} /> Manual / Ring-only path</label><TaskButton className="primary" run={start}>Start visitor journey ↗</TaskButton></div><p className="fine">Creates a demo appointment using real services.{!manual && ' Enables the seeded software simulators.'} No physical hardware operates.</p>{checking && <div className="notice" role="status">Checking appointment and policy; waiting for backend results…</div>}{journeys.length > 0 && <label className="journey-select">Journey record<select value={journey?.id || ''} onChange={e => setSelected(e.target.value)}>{journeys.map(j => <option key={j.id} value={j.id}>{data.catalog.people.find(p => p.id === j.person_id)?.name || j.person_id} · {date(j.created_at)}</option>)}</select></label>}{!journey ? <Empty>Start the Atlas Dental scenario to see the building respond. Every stage below will come from backend evidence.</Empty> : <><div className="journey-stages">{rows.map((row, i) => <div className={`journey-stage ${row.status}`} key={`${i}-${row.name}`}><span className="stage-mark">{row.status === 'completed' || row.status === 'authorized' ? '✓' : row.status === 'denied' || row.status === 'failed' ? '×' : String(i + 1).padStart(2, '0')}</span><div><strong>{row.name}</strong><p>{row.note}</p></div><Badge tone={row.status === 'completed' || row.status === 'authorized' ? 'mint' : row.status.includes('denied') || row.status === 'failed' ? 'red' : 'amber'}>{human(row.status)}</Badge></div>)}</div>{journey.route.length > 0 && <div className="route-strip">{journey.route.join(' → ')}</div>}<div className="row"><span className="fine">Last confirmed: {journey.current_confirmed_zone_id || 'none'} · {date(journey.updated_at)}</span>{!['denied', 'failed', 'completed'].includes(journey.status) && <TaskButton run={() => confirm(journey)}>Simulate {journey.current_confirmed_zone_id ? 'Office 106 arrival' : 'lobby entry'}</TaskButton>}</div><p className="fine">Stage results are a stored execution snapshot, not a live access grant. Location updates require an explicit simulator event.</p></>}</section>
+}
