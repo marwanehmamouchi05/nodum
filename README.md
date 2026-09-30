@@ -27,3 +27,9 @@ services, and device discovery. Flood events can enter the existing emergency
 workflow after an authenticated operator confirms the affected zone. Ring never
 grants access or unlocks doors. Public HTTPS deployment, authenticated linking UI,
 and a Ring-confirmed inbound token-delivery adapter are still required for live linking.
+
+See [backend deployment preparation](docs/deployment.md) for environment-based
+startup, production CORS, optional Ring startup validation, Docker build/run
+commands, persistent SQLite volumes, and HTTPS ingress requirements. Nothing is
+deployed automatically; existing unauthenticated building routes must remain
+private until an authentication gateway is provided.

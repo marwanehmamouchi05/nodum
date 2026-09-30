@@ -1,0 +1,17 @@
+# Allowlist: secrets, databases, virtualenvs and tests never enter the build context.
+**
+!Dockerfile
+!requirements.txt
+!app/
+!app/**
+**/__pycache__/
+**/*.pyc
+**/.env
+**/.env.*
+**/*.db*
+**/*.sqlite*
+**/*.pem
+**/*.key
+**/*.p12
+**/*.pfx
+**/secrets/

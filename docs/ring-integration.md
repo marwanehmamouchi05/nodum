@@ -112,7 +112,7 @@ Copy the names in `.env.example` into the backend process environment (the examp
 file itself is not automatically loaded). Set `RING_CLIENT_ID`,
 `RING_CLIENT_SECRET`, `RING_SIGNING_KEY`, and `RING_ENCRYPTION_KEY` using a secret
 store. `RING_WEBHOOK_SECRET` is a compatibility alias only when the signing-key
-variable is absent. Generate an independent encryption key with:
+variable is absent or empty. Generate an independent encryption key with:
 
 ```powershell
 cd C:\dev\nodum\backend

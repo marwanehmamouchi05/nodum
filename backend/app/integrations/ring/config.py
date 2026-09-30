@@ -24,11 +24,12 @@ class RingSettings:
         values = {name: os.getenv("RING_" + name.upper(), default)
                   for name, default in (
                       ("environment", "staging"), ("client_id", ""), ("client_secret", ""),
-                      ("signing_key", os.getenv("RING_WEBHOOK_SECRET", "")),
+                      ("signing_key", ""),
                       ("encryption_key", ""), ("api_base_url", "https://api.amazonvision.com"),
                       ("oauth_token_url", "https://oauth.ring.com/oauth/token"),
                       ("account_link_url", ""), ("token_exchange_url", ""),
                       ("webhook_url", ""), ("homepage_url", ""))}
+        values["signing_key"] = values["signing_key"] or os.getenv("RING_WEBHOOK_SECRET", "")
         settings = cls(**values)
         if settings.environment not in {"staging", "production"}:
             raise DomainError(503, "Invalid Ring environment configuration")
