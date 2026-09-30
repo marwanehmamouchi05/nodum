@@ -20,3 +20,10 @@ SQLite persistence is enabled by default. DATABASE_URL=sqlite:///./nodum.db stor
 data in backend/nodum.db; startup initializes the schema and inserts missing demo
 records without resetting existing data. See [database setup and persistence](docs/persistence.md)
 for configuration, migrations, backups, and verification commands.
+
+The [Ring integration](docs/ring-integration.md) provides signed webhook ingestion,
+an auditable SQLite inbox, encrypted OAuth token storage, nonce-based linking
+services, and device discovery. Flood events can enter the existing emergency
+workflow after an authenticated operator confirms the affected zone. Ring never
+grants access or unlocks doors. Public HTTPS deployment, authenticated linking UI,
+and a Ring-confirmed inbound token-delivery adapter are still required for live linking.

@@ -54,6 +54,13 @@ The access engine still takes domain records and is completely storage-independe
 | emergencies | Incident identity, affected zones, assignments, status, timestamps |
 | emergency_events | Ordered audit events keyed by incident and sequence |
 | pending_actions | Exact agent proposal arguments, actor, creation time, expiry |
+| ring_accounts | Environment-scoped Ring identity, encrypted tokens, owner/link state, UTC expiry |
+| ring_events | Signed webhook inbox, raw JSON, normalized signals, deduplication IDs, processing outcome |
+
+Migration 2 adds the Ring tables and unique delivery/event identity indexes without
+changing migration 1. Ring is optional and startup makes no Ring network requests.
+See [Ring configuration and deployment boundaries](ring-integration.md), including
+the independent token encryption key required before account linking.
 
 Rows have primary/unique keys and validated JSON payloads using the existing
 Pydantic models. Key references use SQL foreign keys: work-order contractors,

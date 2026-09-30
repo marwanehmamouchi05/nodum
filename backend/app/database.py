@@ -10,7 +10,7 @@ from time import monotonic, sleep
 DEFAULT_DATABASE_URL = "sqlite:///./nodum.db"
 BACKEND_DIRECTORY = Path(__file__).resolve().parents[1]
 
-# One explicit migration, committed with its version marker. Do not edit applied
+# Explicit migrations, committed with their version markers. Do not edit applied
 # migrations: add a new numbered entry when the schema changes.
 MIGRATIONS = (
     (1, (
@@ -39,6 +39,14 @@ MIGRATIONS = (
             PRIMARY KEY (emergency_id, sequence))""",
         "CREATE TABLE pending_actions (id TEXT PRIMARY KEY NOT NULL, data TEXT NOT NULL CHECK(json_valid(data)))",
     )),
+    (2, (
+        "CREATE TABLE ring_accounts (id TEXT PRIMARY KEY NOT NULL, data TEXT NOT NULL CHECK(json_valid(data)))",
+        "CREATE TABLE ring_events (id TEXT PRIMARY KEY NOT NULL, data TEXT NOT NULL CHECK(json_valid(data)))",
+        "CREATE UNIQUE INDEX ring_request_identity ON ring_events "
+        "(json_extract(data, '$.environment'), json_extract(data, '$.account_id'), json_extract(data, '$.request_id'))",
+        "CREATE UNIQUE INDEX ring_event_identity ON ring_events "
+        "(json_extract(data, '$.environment'), json_extract(data, '$.account_id'), json_extract(data, '$.event_id'))",
+    )),
 )
 
 
@@ -59,12 +67,12 @@ class SQLiteDatabase:
         self.path = database_path(database_url)
         self._local = local()
 
-    def _connect(self):
-        connection = sqlite3.connect(self.path, timeout=5, isolation_level=None)
+    def _connect(self, timeout_ms=5000):
+        connection = sqlite3.connect(self.path, timeout=timeout_ms / 1000, isolation_level=None)
         try:
             connection.row_factory = sqlite3.Row
             connection.execute("PRAGMA foreign_keys = ON")
-            connection.execute("PRAGMA busy_timeout = 5000")
+            connection.execute(f"PRAGMA busy_timeout = {int(timeout_ms)}")
             connection.execute("PRAGMA synchronous = FULL")
         except BaseException:
             connection.close()
@@ -79,7 +87,7 @@ class SQLiteDatabase:
         return connection
 
     @contextmanager
-    def transaction(self):
+    def transaction(self, timeout_ms=5000):
         """Serialize validation+writes across threads/processes; nest via savepoints."""
         if getattr(self._local, "connection", None) is not None:
             depth = self._local.depth + 1
@@ -96,7 +104,7 @@ class SQLiteDatabase:
                 connection.execute(f"RELEASE SAVEPOINT {savepoint}")
                 self._local.depth -= 1
             return
-        connection = self._connect()
+        connection = self._connect(timeout_ms)
         self._local.connection = connection
         self._local.depth = 0
         try:

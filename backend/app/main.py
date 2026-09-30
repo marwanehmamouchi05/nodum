@@ -9,6 +9,7 @@ from app.api.guests import router as guests_router
 from app.api.appointments import router as appointments_router
 from app.api.emergencies import router as emergencies_router
 from app.api.agent import router as agent_router
+from app.api.ring import router as ring_router
 from app.services.agent_actions import PendingActionStore
 
 
@@ -33,6 +34,7 @@ app.include_router(guests_router)
 app.include_router(appointments_router)
 app.include_router(emergencies_router)
 app.include_router(agent_router)
+app.include_router(ring_router)
 
 
 @app.exception_handler(DomainError)

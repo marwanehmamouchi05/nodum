@@ -13,10 +13,20 @@ from app.models.agent import PendingAction
 from app.models.building import Person, PersonRole, WorkOrder, Zone, ZoneType
 from app.models.business import Appointment, Business
 from app.models.emergency import EmergencyIncident
+from app.models.ring import RingAccount, RingEvent
 
 
 class Repository(Protocol):
     """Service-facing contract; implementations must serialize transactions."""
+
+    def ring_receipt_transaction(self) -> ContextManager["Repository"]: ...
+    def find_ring_event(self, environment: str, account_id: str, request_id: str, event_id: str) -> RingEvent | None: ...
+    def get_ring_account(self, account_key: str) -> RingAccount | None: ...
+    def list_ring_accounts(self) -> list[RingAccount]: ...
+    def save_ring_account(self, account: RingAccount) -> None: ...
+    def get_ring_event(self, event_key: str) -> RingEvent | None: ...
+    def list_ring_events(self) -> list[RingEvent]: ...
+    def save_ring_event(self, event: RingEvent) -> None: ...
 
     def transaction(self) -> ContextManager["Repository"]: ...
     def get_person(self, person_id: str) -> Person | None: ...
@@ -63,6 +73,8 @@ class InMemoryRepository:
         self._appointments = {a.id: a.model_copy(deep=True) for a in appointments}
         self._emergencies = {e.emergency_id: e.model_copy(deep=True) for e in emergencies}
         self._pending_actions: dict[str, PendingAction] = {}
+        self._ring_accounts: dict[str, RingAccount] = {}
+        self._ring_events: dict[str, RingEvent] = {}
 
     @contextmanager
     def transaction(self):
@@ -183,6 +195,44 @@ class InMemoryRepository:
             permission_copy = permission.model_copy(deep=True)
             self._people[guest.id] = guest_copy
             self._permissions.append(permission_copy)
+
+
+    def ring_receipt_transaction(self):
+        return self.transaction()
+
+    def find_ring_event(self, environment, account_id, request_id, event_id):
+        with self._lock:
+            return next((e.model_copy(deep=True) for e in self._ring_events.values()
+                         if e.environment == environment and e.account_id == account_id
+                         and (e.request_id == request_id or e.event_id == event_id)), None)
+
+    def get_ring_account(self, identifier: str) -> RingAccount | None:
+        with self._lock:
+            record = self._ring_accounts.get(identifier)
+            return record.model_copy(deep=True) if record else None
+
+    def list_ring_accounts(self) -> list[RingAccount]:
+        with self._lock:
+            return [self._ring_accounts[key].model_copy(deep=True)
+                    for key in sorted(self._ring_accounts)]
+
+    def save_ring_account(self, record: RingAccount) -> None:
+        with self._lock:
+            self._ring_accounts[record.id] = RingAccount.model_validate(record.model_dump())
+
+    def get_ring_event(self, identifier: str) -> RingEvent | None:
+        with self._lock:
+            record = self._ring_events.get(identifier)
+            return record.model_copy(deep=True) if record else None
+
+    def list_ring_events(self) -> list[RingEvent]:
+        with self._lock:
+            return [self._ring_events[key].model_copy(deep=True)
+                    for key in sorted(self._ring_events)]
+
+    def save_ring_event(self, record: RingEvent) -> None:
+        with self._lock:
+            self._ring_events[record.id] = RingEvent.model_validate(record.model_dump())
 
 
 def create_demo_repository() -> InMemoryRepository:

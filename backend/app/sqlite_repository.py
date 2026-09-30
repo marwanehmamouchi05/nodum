@@ -5,6 +5,9 @@ for identity and key references. Emergency history is stored separately.
 """
 from contextlib import contextmanager
 import json
+import sqlite3
+
+from app.services.errors import DomainError
 
 from app.database import SQLiteDatabase
 from app.models.access import AccessPermission
@@ -12,6 +15,7 @@ from app.models.agent import PendingAction
 from app.models.building import Person, Zone, WorkOrder
 from app.models.business import Appointment, Business
 from app.models.emergency import EmergencyIncident
+from app.models.ring import RingAccount, RingEvent
 from app.repository import create_demo_repository
 
 
@@ -190,3 +194,53 @@ class SQLiteRepository:
     def delete_pending_action(self, action_id: str) -> None:
         with self.database.transaction() as connection:
             connection.execute("DELETE FROM pending_actions WHERE id=?", (action_id,))
+
+    def get_ring_account(self, identifier: str) -> RingAccount | None:
+        return self._get("ring_accounts", identifier, RingAccount)
+
+    def list_ring_accounts(self) -> list[RingAccount]:
+        return self._list("ring_accounts", RingAccount)
+
+    def save_ring_account(self, record: RingAccount) -> None:
+        record = RingAccount.model_validate(record.model_dump())
+        with self.database.transaction() as connection:
+            connection.execute(
+                "INSERT INTO ring_accounts (id, data) VALUES (?, ?) "
+                "ON CONFLICT(id) DO UPDATE SET data=excluded.data",
+                (record.id, record.model_dump_json()),
+            )
+
+    def get_ring_event(self, identifier: str) -> RingEvent | None:
+        return self._get("ring_events", identifier, RingEvent)
+
+    def list_ring_events(self) -> list[RingEvent]:
+        return self._list("ring_events", RingEvent)
+
+    def save_ring_event(self, record: RingEvent) -> None:
+        record = RingEvent.model_validate(record.model_dump())
+        with self.database.transaction() as connection:
+            connection.execute(
+                "INSERT INTO ring_events (id, data) VALUES (?, ?) "
+                "ON CONFLICT(id) DO UPDATE SET data=excluded.data",
+                (record.id, record.model_dump_json()),
+            )
+
+    @contextmanager
+    def ring_receipt_transaction(self):
+        # Ring retries 5xx responses. Avoid waiting the full webhook deadline on
+        # a busy database; never acknowledge an event that was not committed.
+        try:
+            with self.database.transaction(timeout_ms=1000):
+                yield self
+        except sqlite3.OperationalError:
+            raise DomainError(503, "Ring inbox temporarily unavailable") from None
+
+    def find_ring_event(self, environment, account_id, request_id, event_id):
+        with self.database.transaction() as connection:
+            row = connection.execute(
+                "SELECT data FROM ring_events WHERE json_extract(data, '$.environment') = ? "
+                "AND json_extract(data, '$.account_id') = ? AND "
+                "(json_extract(data, '$.request_id') = ? OR json_extract(data, '$.event_id') = ?)",
+                (environment, account_id, request_id, event_id),
+            ).fetchone()
+            return RingEvent.model_validate_json(row["data"]) if row else None
