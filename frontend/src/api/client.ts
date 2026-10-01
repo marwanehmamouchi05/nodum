@@ -3,6 +3,10 @@ import type { AgentResponse, Appointment, BuildingData, Credential, Decision, De
 export const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000').replace(/\/$/, '')
 export class ApiError extends Error { status: number; constructor(message: string, status: number) { super(message); this.status = status } }
 async function request<T>(path: string, method = 'GET', body?: unknown, csrf?: string): Promise<T> {
+  if (method !== 'GET' && !csrf && !path.startsWith('/auth/')) {
+    const session = await request<{ csrf_token: string }>('/auth/session')
+    csrf = session.csrf_token
+  }
   const controller = new AbortController()
   const timer = window.setTimeout(() => controller.abort(), path.startsWith('/agent/') ? 60000 : 20000)
   try {

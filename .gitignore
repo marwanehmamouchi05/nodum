@@ -165,3 +165,12 @@ secrets/
 *.key
 *.p12
 *.pfx
+
+# Local security/runtime material and backups
+.pytest_cache/
+.aws/
+*.db.bak
+*.sqlite.bak
+*.sqlite3.bak
+*.sql
+*.har

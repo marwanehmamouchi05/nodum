@@ -40,7 +40,7 @@ export function AuthPanel() {
     {user && accounts.length === 0 && <p>No Ring account linked to this user. Start linking in Ring, then confirm on the Nodum page.</p>}
     <p><a href={API_BASE + '/auth/login'} target="_blank" rel="noopener noreferrer">{user ? 'Manage sign-in' : 'Sign in to Nodum'}</a></p>
     <TaskButton run={refresh}>Refresh connection</TaskButton>
-    {user && <TaskButton run={async () => { await api.logout(); await refresh() }}>Sign out</TaskButton>}
+    {user && <TaskButton run={async () => { await api.logout(); window.dispatchEvent(new Event('nodum:signed-out')); await refresh() }}>Sign out</TaskButton>}
     <p className="fine">Ring opens a secure sign-in and confirmation page that keeps its link parameters. A connected account does not imply a device is online.</p>
   </div>
 }

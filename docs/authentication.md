@@ -1,8 +1,10 @@
 # Nodum sessions and Ring linking
 
-This is a small application login for Ring operations. Existing generic
-building/agent APIs still accept prototype actor IDs and must remain behind
-private ingress or an authentication gateway. The UI operator selector is not a login.
+This is a small application login for Ring operations. In production, the
+operations APIs also require a manager session and CSRF for writes. This coarse
+gate is not tenant/resource RBAC: payload actor IDs remain prototype context and
+are not reliable audit attribution. The UI operator selector is not a login.
+Development mode remains unauthenticated and must use synthetic data only.
 
 ## Architecture
 

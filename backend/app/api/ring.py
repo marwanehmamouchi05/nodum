@@ -97,7 +97,8 @@ async def webhook(request: Request, service: Service, now: Now):
 
 @router.get("/accounts/{account_id}/events")
 def list_events(account_id: str, principal: Principal, service: Service):
-    return service.list_events(account_id, principal)
+    return [event.model_dump(mode="json", exclude={"raw_payload"})
+            for event in service.list_events(account_id, principal)]
 
 
 class ProcessEventInput(BaseModel):
@@ -108,4 +109,5 @@ class ProcessEventInput(BaseModel):
 @router.post("/events/{event_id}/process")
 def process_event(event_id: str, payload: ProcessEventInput, principal: Principal,
                   service: Service, now: Now):
-    return service.process_event(event_id, principal, payload.zone_id, now)
+    return service.process_event(event_id, principal, payload.zone_id, now).model_dump(
+        mode="json", exclude={"raw_payload"})

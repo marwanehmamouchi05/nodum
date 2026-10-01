@@ -6,7 +6,8 @@ adds persistent device mappings and software simulators for access control,
 credentials, elevators and wayfinding. The Atlas Dental backend demo verifies
 an appointment before simulated entrance, Floor 1 and navigation actions.
 Without connectors it reports manual actions. Other manufacturers are not yet
-integrated; Ring remains the real Partner API integration layer.
+integrated. Ring has a documented Partner API adapter; a live linked account
+and event delivery still require separate verification.
 
 See [the access and emergency policy](docs/access-policy.md) for the current
 repository architecture, policy precedence, test commands, and deployment limits.
@@ -39,5 +40,8 @@ and a Ring-confirmed inbound token-delivery adapter remain required for live lin
 See [backend deployment preparation](docs/deployment.md) for environment-based
 startup, production CORS, optional Ring startup validation, Docker build/run
 commands, persistent SQLite volumes, and HTTPS ingress requirements. Nothing is
-deployed automatically; existing unauthenticated building routes must remain
-private until an authentication gateway is provided.
+deployed automatically. Production building APIs require a manager session and
+CSRF protection; development APIs remain a synthetic-data demo. This is not tenant RBAC.
+
+See the [privacy/security audit](docs/privacy-security.md), [production checklist](docs/production-readiness.md),
+and [repository/licensing strategy](docs/repository-strategy.md) before submission or deployment.

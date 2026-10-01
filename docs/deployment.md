@@ -5,14 +5,15 @@ proxy or hosting platform. Nothing is deployed by these commands unless you run
 the container/startup commands yourself. `/health` remains `200 {"status":"healthy"}`.
 Routes, seed data, repository/services and deterministic policies are unchanged.
 
-**Public exposure boundary:** Nodum's existing building APIs do not authenticate
-users yet. CORS is a browser policy, not authentication. Until an authentication
-gateway is configured, publish only `/ring/webhooks` and `/health`; keep other
-routes, including `/docs` and `/openapi.json`, private at the ingress. Ring linking
-uses the [persisted sign-in UI and session configuration](authentication.md),
-but still requires the verified token-delivery adapter described in
-[Ring integration](ring-integration.md). Expose /auth/* and /ring/link for that flow
-while keeping generic APIs private. Configuration does not prove live Ring connectivity.
+**Public exposure boundary:** production building/agent APIs now require a manager
+session, and writes require CSRF plus a trusted Origin. Development mode is still
+an unauthenticated synthetic-data demo: never publish it with customer data.
+Production /docs, /redoc and /openapi.json are disabled (offline schema generation
+still works). Health, auth/login and signed Ring endpoints remain available.
+This coarse gate is not tenant/resource RBAC or verified audit attribution.
+Configure [sessions and exact frontend origins](authentication.md), retain
+restricted ingress, and review [production blockers](production-readiness.md).
+Ring token delivery still requires its Ring-confirmed adapter.
 
 ## Local development (PowerShell)
 

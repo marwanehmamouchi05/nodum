@@ -350,7 +350,7 @@ def test_read_tools_filters_and_defensive_copies(repo):
     assert registry.run("find_businesses", {"query": "Atlas"}).data["items"][0]["id"] == "atlas-dental"
     orders = registry.run("list_work_orders", {"contractor_id": "contractor-1"}).data["items"]
     assert len(orders) == 1 and orders[0]["id"] == "wo-001"
-    result = registry.run("find_people", {"limit": 1})
+    result = registry.run("find_people", {"query": "demo", "limit": 1})
     assert result.data["truncated"] is True
     result.data["items"][0]["name"] = "Changed"
     assert all(p.name != "Changed" for p in repo.list_people())

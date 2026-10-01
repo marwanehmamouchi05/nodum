@@ -105,6 +105,10 @@ def run_agent(request: AgentRequest, gateway: ConverseGateway, tools: AgentTools
             results.append(result)
             # Avoid forwarding unbounded stored descriptions/context to the model.
             data = result.model_dump(mode="json")
+            if result.status == "confirmation_required":
+                # The application needs the action ID/arguments; the model does not.
+                data = {"tool": result.tool, "status": result.status,
+                        "data": {"message": "Proposal prepared; review and confirm its exact details in the application."}}
             if len(json.dumps(data)) > 30_000:
                 data = {"status": "error", "detail": "Tool result too large; narrow the query."}
             responses.append({"toolResult": {

@@ -38,7 +38,7 @@ def api(repo):
     app.dependency_overrides[get_repository] = lambda: repo
     app.dependency_overrides[utc_now] = lambda: NOW
 
-    def request(method, path, payload=None, *, raw=None, headers=(), include_headers=False):
+    def request(method, path, payload=None, *, raw=None, headers=(), include_headers=False, target_app=None):
         async def execute():
             target = urlsplit(path)
             body = raw if raw is not None else (json.dumps(payload).encode() if payload is not None else b"")
@@ -61,7 +61,7 @@ def api(repo):
                      "path": target.path, "raw_path": target.path.encode(), "root_path": "",
                      "query_string": target.query.encode(), "headers": [(b"content-type", b"application/json"), *headers],
                      "client": ("127.0.0.1", 1234), "server": ("test", 80)}
-            await asyncio.wait_for(app(scope, receive, send), timeout=5)
+            await asyncio.wait_for((target_app or app)(scope, receive, send), timeout=5)
             status = next(m["status"] for m in sent if m["type"] == "http.response.start")
             content = b"".join(m.get("body", b"") for m in sent if m["type"] == "http.response.body")
             try:

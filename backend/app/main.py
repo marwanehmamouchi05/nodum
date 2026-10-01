@@ -1,11 +1,11 @@
 import sqlite3
 from datetime import datetime, timezone
 from fastapi.exceptions import RequestValidationError
-from fastapi.exception_handlers import request_validation_exception_handler
+from app.api.operator import require_production_operator
 from app.api.auth import router as auth_router
 from app.services.auth import bootstrap_user
 from contextlib import asynccontextmanager
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import AppSettings, ConfigurationError, validate_startup
@@ -38,7 +38,11 @@ async def lifespan(app: FastAPI):
 
 def create_app():
     settings = AppSettings.from_env()
-    application = FastAPI(title="Nodum API", version="0.1.0", lifespan=lifespan)
+    production = settings.environment == "production"
+    application = FastAPI(title="Nodum API", version="0.1.0", lifespan=lifespan,
+                          docs_url=None if production else "/docs",
+                          redoc_url=None if production else "/redoc",
+                          openapi_url=None if production else "/openapi.json")
     application.add_middleware(
         CORSMiddleware, allow_origins=list(settings.cors_origins),
         allow_credentials=settings.cors_credentials,
@@ -47,14 +51,14 @@ def create_app():
     )
     for router in (access_router, guests_router, appointments_router,
                    emergencies_router, agent_router, ring_router, building_router, auth_router):
-        application.include_router(router)
+        guards = [] if router in (ring_router, auth_router) else [Depends(require_production_operator)]
+        application.include_router(router, dependencies=guards)
 
     @application.middleware("http")
     async def private_auth_responses(request, call_next):
         response = await call_next(request)
-        if request.url.path.startswith(("/auth/", "/ring/", "/building/ring/")):
-            response.headers["Cache-Control"] = "no-store"
-            response.headers["Referrer-Policy"] = "no-referrer"
+        response.headers["Cache-Control"] = "no-store"
+        response.headers["Referrer-Policy"] = "no-referrer"
         return response
 
     @application.exception_handler(RequestValidationError)
@@ -62,7 +66,10 @@ def create_app():
         if request.url.path.startswith("/auth/"):
             return JSONResponse(status_code=422, content={"detail": "Invalid authentication request"},
                                 headers={"Cache-Control": "no-store"})
-        return await request_validation_exception_handler(request, exc)
+        # Pydantic's input/context can contain submitted credentials or PII.
+        return JSONResponse(status_code=422, content={"detail": [
+            {key: error[key] for key in ("loc", "msg", "type")} for error in exc.errors()
+        ]}, headers={"Cache-Control": "no-store"})
 
     @application.exception_handler(DomainError)
     async def domain_error_handler(request, exc: DomainError):

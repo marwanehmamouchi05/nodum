@@ -50,11 +50,11 @@ class CheckInInput(VisitorCheckInInput):
 # No arbitrary Python, URLs, repository writes, permission grants, override roles,
 # incident resolution, or action confirmation are exposed to the model.
 TOOL_SPECS = {
-    "find_people": (SearchInput, "Find people by ID or name. Resolve ambiguity; do not invent identities."),
+    "find_people": (SearchInput, "Find people by a specific ID or name (at least 2 characters). No directory export."),
     "find_zones": (SearchInput, "Find zones by ID or name, including type and floor."),
     "find_businesses": (SearchInput, "Find businesses by ID or name and their destination zone IDs."),
-    "list_work_orders": (WorkOrderInput, "Read work orders, optionally for a contractor."),
-    "list_appointments": (AppointmentSearchInput, "Find appointments by visitor/business. An appointment alone grants no access."),
+    "list_work_orders": (WorkOrderInput, "Read work order summaries for a specified contractor ID."),
+    "list_appointments": (AppointmentSearchInput, "Find appointments for a specified visitor ID, optionally filtered by business. Ask for visitor identity first."),
     "list_active_emergencies": (EmptyInput, "Read currently active incidents; never resolve incidents."),
     "check_access": (CheckAccessInput, "Ask Nodum's deterministic engine whether a person may enter a zone now."),
     "invite_guest": (InviteInput, "PROPOSE a guest invitation for the request actor. Does not execute; user confirmation is required."),
@@ -146,12 +146,18 @@ class AgentTools:
         if name == "list_active_emergencies":
             # Bounded context; API remains available for full incident detail.
             records = emergencies.list_emergencies(self.repository, active_only=True)
-            return {"items": records[:100], "truncated": len(records) > 100}
+            return {"items": [r.model_dump(mode="json", include={
+                "emergency_id", "emergency_type", "severity", "affected_zone_ids", "status", "created_at"
+            }) for r in records[:20]], "truncated": len(records) > 20}
         if name == "list_appointments":
+            if not payload.visitor_id:
+                raise DomainError(400, "Specify a visitor ID; appointment directory export is unavailable")
             records = [a for a in appointments.list_appointments(self.repository)
                        if (payload.visitor_id is None or a.visitor_id == payload.visitor_id)
                        and (payload.business_id is None or a.business_id == payload.business_id)]
         elif name == "list_work_orders":
+            if not payload.contractor_id:
+                raise DomainError(400, "Specify a contractor ID")
             records = [w for w in self.repository.list_work_orders()
                        if payload.contractor_id is None or w.contractor_id == payload.contractor_id]
         else:
@@ -159,6 +165,17 @@ class AgentTools:
                        "find_zones": self.repository.list_zones,
                        "find_businesses": self.repository.list_businesses}
             query = payload.query.casefold()
+            if name == "find_people" and len(query.strip()) < 2:
+                raise DomainError(400, "Specify a person ID or name with at least two characters")
             records = [record for record in readers[name]()
                        if query in record.id.casefold() or query in record.name.casefold()]
-        return {"items": records[:payload.limit], "truncated": len(records) > payload.limit}
+        limit = min(payload.limit, 10) if name in {"find_people", "list_appointments", "list_work_orders"} else payload.limit
+        items = []
+        for record in records[:limit]:
+            data = record.model_dump(mode="json")
+            if name == "find_people" and record.id != self.actor_id:
+                data.pop("guest_zone_ids", None)
+            if name == "list_work_orders":
+                data.pop("description", None)
+            items.append(data)
+        return {"items": items, "truncated": len(records) > limit}
