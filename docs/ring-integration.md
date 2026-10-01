@@ -51,28 +51,22 @@ exchange service is implemented and tested; inbound live delivery remains gated.
 | Endpoint | Purpose / protection |
 | --- | --- |
 | `POST /ring/token-exchange` | Exchange code from a verified Ring transport adapter; returns only status |
-| `GET /ring/link?nonce=...&time=...` | Ring browser redirect; required query parameters; same authenticated claim service |
+| `GET /ring/link?nonce=...&time=...` | Ring browser redirect; preserves required query parameters; login and explicit confirmation page |
 | `POST /ring/link` | `{nonce, time}`; verified manager/responder session; identity never comes from the body |
 | `GET /ring/accounts/{account_id}/devices` | Discover devices for the linked account's owner |
 | `POST /ring/webhooks` | Public signed webhook receipt, max 1 MiB; no synchronous network/emergency calls |
 | `GET /ring/accounts/{account_id}/events` | Owner-only audit inbox, including original JSON |
 | `POST /ring/events/{event_id}/process` | Owner/operator review; `{zone_id}` explicitly confirms the affected zone |
 
-`require_ring_principal` fails with 503 until replaced with a verified,
-CSRF-protected server-session dependency. This is an explicit deployment boundary,
-not a request-header identity mechanism. Nodum has no user authentication yet;
-do not replace this with caller-supplied person IDs, email addresses, or unsigned
-proxy headers. Only existing managers/responders may link and manage building integrations.
+Ring operations now use the persisted, CSRF-protected Nodum session described in
+[Authentication and linking](authentication.md). Identity never comes from request
+person IDs or unsigned headers. Only existing managers/responders may link and
+manage integrations. GET /ring/link presents login/confirmation while preserving
+nonce/time; POST claims only after authentication and CSRF verification.
 
-`receive_verified_ring_code` likewise fails with 503 until Ring confirms the
-inbound delivery contract and an authenticated adapter is supplied. Override this
-FastAPI dependency from the deployment composition layer once verified. Never
-configure an unverified guessed webhook envelope as the token callback.
-The Account Link URL must provide sign-in before account claiming. The GET API
-now accepts Ring's documented redirect parameters but does not provide a login UI
-or bypass authentication: a well-formed redirect still returns 503 until the
-authentication adapter is configured. The POST JSON completion API remains compatible.
-Tests override these dependencies with trusted fixtures; deployment does not.
+The inbound receive_verified_ring_code dependency still returns 503 until Ring
+confirms the delivery contract and a verified adapter is supplied. Do not guess
+that it uses the webhook envelope. Tests override this boundary; deployment does not.
 
 ## Events and deterministic safety
 
@@ -153,8 +147,8 @@ Run the complete suite with both repository backends:
 .\.venv\Scripts\python.exe -m pip check
 ```
 
-Live linking and real devices have not been tested. HTTPS deployment and both
-authentication adapters remain necessary. Core APIs retain their existing lack
+Live linking and real devices have not been tested. HTTPS deployment configuration
+and a verified inbound token-delivery adapter remain necessary. Core APIs retain their existing lack
 of authentication and must not be exposed publicly alongside Ring without an
 appropriate gateway. Configure ingress rate limits, request timeouts, and TLS;
 monitor delivery latency, inbox growth, and failed linking/refresh operations.

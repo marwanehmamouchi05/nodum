@@ -60,6 +60,14 @@ MIGRATIONS = (
         "CREATE UNIQUE INDEX credential_fingerprint ON credentials (json_extract(data, '$.fingerprint'))",
         "CREATE INDEX transition_journey ON journey_transitions (json_extract(data, '$.journey_id'))",
     )),
+    (4, (
+        "CREATE TABLE auth_users (id TEXT PRIMARY KEY NOT NULL, data TEXT NOT NULL CHECK(json_valid(data)))",
+        "CREATE UNIQUE INDEX auth_username ON auth_users (json_extract(data, '$.username'))",
+        "CREATE UNIQUE INDEX auth_person ON auth_users (json_extract(data, '$.person_id'))",
+        "CREATE TABLE auth_sessions (id TEXT PRIMARY KEY NOT NULL, data TEXT NOT NULL CHECK(json_valid(data)))",
+        "CREATE TABLE auth_throttles (id TEXT PRIMARY KEY NOT NULL, data TEXT NOT NULL CHECK(json_valid(data)))",
+        "CREATE INDEX ring_owner_user ON ring_accounts (json_extract(data, '$.owner_user_id'))",
+    )),
 )
 
 

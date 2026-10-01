@@ -8,6 +8,7 @@ from contextlib import contextmanager
 from threading import RLock
 from typing import ContextManager, Iterable, Protocol
 
+from app.models.auth import NodumUser, AuthSession, AuthThrottle
 from app.models.access import AccessPermission
 from app.models.agent import PendingAction
 from app.models.building import Person, PersonRole, WorkOrder, Zone, ZoneType
@@ -49,6 +50,19 @@ class Repository(Protocol):
     def list_journey_transitions(self) -> list[JourneyTransition]: ...
     def save_journey_transition(self, record: JourneyTransition) -> None: ...
 
+    def get_auth_user(self, identifier: str) -> NodumUser | None: ...
+    def list_auth_users(self) -> list[NodumUser]: ...
+    def save_auth_user(self, record: NodumUser) -> None: ...
+    def delete_auth_user(self, identifier: str) -> None: ...
+    def get_auth_session(self, identifier: str) -> AuthSession | None: ...
+    def list_auth_sessions(self) -> list[AuthSession]: ...
+    def save_auth_session(self, record: AuthSession) -> None: ...
+    def delete_auth_session(self, identifier: str) -> None: ...
+    def get_auth_throttle(self, identifier: str) -> AuthThrottle | None: ...
+    def list_auth_throttles(self) -> list[AuthThrottle]: ...
+    def save_auth_throttle(self, record: AuthThrottle) -> None: ...
+    def delete_auth_throttle(self, identifier: str) -> None: ...
+
     def ring_receipt_transaction(self) -> ContextManager["Repository"]: ...
     def find_ring_event(self, environment: str, account_id: str, request_id: str, event_id: str) -> RingEvent | None: ...
     def get_ring_account(self, account_key: str) -> RingAccount | None: ...
@@ -84,6 +98,57 @@ class Repository(Protocol):
 
 
 class InMemoryRepository:
+    def get_auth_user(self, identifier):
+        with self._lock:
+            record = self._auth_users.get(identifier)
+            return record.model_copy(deep=True) if record else None
+
+    def list_auth_users(self):
+        with self._lock:
+            return [record.model_copy(deep=True) for record in self._auth_users.values()]
+
+    def save_auth_user(self, record):
+        with self._lock:
+            self._auth_users[record.id] = NodumUser.model_validate(record.model_dump())
+
+    def delete_auth_user(self, identifier):
+        with self._lock:
+            self._auth_users.pop(identifier, None)
+
+    def get_auth_session(self, identifier):
+        with self._lock:
+            record = self._auth_sessions.get(identifier)
+            return record.model_copy(deep=True) if record else None
+
+    def list_auth_sessions(self):
+        with self._lock:
+            return [record.model_copy(deep=True) for record in self._auth_sessions.values()]
+
+    def save_auth_session(self, record):
+        with self._lock:
+            self._auth_sessions[record.id] = AuthSession.model_validate(record.model_dump())
+
+    def delete_auth_session(self, identifier):
+        with self._lock:
+            self._auth_sessions.pop(identifier, None)
+
+    def get_auth_throttle(self, identifier):
+        with self._lock:
+            record = self._auth_throttles.get(identifier)
+            return record.model_copy(deep=True) if record else None
+
+    def list_auth_throttles(self):
+        with self._lock:
+            return [record.model_copy(deep=True) for record in self._auth_throttles.values()]
+
+    def save_auth_throttle(self, record):
+        with self._lock:
+            self._auth_throttles[record.id] = AuthThrottle.model_validate(record.model_dump())
+
+    def delete_auth_throttle(self, identifier):
+        with self._lock:
+            self._auth_throttles.pop(identifier, None)
+
     def __init__(
         self,
         people: Iterable[Person] = (),
@@ -94,6 +159,9 @@ class InMemoryRepository:
         appointments: Iterable[Appointment] = (),
         emergencies: Iterable[EmergencyIncident] = (),
     ):
+        self._auth_users = {}
+        self._auth_sessions = {}
+        self._auth_throttles = {}
         self._lock = RLock()
         self._people = {p.id: p.model_copy(deep=True) for p in people}
         self._zones = {z.id: z.model_copy(deep=True) for z in zones}

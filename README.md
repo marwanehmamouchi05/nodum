@@ -32,8 +32,9 @@ The [Ring integration](docs/ring-integration.md) provides signed webhook ingesti
 an auditable SQLite inbox, encrypted OAuth token storage, nonce-based linking
 services, and device discovery. Flood events can enter the existing emergency
 workflow after an authenticated operator confirms the affected zone. Ring never
-grants access or unlocks doors. Public HTTPS deployment, authenticated linking UI,
-and a Ring-confirmed inbound token-delivery adapter are still required for live linking.
+grants access or unlocks doors. [Persisted login and Ring continuation](docs/authentication.md)
+now provide secure sessions and explicit account-link confirmation. Deployment configuration
+and a Ring-confirmed inbound token-delivery adapter remain required for live linking.
 
 See [backend deployment preparation](docs/deployment.md) for environment-based
 startup, production CORS, optional Ring startup validation, Docker build/run

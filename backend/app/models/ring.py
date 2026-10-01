@@ -14,6 +14,7 @@ class RingAccount(BaseModel):
     expires_at: UTCTimestamp
     received_at: UTCTimestamp
     owner_id: str | None = None
+    owner_user_id: str | None = None
     link_verified: bool = False
     status: Literal["unclaimed", "awaiting", "completed", "removed"] = "unclaimed"
 
@@ -45,6 +46,7 @@ class RingDevice(BaseModel):
 class RingPrincipal(BaseModel):
     """Only construct from a verified, CSRF-protected server-side session."""
     person_id: NonEmptyString
+    user_id: str | None = None
     masked_account_identifier: NonEmptyString
 
 

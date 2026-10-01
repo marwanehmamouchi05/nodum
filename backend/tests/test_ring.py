@@ -342,7 +342,7 @@ def test_restart_preserves_tokens_events_and_emergency(tmp_path, settings, remot
     assert second.process_event(key, PRINCIPAL, "utility-room", NOW) == result
     assert restarted.get_emergency(result.emergency_id).status == "active"
     with restarted.database.transaction() as connection:
-        assert [r[0] for r in connection.execute("SELECT version FROM schema_migrations ORDER BY version")] == [1, 2, 3]
+        assert [r[0] for r in connection.execute("SELECT version FROM schema_migrations ORDER BY version")] == [1, 2, 3, 4]
 
 
 def test_http_webhook_and_core_outage(api, service):
@@ -362,7 +362,7 @@ def test_http_webhook_and_core_outage(api, service):
 
 def test_http_adapters_fail_closed(api):
     assert api("POST", "/ring/token-exchange", {"code": "not-trusted"})[0] == 503
-    assert api("POST", "/ring/link", {"person_id": "manager-1"})[0] == 503
+    assert api("POST", "/ring/link", {"person_id": "manager-1"})[0] == 401
 
 
 def test_http_verified_adapter_and_link(api, service):
@@ -542,19 +542,14 @@ def test_get_link_is_documented_and_post_remains():
     assert "requestBody" not in operations["get"]
 
 
-def test_get_link_valid_redirect_uses_existing_verification(api, service):
+def test_get_link_presents_confirmation_without_claiming(api, service):
     app.dependency_overrides[get_ring_service] = lambda: service
     app.dependency_overrides[require_ring_principal] = lambda: PRINCIPAL
     service.receive_code("verified-code", NOW)
     status, result = api("GET", redirect_url(service))
-    assert status == 200 and result == {"account_id": ACCOUNT, "status": "completed"}
-    timestamp = int(NOW.timestamp() * 1000)
-    service.client.confirm.assert_called_once_with(
-        "access-secret", PRINCIPAL.masked_account_identifier,
-        nonce_for(service.settings.signing_key, timestamp, ACCOUNT))
-    service.client.complete.assert_called_once()
-    assert service.repository.get_ring_account(service.account_key(ACCOUNT)).owner_id == PRINCIPAL.person_id
-    assert api("GET", redirect_url(service))[0] == 409  # Existing replay protection.
+    assert status == 200 and "Confirm and connect Ring" in result
+    service.client.confirm.assert_not_called()
+    assert service.repository.get_ring_account(service.account_key(ACCOUNT)).owner_id is None
 
 
 @pytest.mark.parametrize("query", ["", "nonce=" + "x" * 43, "time=1790683200000"])
@@ -575,21 +570,22 @@ def test_get_link_invalid_nonce_format(api, service, nonce):
     service.client.confirm.assert_not_called()
 
 
-def test_get_link_wrong_hmac_rejected(api, service):
+def test_link_confirmation_wrong_hmac_rejected(api, service):
     app.dependency_overrides[get_ring_service] = lambda: service
     app.dependency_overrides[require_ring_principal] = lambda: PRINCIPAL
     service.receive_code("verified-code", NOW)
-    assert api("GET", redirect_url(service, nonce="x" * 43))[0] == 409
+    assert api("POST", "/ring/link", {"nonce": "x" * 43, "time": int(NOW.timestamp() * 1000)})[0] == 409
     assert service.repository.get_ring_account(service.account_key(ACCOUNT)).status == "unclaimed"
     service.client.confirm.assert_not_called()
 
 
 @pytest.mark.parametrize("offset", [-600001, 1])
-def test_get_link_expired_or_future_timestamp(api, service, offset):
+def test_link_confirmation_expired_or_future_timestamp(api, service, offset):
     app.dependency_overrides[get_ring_service] = lambda: service
     app.dependency_overrides[require_ring_principal] = lambda: PRINCIPAL
     service.receive_code("verified-code", NOW)
-    assert api("GET", redirect_url(service, offset=offset))[0] == 400
+    timestamp = int(NOW.timestamp() * 1000) + offset
+    assert api("POST", "/ring/link", {"nonce": nonce_for(service.settings.signing_key, timestamp, ACCOUNT), "time": timestamp})[0] == 400
     service.client.confirm.assert_not_called()
     assert service.repository.get_ring_account(service.account_key(ACCOUNT)).status == "unclaimed"
 
@@ -606,6 +602,6 @@ def test_get_link_cannot_bypass_sign_in(api, service):
     app.dependency_overrides[get_ring_service] = lambda: service
     service.receive_code("verified-code", NOW)
     status, body = api("GET", redirect_url(service))
-    assert status == 503 and "authentication adapter" in body["detail"]
+    assert status == 200 and 'id="login"' in body
     assert service.repository.get_ring_account(service.account_key(ACCOUNT)).owner_id is None
     service.client.confirm.assert_not_called()

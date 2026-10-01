@@ -135,7 +135,7 @@ class RingService:
                       account_id=account_id, encrypted_tokens=encrypted,
                       expires_at=now + timedelta(seconds=tokens.expires_in), received_at=now)
         if previous:
-            fields.update(owner_id=previous.owner_id, status=previous.status,
+            fields.update(owner_id=previous.owner_id, owner_user_id=previous.owner_user_id, status=previous.status,
                           received_at=previous.received_at, link_verified=previous.link_verified)
         return RingAccount(**fields)
 
@@ -174,8 +174,9 @@ class RingService:
         with self.repository.transaction():
             matches = [a for a in self.repository.list_ring_accounts()
                        if a.environment == self.settings.environment
-                       and (a.status == "unclaimed" or
-                            (a.status == "awaiting" and a.owner_id == principal.person_id))
+                       and ((a.status == "unclaimed" and a.owner_id is None and a.owner_user_id is None) or
+                            (a.status == "awaiting" and a.owner_id == principal.person_id
+                             and a.owner_user_id == principal.user_id))
                        and hmac.compare_digest(payload.nonce,
                                                nonce_for(self.settings.signing_key, payload.time, a.account_id))]
             if len(matches) != 1:
@@ -184,6 +185,7 @@ class RingService:
             if account.expires_at <= now:
                 raise DomainError(409, "Ring account link expired; reconnect")
             account.owner_id = principal.person_id
+            account.owner_user_id = principal.user_id
             account.status = "awaiting"
             self.repository.save_ring_account(account)
         token = self.secrets(account)["access_token"]
@@ -194,7 +196,8 @@ class RingService:
             self._check_link_response(result, "awaiting")
             with self.repository.transaction():
                 current = self.repository.get_ring_account(account.id)
-                if current.status != "awaiting" or current.owner_id != principal.person_id:
+                if current.status != "awaiting" or (current.owner_id != principal.person_id
+                        or current.owner_user_id != principal.user_id):
                     raise DomainError(409, "Ring account changed during linking")
                 current.link_verified = True
                 self.repository.save_ring_account(current)
@@ -202,7 +205,8 @@ class RingService:
         self._check_link_response(result, "completed")
         with self.repository.transaction():
             current = self.repository.get_ring_account(account.id)
-            if current.status != "awaiting" or current.owner_id != principal.person_id:
+            if current.status != "awaiting" or (current.owner_id != principal.person_id
+                        or current.owner_user_id != principal.user_id):
                 raise DomainError(409, "Ring account changed during linking")
             current.status = "completed"
             self.repository.save_ring_account(current)
@@ -220,10 +224,18 @@ class RingService:
     def authorized_account(self, account_id, principal):
         account = self.repository.get_ring_account(self.account_key(account_id))
         if (account is None or account.status != "completed"
-                or account.owner_id != principal.person_id):
+                or account.owner_id != principal.person_id
+                or account.owner_user_id != principal.user_id):
             raise DomainError(403, "Ring account is not linked to this operator")
         validate_operator(self.repository, principal.person_id)
         return account
+
+    def linked_accounts(self, principal):
+        validate_operator(self.repository, principal.person_id)
+        return [{"account_id": a.account_id, "status": a.status, "environment": a.environment}
+                for a in self.repository.list_ring_accounts()
+                if a.owner_user_id == principal.user_id and a.owner_id == principal.person_id
+                and a.environment == self.settings.environment]
 
     def access_token(self, account_id, principal, now, force=False):
         # Serialize refresh across workers. Bound network timeout limits lock time.

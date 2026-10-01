@@ -38,7 +38,7 @@ def api(repo):
     app.dependency_overrides[get_repository] = lambda: repo
     app.dependency_overrides[utc_now] = lambda: NOW
 
-    def request(method, path, payload=None, *, raw=None, headers=()):
+    def request(method, path, payload=None, *, raw=None, headers=(), include_headers=False):
         async def execute():
             target = urlsplit(path)
             body = raw if raw is not None else (json.dumps(payload).encode() if payload is not None else b"")
@@ -64,7 +64,14 @@ def api(repo):
             await asyncio.wait_for(app(scope, receive, send), timeout=5)
             status = next(m["status"] for m in sent if m["type"] == "http.response.start")
             content = b"".join(m.get("body", b"") for m in sent if m["type"] == "http.response.body")
-            return status, json.loads(content)
+            try:
+                result = json.loads(content)
+            except (ValueError, UnicodeDecodeError):
+                result = content.decode()
+            if include_headers:
+                response_headers = dict(next(m["headers"] for m in sent if m["type"] == "http.response.start"))
+                return status, result, response_headers
+            return status, result
 
         return asyncio.run(execute())
 

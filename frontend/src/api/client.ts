@@ -2,11 +2,11 @@ import type { AgentResponse, Appointment, BuildingData, Credential, Decision, De
 
 export const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000').replace(/\/$/, '')
 export class ApiError extends Error { status: number; constructor(message: string, status: number) { super(message); this.status = status } }
-async function request<T>(path: string, method = 'GET', body?: unknown): Promise<T> {
+async function request<T>(path: string, method = 'GET', body?: unknown, csrf?: string): Promise<T> {
   const controller = new AbortController()
   const timer = window.setTimeout(() => controller.abort(), path.startsWith('/agent/') ? 60000 : 20000)
   try {
-    const response = await fetch(`${API_BASE}${path}`, { method, signal: controller.signal, credentials: import.meta.env.VITE_API_USE_CREDENTIALS === 'true' ? 'include' : 'same-origin', headers: body === undefined ? {} : { 'Content-Type': 'application/json' }, body: body === undefined ? undefined : JSON.stringify(body) })
+    const response = await fetch(`${API_BASE}${path}`, { method, signal: controller.signal, credentials: import.meta.env.VITE_API_USE_CREDENTIALS === 'true' ? 'include' : 'same-origin', headers: { ...(body === undefined ? {} : { 'Content-Type': 'application/json' }), ...(csrf ? { 'X-CSRF-Token': csrf } : {}) }, body: body === undefined ? undefined : JSON.stringify(body) })
     const data = await response.json().catch(() => null)
     if (!response.ok) {
       const detail = data?.detail
@@ -21,7 +21,15 @@ async function request<T>(path: string, method = 'GET', body?: unknown): Promise
 }
 const id = encodeURIComponent
 export const resourcePaths: Record<keyof BuildingData, string> = { catalog: '/building/catalog', appointments: '/appointments', permissions: '/guests/permissions', emergencies: '/emergencies', integrations: '/building/integrations', devices: '/building/devices', journeys: '/building/journeys', actuators: '/building/actuator-events', scans: '/building/credential-events' }
+type Session = { user: { id: string; username: string; person_id: string } | null; csrf_token: string }
+async function authenticatedPost<T>(path: string, body: unknown): Promise<T> {
+  const session = await request<Session>('/auth/session')
+  return request<T>(path, 'POST', body, session.csrf_token)
+}
 export const api = {
+  session: () => request<Session>('/auth/session'),
+  logout: () => authenticatedPost('/auth/logout', {}),
+  ringAccounts: () => request<{ account_id: string; status: string; environment: string }[]>('/ring/accounts'),
   resource: <K extends keyof BuildingData>(key: K) => request<BuildingData[K]>(resourcePaths[key]),
   check: (person_id: string, zone_id: string, purpose: string) => request<Decision>('/access/check', 'POST', { person_id, zone_id, purpose }),
   appointment: (body: Pick<Appointment, 'id' | 'visitor_id' | 'visitor_name' | 'business_id' | 'destination_zone_id' | 'appointment_time'>) => request<Appointment>('/appointments', 'POST', body),
@@ -42,5 +50,5 @@ export const api = {
   confirm: (key: string, actor_id: string) => request<ToolResult>(`/agent/actions/${id(key)}/confirm`, 'POST', { actor_id }),
   ringDevices: (account: string) => request<RingDevice[]>(`/ring/accounts/${id(account)}/devices`),
   ringEvents: (account: string) => request<RingEvent[]>(`/ring/accounts/${id(account)}/events`),
-  importRing: (account: string, device: string, zone_id: string) => request<Device>(`/building/ring/accounts/${id(account)}/devices/${id(device)}/register`, 'POST', { zone_id }),
+  importRing: (account: string, device: string, zone_id: string) => authenticatedPost<Device>(`/building/ring/accounts/${id(account)}/devices/${id(device)}/register`, { zone_id }),
 }

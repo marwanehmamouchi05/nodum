@@ -9,9 +9,10 @@ Routes, seed data, repository/services and deterministic policies are unchanged.
 users yet. CORS is a browser policy, not authentication. Until an authentication
 gateway is configured, publish only `/ring/webhooks` and `/health`; keep other
 routes, including `/docs` and `/openapi.json`, private at the ingress. Ring linking
-also still requires a real sign-in UI and the verified token-delivery adapter
-described in [Ring integration](ring-integration.md). Configuration validation
-does not complete those adapters or prove live Ring connectivity.
+uses the [persisted sign-in UI and session configuration](authentication.md),
+but still requires the verified token-delivery adapter described in
+[Ring integration](ring-integration.md). Expose /auth/* and /ring/link for that flow
+while keeping generic APIs private. Configuration does not prove live Ring connectivity.
 
 ## Local development (PowerShell)
 
@@ -155,7 +156,7 @@ No secrets are build arguments or image environment defaults.
 - Provide a domain, TLS certificate/termination, ingress restrictions and rate limits.
 - Mount persistent writable storage and arrange SQLite/key backups.
 - Supply runtime secrets and AWS IAM permissions only for enabled capabilities.
-- Provide authenticated Ring account-link UI and the verified inbound token adapter;
+- Configure the persisted Ring account-link UI and provide the verified inbound token adapter;
   startup validation alone does not remove their fail-closed gates.
 - Register URLs in Ring's portal, connect the private-app account/devices, and run
   real signature, discovery, linking and restart tests after deployment approval.

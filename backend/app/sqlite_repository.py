@@ -10,6 +10,7 @@ import sqlite3
 from app.services.errors import DomainError
 
 from app.database import SQLiteDatabase
+from app.models.auth import NodumUser, AuthSession, AuthThrottle
 from app.models.access import AccessPermission
 from app.models.agent import PendingAction
 from app.models.building import Person, Zone, WorkOrder
@@ -397,3 +398,48 @@ class SQLiteRepository:
                 "ON CONFLICT(id) DO UPDATE SET data=excluded.data",
                 (record.id, record.model_dump_json()),
             )
+
+    def get_auth_user(self, identifier):
+        return self._get("auth_users", identifier, NodumUser)
+
+    def list_auth_users(self):
+        return self._list("auth_users", NodumUser)
+
+    def save_auth_user(self, record):
+        record = NodumUser.model_validate(record.model_dump())
+        with self.database.transaction() as connection:
+            connection.execute("INSERT INTO auth_users (id, data) VALUES (?, ?) ON CONFLICT(id) DO UPDATE SET data=excluded.data", (record.id, record.model_dump_json()))
+
+    def delete_auth_user(self, identifier):
+        with self.database.transaction() as connection:
+            connection.execute("DELETE FROM auth_users WHERE id = ?", (identifier,))
+
+    def get_auth_session(self, identifier):
+        return self._get("auth_sessions", identifier, AuthSession)
+
+    def list_auth_sessions(self):
+        return self._list("auth_sessions", AuthSession)
+
+    def save_auth_session(self, record):
+        record = AuthSession.model_validate(record.model_dump())
+        with self.database.transaction() as connection:
+            connection.execute("INSERT INTO auth_sessions (id, data) VALUES (?, ?) ON CONFLICT(id) DO UPDATE SET data=excluded.data", (record.id, record.model_dump_json()))
+
+    def delete_auth_session(self, identifier):
+        with self.database.transaction() as connection:
+            connection.execute("DELETE FROM auth_sessions WHERE id = ?", (identifier,))
+
+    def get_auth_throttle(self, identifier):
+        return self._get("auth_throttles", identifier, AuthThrottle)
+
+    def list_auth_throttles(self):
+        return self._list("auth_throttles", AuthThrottle)
+
+    def save_auth_throttle(self, record):
+        record = AuthThrottle.model_validate(record.model_dump())
+        with self.database.transaction() as connection:
+            connection.execute("INSERT INTO auth_throttles (id, data) VALUES (?, ?) ON CONFLICT(id) DO UPDATE SET data=excluded.data", (record.id, record.model_dump_json()))
+
+    def delete_auth_throttle(self, identifier):
+        with self.database.transaction() as connection:
+            connection.execute("DELETE FROM auth_throttles WHERE id = ?", (identifier,))

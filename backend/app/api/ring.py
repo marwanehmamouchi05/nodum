@@ -1,14 +1,14 @@
-"""Thin Ring boundaries. Deployment authentication adapters fail closed by default."""
+"""Session-authenticated Ring boundaries; unverified token delivery fails closed."""
 from datetime import datetime
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Query, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel, ConfigDict, ValidationError
 from starlette.concurrency import run_in_threadpool
 
 from app.api.dependencies import get_repository, utc_now
+from app.api.auth import get_current_user, get_auth_service, browser_page
 from app.integrations.ring.config import RingSettings
 from app.models.ring import RingLinkInput, RingPrincipal
 from app.services.errors import DomainError
@@ -22,10 +22,14 @@ def get_ring_service(repository=Depends(get_repository)):
     return RingService(repository, RingSettings.from_env())
 
 
-def require_ring_principal() -> RingPrincipal:
-    # Replace with a real authenticated, CSRF-protected session dependency at
-    # deployment. Never accept a person ID/email supplied by the request as proof.
-    raise DomainError(503, "Ring linking requires a configured Nodum authentication adapter")
+def require_ring_principal(request: Request, user=Depends(get_current_user),
+                           auth_service=Depends(get_auth_service),
+                           now=Depends(utc_now)) -> RingPrincipal:
+    if request.method not in {"GET", "HEAD", "OPTIONS"}:
+        auth_service.check_csrf(request.cookies.get(auth_service.settings.cookie_name),
+                                request.headers.get("x-csrf-token"), request.headers.get("origin"), now)
+    return RingPrincipal(person_id=user.person_id, user_id=user.id,
+                         masked_account_identifier=user.username[:1] + "***" + user.username[-1:])
 
 
 def receive_verified_ring_code() -> str:
@@ -64,12 +68,14 @@ def link_redirect_input(nonce: Annotated[str, Query()],
 
 
 @router.get("/link")
-def claim_account_redirect(payload: Annotated[RingLinkInput, Depends(link_redirect_input)],
-                           principal: Principal, service: Service, now: Now):
-    """Handle Ring's browser redirect only after verified Nodum sign-in."""
-    return JSONResponse(service.claim(payload, principal, now), headers={
-        "Cache-Control": "no-store", "Referrer-Policy": "no-referrer",
-    })
+def claim_account_redirect(payload: Annotated[RingLinkInput, Depends(link_redirect_input)]):
+    """Preserve the redirect query in the browser; never claim on GET."""
+    return browser_page()
+
+
+@router.get("/accounts")
+def linked_accounts(principal: Principal, service: Service):
+    return service.linked_accounts(principal)
 
 
 @router.get("/accounts/{account_id}/devices")
