@@ -55,7 +55,7 @@ exchange service is implemented and tested; inbound live delivery remains gated.
 | `POST /ring/link` | `{nonce, time}`; verified manager/responder session; identity never comes from the body |
 | `GET /ring/accounts/{account_id}/devices` | Discover devices for the linked account's owner |
 | `POST /ring/webhooks` | Public signed webhook receipt, max 1 MiB; no synchronous network/emergency calls |
-| `GET /ring/accounts/{account_id}/events` | Owner-only audit inbox, including original JSON |
+| `GET /ring/accounts/{account_id}/events` | Owner-only audit inbox; raw payload excluded from browser responses |
 | `POST /ring/events/{event_id}/process` | Owner/operator review; `{zone_id}` explicitly confirms the affected zone |
 
 Ring operations now use the persisted, CSRF-protected Nodum session described in
@@ -148,9 +148,9 @@ Run the complete suite with both repository backends:
 ```
 
 Live linking and real devices have not been tested. HTTPS deployment configuration
-and a verified inbound token-delivery adapter remain necessary. Core APIs retain their existing lack
-of authentication and must not be exposed publicly alongside Ring without an
-appropriate gateway. Configure ingress rate limits, request timeouts, and TLS;
+and a verified inbound token-delivery adapter remain necessary. Generic building APIs require a manager session in production; mutations require
+CSRF/Origin validation. Development mode remains unguarded for local demos and
+must not be exposed publicly. Configure ingress rate limits, request timeouts, and TLS;
 monitor delivery latency, inbox growth, and failed linking/refresh operations.
 
 There is no scheduled refresh job, cleanup/retention policy, paginated audit API,
