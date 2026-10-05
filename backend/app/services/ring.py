@@ -24,6 +24,7 @@ from app.services.errors import DomainError
 
 SIGNALS = {
     "motion_detected": "motion", "button_press": "doorbell",
+    "person_detected": "person", "package_detected": "package",
     "contact_sensor_faulted": "contact_open", "contact_sensor_cleared": "contact_closed",
     "flood_detected": "water_detected", "flood_cleared": "water_cleared",
     "freeze_detected": "freeze_detected", "freeze_cleared": "freeze_cleared",

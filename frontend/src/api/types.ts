@@ -21,4 +21,7 @@ export interface AgentResponse { status: string; explanation: string; explanatio
 export interface RingDevice { id: string; name: string; attributes: Record<string, unknown>; related: Record<string, unknown> }
 export interface RingEvent { id: string; event_type: string; received_at: string; occurred_at?: string; signal?: string }
 export interface AccessEntry { id: string; at: string; person_id: string; zone_id: string; decision: Decision }
+export interface RingSimulationScenario { name: string; label: string; description: string; event_count: number }
+export interface RingSimulationStatus { mode: 'simulation' | 'live'; scenarios: RingSimulationScenario[]; device_count: number; account?: { account_id: string; environment: string; status: string; owner_id: string | null; is_simulation: boolean } }
+export interface RingSimulationDelivery { status: string; id: string; event_type: string; device_id: string; signal: string; request_id: string; event_id: string; is_simulation: boolean }
 export interface BuildingData { catalog: Catalog; appointments: Appointment[]; permissions: Permission[]; emergencies: Incident[]; integrations: Integration[]; devices: Device[]; journeys: Journey[]; actuators: Actuator[]; scans: Scan[] }

@@ -12,7 +12,7 @@ from urllib.parse import urlencode
 from cryptography.fernet import Fernet
 import pytest
 
-from app.api.ring import get_ring_service, receive_verified_ring_code, require_ring_principal
+from app.api.ring import get_ring_service, get_ring_simulation, receive_verified_ring_code, require_ring_principal
 from app.integrations.ring.client import NoRedirect, RingClient, RingRemoteError
 from app.integrations.ring.config import RingSettings
 from app.main import app
@@ -605,3 +605,127 @@ def test_get_link_cannot_bypass_sign_in(api, service):
     assert status == 200 and 'id="login"' in body
     assert service.repository.get_ring_account(service.account_key(ACCOUNT)).owner_id is None
     service.client.confirm.assert_not_called()
+
+
+def test_ring_settings_default_mode_is_simulation():
+    """Simulation must be the default so the hackathon demo runs without env config."""
+    settings = RingSettings(signing_key="k", encryption_key=Fernet.generate_key().decode())
+    assert settings.mode == "simulation"
+
+
+@pytest.mark.parametrize("mode", ["simulation", "live"])
+def test_ring_settings_accepts_documented_modes(mode):
+    settings = RingSettings(mode=mode, signing_key="k",
+                             encryption_key=Fernet.generate_key().decode())
+    assert settings.mode == mode
+
+
+def test_ring_settings_env_rejects_unknown_mode(monkeypatch):
+    """A misspelled RING_MODE value must surface a 503 DomainError before any service runs."""
+    monkeypatch.setenv("RING_MODE", "playground")
+    with pytest.raises(DomainError):
+        RingSettings.from_env()
+
+
+# ---------------------------------------------------------------------------
+# Ring Playground simulation API tests
+# ---------------------------------------------------------------------------
+
+
+def _simulation_service(repo, settings=None, remote=None):
+    from unittest.mock import Mock
+    if settings is None:
+        settings = replace(RingSettings(client_id="", client_secret="", mode="simulation",
+                                        signing_key="sim-signing",
+                                        encryption_key=Fernet.generate_key().decode()),
+                           environment="staging")
+    if remote is None:
+        remote = Mock(spec=RingClient)
+    return RingService(repo, settings, remote)
+
+
+def test_simulation_status_reports_mode_and_account(api, repo):
+    from app.services.ring_simulation import RingSimulationService
+    service = _simulation_service(repo)
+    app.dependency_overrides[get_ring_service] = lambda: service
+    app.dependency_overrides[require_ring_principal] = lambda: PRINCIPAL
+    status, body = api("GET", "/ring/simulation")
+    assert status == 200
+    assert body["mode"] == "simulation"
+    assert body["account"]["account_id"] == "simulation.playground"
+    assert any(s["name"] == "visitor_arrives" for s in body["scenarios"])
+
+
+def test_simulation_devices_returns_catalog(api, repo):
+    from app.services.ring_simulation import RingSimulationService
+    service = _simulation_service(repo)
+    app.dependency_overrides[get_ring_service] = lambda: service
+    app.dependency_overrides[require_ring_principal] = lambda: PRINCIPAL
+    status, body = api("GET", "/ring/simulation/devices")
+    assert status == 200
+    assert {d["id"] for d in body} == {"sim-doorbell-front", "sim-camera-lobby", "sim-contact-utility"}
+    for device in body:
+        assert device["attributes"]["is_simulation"] is True
+
+
+def test_simulation_scenario_persists_events(api, repo):
+    from app.services.ring_simulation import RingSimulationService
+    service = _simulation_service(repo)
+    app.dependency_overrides[get_ring_service] = lambda: service
+    app.dependency_overrides[require_ring_principal] = lambda: PRINCIPAL
+    status, body = api("POST", "/ring/simulation/scenarios/visitor_arrives", {})
+    assert status == 200
+    assert body["scenario"] == "visitor_arrives"
+    kinds = [event["event_type"] for event in body["events"]]
+    assert kinds == ["motion_detected", "button_press", "person_detected"]
+    # Each event landed in the real ring_events table
+    inbox = [event for event in repo.list_ring_events()
+             if event.account_id == "simulation.playground"]
+    assert len(inbox) == 3
+
+
+def test_simulation_rejects_unknown_scenario(api, repo):
+    from app.services.ring_simulation import RingSimulationService
+    service = _simulation_service(repo)
+    app.dependency_overrides[get_ring_service] = lambda: service
+    app.dependency_overrides[require_ring_principal] = lambda: PRINCIPAL
+    status, _ = api("POST", "/ring/simulation/scenarios/no-such", {})
+    assert status == 404
+
+
+def test_simulation_rejected_in_live_mode(api, repo):
+    from unittest.mock import Mock
+    from app.services.ring_simulation import RingSimulationService
+    settings = replace(RingSettings(client_id="", client_secret="", mode="live",
+                                    signing_key="sim-signing",
+                            encryption_key=Fernet.generate_key().decode()),
+                       environment="staging")
+    service = RingService(repo, settings, Mock(spec=RingClient))
+    app.dependency_overrides[get_ring_service] = lambda: service
+    app.dependency_overrides[require_ring_principal] = lambda: PRINCIPAL
+    assert api("GET", "/ring/simulation/devices")[0] == 403
+    assert api("POST", "/ring/simulation/scenarios/visitor_arrives", {})[0] == 403
+    assert api("GET", "/ring/simulation/events")[0] == 403
+
+
+def test_simulation_events_endpoint_returns_inbox(api, repo):
+    from app.services.ring_simulation import RingSimulationService
+    service = _simulation_service(repo)
+    app.dependency_overrides[get_ring_service] = lambda: service
+    app.dependency_overrides[require_ring_principal] = lambda: PRINCIPAL
+    api("POST", "/ring/simulation/scenarios/contact_sensor_sequence", {})
+    status, body = api("GET", "/ring/simulation/events")
+    assert status == 200
+    assert len(body) == 2
+    assert {event["event_type"] for event in body} == {
+        "contact_sensor_faulted", "contact_sensor_cleared"}
+    for event in body:
+        assert "raw_payload" not in event
+
+
+def test_simulation_requires_authenticated_session(api, repo):
+    # No principal override means require_ring_principal fails with 401.
+    from app.services.ring_simulation import RingSimulationService
+    service = _simulation_service(repo)
+    app.dependency_overrides[get_ring_service] = lambda: service
+    assert api("POST", "/ring/simulation/scenarios/visitor_arrives", {})[0] == 401

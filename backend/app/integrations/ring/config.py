@@ -8,6 +8,7 @@ from app.services.errors import DomainError
 @dataclass(frozen=True)
 class RingSettings:
     environment: str = "staging"
+    mode: str = "simulation"
     client_id: str = ""
     client_secret: str = field(default="", repr=False)
     signing_key: str = field(default="", repr=False)
@@ -23,7 +24,8 @@ class RingSettings:
     def from_env(cls):
         values = {name: os.getenv("RING_" + name.upper(), default)
                   for name, default in (
-                      ("environment", "staging"), ("client_id", ""), ("client_secret", ""),
+                      ("environment", "staging"), ("mode", "simulation"),
+                      ("client_id", ""), ("client_secret", ""),
                       ("signing_key", ""),
                       ("encryption_key", ""), ("api_base_url", "https://api.amazonvision.com"),
                       ("oauth_token_url", "https://oauth.ring.com/oauth/token"),
@@ -33,6 +35,8 @@ class RingSettings:
         settings = cls(**values)
         if settings.environment not in {"staging", "production"}:
             raise DomainError(503, "Invalid Ring environment configuration")
+        if settings.mode not in {"simulation", "live"}:
+            raise DomainError(503, "Invalid Ring mode; expected 'simulation' or 'live'")
         for url in (settings.api_base_url, settings.oauth_token_url,
                     settings.account_link_url, settings.token_exchange_url,
                     settings.webhook_url, settings.homepage_url):

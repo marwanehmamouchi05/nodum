@@ -1,6 +1,7 @@
 """Deployment boundaries: startup, CORS, optional Ring and server arguments."""
 import asyncio
 import json
+import os
 from unittest.mock import Mock
 
 from cryptography.fernet import Fernet
@@ -180,6 +181,25 @@ def test_signing_key_alias_works_when_primary_empty(monkeypatch, tmp_path):
     monkeypatch.setenv("RING_WEBHOOK_SECRET", "legacy-key")
     validate_startup(AppSettings.from_env())
     assert RingSettings.from_env().signing_key == "legacy-key"
+
+
+def test_default_ring_mode_is_simulation(monkeypatch, tmp_path):
+    production(monkeypatch, tmp_path)
+    validate_startup(AppSettings.from_env())
+    assert os.getenv("RING_MODE", "simulation") == "simulation"
+
+
+def test_invalid_ring_mode_rejected(monkeypatch, tmp_path):
+    production(monkeypatch, tmp_path)
+    monkeypatch.setenv("RING_MODE", "playground")
+    with pytest.raises(ConfigurationError, match="RING_MODE"):
+        validate_startup(AppSettings.from_env())
+
+
+def test_live_ring_mode_accepted(monkeypatch, tmp_path):
+    production(monkeypatch, tmp_path)
+    monkeypatch.setenv("RING_MODE", "live")
+    validate_startup(AppSettings.from_env())
 
 
 def test_optional_ring_invalid_config_does_not_block_startup(monkeypatch, tmp_path):

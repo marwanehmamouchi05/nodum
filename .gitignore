@@ -168,9 +168,11 @@ secrets/
 
 # Local security/runtime material and backups
 .pytest_cache/
+.pytest_tmp/
 .aws/
 *.db.bak
 *.sqlite.bak
 *.sqlite3.bak
 *.sql
 *.har
+.smoke.*

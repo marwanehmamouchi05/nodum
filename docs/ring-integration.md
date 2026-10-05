@@ -111,6 +111,50 @@ context checks, manager/responder behavior, emergency restrictions, contractor
 work-order/assignment rules, guest and appointment permission restrictions.
 An existing contractor work order alone cannot bypass a Ring-derived incident.
 
+## Simulation mode (hackathon / demo)
+
+`RING_MODE=simulation` enables a built-in Ring Playground simulator so the
+demo can run without physical Ring hardware or a live Ring Partner OAuth link.
+The simulator builds the documented v1.1 webhook envelope, signs it with the
+configured `RING_SIGNING_KEY`, and routes every event through
+`RingService.receive_event()` so the entire Nodum backend sees the data:
+
+```
+Ring Playground / simulator
+  -> Ring event adapter
+  -> event normalization
+  -> Nodum backend
+  -> persistence (ring_events table)
+  -> existing decision/workflow logic
+  -> resulting action/state
+  -> frontend/dashboard
+```
+
+The simulator seeds a completed `RingAccount` owned by the seeded manager
+(`manager-1`) with an environment-scoped identifier (`simulation.playground`)
+so authentication and discovery continue to flow through the same code path.
+Discovery returns a small catalog: a Video Doorbell, a Camera, and a Contact
+Sensor. Six deterministic demo scenarios are exposed via
+`/ring/simulation/scenarios/{name}`:
+
+| Scenario | Events |
+| --- | --- |
+| `visitor_arrives` | motion, doorbell, person |
+| `package_delivery` | motion, doorbell, package |
+| `after_hours_person` | repeated motion + person |
+| `emergency_access` | motion + doorbell |
+| `contact_sensor_sequence` | contact faulted, contact cleared |
+| `device_lifecycle` | device offline, device online |
+
+The simulator never fabricates data outside the real pipeline: signature
+verification, normalization, dedup, persistence, the operator-only audit inbox,
+and the existing flood→water_leak emergency bridge are all shared with the
+live path. Every simulated event is clearly labeled in the UI and never
+misrepresented as live Ring data.
+
+`RING_MODE=live` keeps the original documented behavior: only real signed
+Ring webhooks reach the inbox and the OAuth handshake is enforced.
+
 ## Configuration and deployment
 
 Copy the names in `.env.example` into the backend process environment (the example

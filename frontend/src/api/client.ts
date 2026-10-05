@@ -1,4 +1,4 @@
-import type { AgentResponse, Appointment, BuildingData, Credential, Decision, Device, DeviceStatus, Incident, Journey, RingDevice, RingEvent, Scan, ToolResult, Transition } from './types'
+import type { AgentResponse, Appointment, BuildingData, Credential, Decision, Device, DeviceStatus, Incident, Journey, RingDevice, RingEvent, RingSimulationDelivery, RingSimulationStatus, Scan, ToolResult, Transition } from './types'
 
 export const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000').replace(/\/$/, '')
 export class ApiError extends Error { status: number; constructor(message: string, status: number) { super(message); this.status = status } }
@@ -55,4 +55,8 @@ export const api = {
   ringDevices: (account: string) => request<RingDevice[]>(`/ring/accounts/${id(account)}/devices`),
   ringEvents: (account: string) => request<RingEvent[]>(`/ring/accounts/${id(account)}/events`),
   importRing: (account: string, device: string, zone_id: string) => authenticatedPost<Device>(`/building/ring/accounts/${id(account)}/devices/${id(device)}/register`, { zone_id }),
+  ringSimulationStatus: () => request<RingSimulationStatus>('/ring/simulation'),
+  ringSimulationDevices: () => request<RingDevice[]>('/ring/simulation/devices'),
+  ringSimulationEvents: () => request<RingEvent[]>('/ring/simulation/events'),
+  ringSimulationScenario: (scenario: string, zone_id?: string) => authenticatedPost<{ scenario: string; events: RingSimulationDelivery[]; zone_hint?: string }>(`/ring/simulation/scenarios/${id(scenario)}`, { zone_id }),
 }

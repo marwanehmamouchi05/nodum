@@ -13,6 +13,7 @@ from app.integrations.ring.config import RingSettings
 from app.models.ring import RingLinkInput, RingPrincipal
 from app.services.errors import DomainError
 from app.services.ring import RingService
+from app.services.ring_simulation import RingSimulationService, SCENARIOS, SIM_DEVICES
 
 
 router = APIRouter(prefix="/ring", tags=["Ring"])
@@ -20,6 +21,10 @@ router = APIRouter(prefix="/ring", tags=["Ring"])
 
 def get_ring_service(repository=Depends(get_repository)):
     return RingService(repository, RingSettings.from_env())
+
+
+def get_ring_simulation(service=Depends(get_ring_service)):
+    return RingSimulationService(service)
 
 
 def require_ring_principal(request: Request, user=Depends(get_current_user),
@@ -40,6 +45,7 @@ def receive_verified_ring_code() -> str:
 
 
 Service = Annotated[RingService, Depends(get_ring_service)]
+Simulation = Annotated[RingSimulationService, Depends(get_ring_simulation)]
 Principal = Annotated[RingPrincipal, Depends(require_ring_principal)]
 Now = Annotated[datetime, Depends(utc_now)]
 
@@ -111,3 +117,61 @@ def process_event(event_id: str, payload: ProcessEventInput, principal: Principa
                   service: Service, now: Now):
     return service.process_event(event_id, principal, payload.zone_id, now).model_dump(
         mode="json", exclude={"raw_payload"})
+
+
+# ----- Ring Playground simulation endpoints -----------------------------
+# These endpoints exist ONLY when RING_MODE=simulation. They use the real
+# RingService.receive_event() path; nothing is faked inside the API layer.
+
+@router.get("/simulation")
+def simulation_status(simulation: Simulation, now: Now):
+    """Report current mode plus the seeded simulation account (if available)."""
+    payload: dict = {"mode": simulation.settings.mode,
+                     "scenarios": [{"name": n, "label": s["label"],
+                                    "description": s["description"],
+                                    "event_count": len(s["events"])}
+                                   for n, s in SCENARIOS.items()],
+                     "device_count": len(SIM_DEVICES)}
+    if simulation.settings.mode == "simulation":
+        payload["account"] = simulation.account_summary(now)
+    return payload
+
+
+@router.get("/simulation/devices")
+def simulation_devices(simulation: Simulation, principal: Principal):
+    """Return the simulator's device catalog (no remote call)."""
+    if simulation.settings.mode != "simulation":
+        raise DomainError(403, "Ring simulation is only available in RING_MODE=simulation")
+    return [device.model_dump(mode="json") for device in simulation.devices()]
+
+
+@router.get("/simulation/events")
+def simulation_events(simulation: Simulation, principal: Principal):
+    """Owner-only audit inbox for the simulated account; raw payload excluded."""
+    if simulation.settings.mode != "simulation":
+        raise DomainError(403, "Ring simulation is only available in RING_MODE=simulation")
+    return [event.model_dump(mode="json", exclude={"raw_payload"})
+            for event in simulation.repository.list_ring_events()
+            if event.account_id == "simulation.playground"
+            and event.environment == simulation.settings.environment]
+
+
+class SimulationScenarioInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    zone_id: str | None = None
+
+
+@router.post("/simulation/scenarios/{scenario}")
+def run_simulation_scenario(scenario: str, payload: SimulationScenarioInput,
+                             simulation: Simulation, principal: Principal, now: Now):
+    """Deliver a deterministic scenario into the real Ring webhook pipeline.
+
+    Events go through ``RingService.receive_event()`` (signature-verified,
+    normalized, deduped, persisted). Operators can then process them via the
+    existing ``/ring/events/{id}/process`` endpoint.
+    """
+    if simulation.settings.mode != "simulation":
+        raise DomainError(403, "Ring simulation is only available in RING_MODE=simulation")
+    delivered = simulation.run_scenario(scenario, now)
+    return {"scenario": scenario, "events": delivered,
+            "zone_hint": payload.zone_id}

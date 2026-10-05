@@ -112,4 +112,9 @@ def validate_startup(settings):
             ring = RingSettings.from_env()
             Fernet(ring.encryption_key.encode())
         except (DomainError, ValueError, TypeError):
-            raise ConfigurationError("Invalid Ring configuration: check HTTPS URLs, RING_ENVIRONMENT and RING_ENCRYPTION_KEY") from None
+            raise ConfigurationError("Invalid Ring configuration: check HTTPS URLs, RING_ENVIRONMENT, RING_MODE and RING_ENCRYPTION_KEY") from None
+
+    # Validate RING_MODE early so a misspelled value fails before any service runs.
+    ring_mode = os.getenv("RING_MODE", "simulation").strip().lower()
+    if ring_mode not in {"simulation", "live"}:
+        raise ConfigurationError("RING_MODE must be 'simulation' or 'live'")

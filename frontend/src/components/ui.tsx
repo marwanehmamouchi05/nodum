@@ -18,7 +18,7 @@ export function ActionForm({ title, fields, submit, onSubmit, disabled = false }
   }
   return <form onSubmit={send} className="action-form">{title && <h3>{title}</h3>}<div className="form-grid">{fields.map(f => <label key={f.name}>{f.label}{f.options ? <select name={f.name} required={!f.optional} defaultValue={f.value || ''}><option value="">Select…</option>{f.options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}</select> : <input name={f.name} type={f.type || 'text'} defaultValue={f.value} required={!f.optional} min={f.min} max={f.max} />}</label>)}</div><button className="primary" disabled={busy || disabled}>{busy ? 'Working…' : submit}</button>{error && <p className="error" role="alert">{error}</p>}{success && <p className="success" role="status">Request completed.</p>}</form>
 }
-export function TaskButton({ children, run, className = '' }: { children: ReactNode; run: () => Promise<unknown>; className?: string }) {
+export function TaskButton({ children, run, className = '', disabled = false }: { children: ReactNode; run: () => Promise<unknown>; className?: string; disabled?: boolean }) {
   const [busy, setBusy] = useState(false); const [error, setError] = useState('')
-  return <div className="task"><button className={className} disabled={busy} onClick={async () => { setBusy(true); setError(''); try { await run() } catch (e) { setError(e instanceof Error ? e.message : 'Request failed') } finally { setBusy(false) } }}>{busy ? 'Working…' : children}</button>{error && <p className="error" role="alert">{error}</p>}</div>
+  return <div className="task"><button className={className} disabled={busy || disabled} onClick={async () => { setBusy(true); setError(''); try { await run() } catch (e) { setError(e instanceof Error ? e.message : 'Request failed') } finally { setBusy(false) } }}>{busy ? 'Working…' : children}</button>{error && <p className="error" role="alert">{error}</p>}</div>
 }
