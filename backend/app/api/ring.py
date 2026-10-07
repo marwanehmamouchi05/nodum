@@ -15,6 +15,8 @@ from app.models.building import PersonRole
 from app.services.errors import DomainError
 from app.services.ring import RingService
 from app.services.ring_simulation import RingSimulationService, SCENARIOS, SIM_DEVICES
+from app.models.authorization import Permission as P
+from app.services.scoped_repository import bind_created
 
 
 router = APIRouter(prefix="/ring", tags=["Ring"])
@@ -51,7 +53,11 @@ Principal = Annotated[RingPrincipal, Depends(require_ring_principal)]
 Now = Annotated[datetime, Depends(utc_now)]
 
 
-def require_simulation_operator(principal: Principal, repository=Depends(get_repository)):
+def require_simulation_operator(principal: Principal, request: Request, repository=Depends(get_repository)):
+    authorization = getattr(request.state, "authorization", None)
+    if authorization:
+        authorization.require(P.SIMULATION_RUN, "simulation", "ring")
+        return principal
     person = repository.get_person(principal.person_id)
     if not person or person.role != PersonRole.MANAGER:
         raise DomainError(403, "Ring simulation requires a manager account")
@@ -91,8 +97,14 @@ def claim_account_redirect(payload: Annotated[RingLinkInput, Depends(link_redire
 
 
 @router.get("/accounts")
-def linked_accounts(principal: Principal, service: Service):
-    return service.linked_accounts(principal)
+def linked_accounts(principal: Principal, service: Service, request: Request):
+    records = service.linked_accounts(principal)
+    authorization = getattr(request.state, "authorization", None)
+    if authorization:
+        from app.services.ring import identity
+        records = [a for a in records if authorization.allowed(P.RING_READ, "ring_account",
+                    identity(a["environment"], a["account_id"]))]
+    return records
 
 
 @router.get("/accounts/{account_id}/devices")
@@ -113,9 +125,11 @@ async def webhook(request: Request, service: Service, now: Now):
 
 
 @router.get("/accounts/{account_id}/events")
-def list_events(account_id: str, principal: Principal, service: Service):
+def list_events(account_id: str, principal: Principal, service: Service, request: Request):
+    authorization = getattr(request.state, "authorization", None)
     return [event.model_dump(mode="json", exclude={"raw_payload"})
-            for event in service.list_events(account_id, principal)]
+            for event in service.list_events(account_id, principal)
+            if not authorization or authorization.allowed(P.RING_READ, "ring_event", event.id)]
 
 
 class ProcessEventInput(BaseModel):
@@ -125,8 +139,20 @@ class ProcessEventInput(BaseModel):
 
 @router.post("/events/{event_id}/process")
 def process_event(event_id: str, payload: ProcessEventInput, principal: Principal,
-                  service: Service, now: Now):
-    return service.process_event(event_id, principal, payload.zone_id, now).model_dump(
+                  service: Service, now: Now, request: Request):
+    authorization = getattr(request.state, "authorization", None)
+    if authorization:
+        from app.services.authorization_operations import authorize_operation
+        with service.repository.transaction():
+            authorize_operation(authorization, "/ring/events/{event_id}/process",
+                                payload.model_dump(), {"event_id": event_id})
+            event = service.process_event(event_id, principal, payload.zone_id, now)
+            if event.emergency_id and payload.zone_id:
+                scope = service.repository.get_resource_binding("location", payload.zone_id).scope_id
+                bind_created(service.repository, "incident", event.emergency_id, scope)
+    else:
+        event = service.process_event(event_id, principal, payload.zone_id, now)
+    return event.model_dump(
         mode="json", exclude={"raw_payload"})
 
 
@@ -157,14 +183,16 @@ def simulation_devices(simulation: Simulation, principal: SimulationOperator):
 
 
 @router.get("/simulation/events")
-def simulation_events(simulation: Simulation, principal: SimulationOperator):
+def simulation_events(simulation: Simulation, principal: SimulationOperator, request: Request):
     """Manager-only demo inbox for the simulated account; raw payload excluded."""
     if simulation.settings.mode != "simulation":
         raise DomainError(403, "Ring simulation is only available in RING_MODE=simulation")
+    authorization = getattr(request.state, "authorization", None)
     return [event.model_dump(mode="json", exclude={"raw_payload"})
             for event in simulation.repository.list_ring_events()
             if event.account_id == "simulation.playground"
-            and event.environment == simulation.settings.environment]
+            and event.environment == simulation.settings.environment
+            and (not authorization or authorization.allowed(P.RING_READ, "ring_event", event.id))]
 
 
 class SimulationScenarioInput(BaseModel):
@@ -174,7 +202,7 @@ class SimulationScenarioInput(BaseModel):
 
 @router.post("/simulation/scenarios/{scenario}")
 def run_simulation_scenario(scenario: str, payload: SimulationScenarioInput,
-                             simulation: Simulation, principal: SimulationOperator, now: Now):
+                             simulation: Simulation, principal: SimulationOperator, now: Now, request: Request):
     """Deliver a deterministic scenario into the real Ring webhook pipeline.
 
     Events go through ``RingService.receive_event()`` (signature-verified,
@@ -183,6 +211,15 @@ def run_simulation_scenario(scenario: str, payload: SimulationScenarioInput,
     """
     if simulation.settings.mode != "simulation":
         raise DomainError(403, "Ring simulation is only available in RING_MODE=simulation")
-    delivered = simulation.run_scenario(scenario, now)
+    authorization = getattr(request.state, "authorization", None)
+    if authorization:
+        with simulation.repository.transaction():
+            authorization.require(P.SIMULATION_RUN, "simulation", "ring")
+            scope_id = simulation.repository.get_resource_binding("simulation", "ring").scope_id
+            delivered = simulation.run_scenario(scenario, now)
+            for event in delivered:
+                bind_created(simulation.repository, "ring_event", event["id"], scope_id)
+    else:
+        delivered = simulation.run_scenario(scenario, now)
     return {"scenario": scenario, "events": delivered,
             "zone_hint": payload.zone_id}

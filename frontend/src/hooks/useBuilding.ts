@@ -34,12 +34,18 @@ export function useBuilding() {
   useEffect(() => {
     const timer = window.setTimeout(() => { void refresh() }, 0)
     const clear = () => { generation.current += 1; setData(initial); setErrors({ catalog: 'Sign in to refresh building data.' }) }
+    const contextChanged = () => {
+      generation.current += 1; setData(initial); setErrors({}); setUpdated(undefined)
+      void refresh()
+    }
     const focus = () => { void refresh() }
     window.addEventListener('nodum:signed-out', clear)
+    window.addEventListener('nodum:authorization-changed', contextChanged)
     window.addEventListener('focus', focus)
     return () => {
       window.clearTimeout(timer); generation.current += 1
       window.removeEventListener('nodum:signed-out', clear)
+      window.removeEventListener('nodum:authorization-changed', contextChanged)
       window.removeEventListener('focus', focus)
     }
   }, [refresh])

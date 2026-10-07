@@ -5,7 +5,7 @@ from typing import Annotated, Literal
 from fastapi import APIRouter, Depends
 from pydantic import Field
 
-from app.api.dependencies import get_repository, utc_now
+from app.api.dependencies import get_repository, get_scoped_repository, utc_now
 from app.api.ring import Principal, Service as RingServiceDependency
 from app.models.access import NonEmptyString
 from app.models.integrations import (
@@ -19,11 +19,11 @@ from app.services.journeys import JourneyService
 router = APIRouter(prefix="/building", tags=["building integrations (simulators)"])
 
 
-def get_building_service(repository=Depends(get_repository)):
+def get_building_service(repository=Depends(get_scoped_repository)):
     return BuildingService(repository)
 
 
-def get_journey_service(repository=Depends(get_repository)):
+def get_journey_service(repository=Depends(get_scoped_repository)):
     return JourneyService(repository)
 
 

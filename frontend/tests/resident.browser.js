@@ -1,0 +1,105 @@
+// Playwright fixture QA: backend/tests/resident_qa_server.py, Vite 5176,
+// VITE_API_BASE_URL=http://127.0.0.1:8768, VITE_API_USE_CREDENTIALS=true.
+// Every mutation targets the fixture's OS temporary synthetic SQLite DB.
+async (page) => {
+  const base = 'http://127.0.0.1:8768'
+  const check = (condition, message) => { if (!condition) throw new Error(message) }
+  const results = []
+  const navigate = async name => page.getByRole('navigation', { name: 'Resident navigation' }).getByRole('button', { name, exact: true }).click()
+  await page.goto(base + '/auth/login')
+  if (await page.getByLabel('Username').isVisible()) {
+    await page.getByLabel('Username').fill('qa-resident')
+    await page.getByLabel('Password', { exact: true }).fill('Synthetic-local-QA-only')
+    await page.getByRole('button', { name: 'Sign in', exact: true }).click()
+    await page.getByText('Signed in successfully.', { exact: true }).waitFor()
+  }
+  await page.goto('http://127.0.0.1:5176')
+  await page.getByRole('heading', { name: 'Welcome, Ahmed Benali (Synthetic)' }).waitFor()
+  for (const width of [1440, 768, 390]) {
+    await page.setViewportSize({ width, height: 900 })
+    for (const name of ['Home', 'Visitors', 'Maintenance', 'Access', 'Notices']) {
+      await navigate(name)
+      check(!/PRIVATE_102|UNIT_102_PRIVATE|BUSINESS_PRIVATE|OPERATOR_PRIVATE/.test(await page.locator('main').innerText()), 'Private record exposed')
+      check(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'Horizontal overflow')
+      if (width === 1440 || name === 'Home') await page.screenshot({ path: `C:/dev/nodum/docs/qa/resident-${name.toLowerCase()}-${width}.png`, fullPage: true })
+      results.push(`${name} ${width}: private records hidden, no overflow`)
+    }
+  }
+  await navigate('Home')
+  await page.locator('.skip-link').focus()
+  await page.keyboard.press('Enter')
+  check(await page.evaluate(() => document.activeElement.id === 'resident-content'), 'Skip link failed')
+  await page.getByRole('navigation').getByRole('button', { name: 'Visitors', exact: true }).focus()
+  check(await page.evaluate(() => getComputedStyle(document.activeElement).outlineStyle !== 'none'), 'Focus is not visible')
+  check(await page.locator('.resident-shell button').evaluateAll(els => els.every(e => e.getBoundingClientRect().height >= 44)), 'Touch target too small')
+  results.push('Keyboard skip, visible focus, 44px button targets')
+  await page.getByRole('button', { name: 'Invite visitor', exact: true }).click()
+  const visitor = 'Browser synthetic ' + Date.now()
+  const times = await page.evaluate(() => {
+    const local = offset => { const d = new Date(Date.now() + offset); return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0,16) }
+    return { start: local(3600000), end: local(10800000) }
+  })
+  await page.getByLabel('Visitor name', { exact: true }).fill(visitor)
+  await page.getByLabel('Arrival window starts').fill(times.start)
+  await page.getByLabel('Arrival window ends').fill(times.end)
+  await page.getByLabel('Note (optional)').fill('Synthetic reception meeting')
+  await page.screenshot({ path: 'C:/dev/nodum/docs/qa/resident-visitor-form-390.png', fullPage: true })
+  await page.getByRole('button', { name: 'Schedule visitor', exact: true }).click()
+  await page.getByText('Visitor scheduled. No physical door access was granted.', { exact: true }).waitFor()
+  const card = page.getByRole('article').filter({ has: page.getByRole('heading', { name: visitor, exact: true }) })
+  await card.getByText('Cancel this visit', { exact: true }).click()
+  await card.getByRole('button', { name: 'Confirm cancellation' }).click()
+  await card.waitFor({ state: 'hidden' })
+  await page.getByLabel('Show visits').selectOption('all')
+  await card.getByText('Cancelled', { exact: true }).waitFor()
+  await page.getByText('Someone is at your doorbell. Identity not verified.', { exact: true }).waitFor()
+  await page.screenshot({ path: 'C:/dev/nodum/docs/qa/resident-ring-390.png', fullPage: true })
+  results.push('Real visitor create/cancel; Ring unidentified, simulated, no automatic unlock')
+  await navigate('Maintenance')
+  await page.getByRole('button', { name: 'Report an issue', exact: true }).click()
+  await page.getByLabel('Problem', { exact: true }).fill('Synthetic tap leak ' + Date.now())
+  await page.getByLabel('Description', { exact: true }).fill('A small drip in my unit.')
+  await page.getByLabel('Priority').selectOption('normal')
+  await page.screenshot({ path: 'C:/dev/nodum/docs/qa/resident-maintenance-form-390.png', fullPage: true })
+  await page.getByRole('button', { name: 'Submit request', exact: true }).click()
+  await page.getByText('Your maintenance request was submitted.', { exact: true }).waitFor()
+  const request = page.getByRole('article').filter({ has: page.getByRole('heading', { name: 'Kitchen sink leaking', exact: true }) })
+  await request.getByText('Updates (1)', { exact: true }).click()
+  await request.getByText('The building team is arranging a repair.', { exact: true }).waitFor()
+  results.push('Real maintenance submission, public reply, private notes hidden')
+  await navigate('Home')
+  await page.getByRole('button', { name: 'Ask Nodum', exact: true }).click()
+  const help = page.getByRole('region', { name: 'Ask Nodum and local help' })
+  for (const [question, confirmation] of [['My cousin is coming tomorrow at 7', 'Confirm visitor invitation'], ['My kitchen sink is leaking', 'Confirm maintenance request']]) {
+    await help.getByLabel('Ask Nodum', { exact: true }).fill(question)
+    await help.getByRole('button', { name: 'Ask Nodum', exact: true }).click()
+    await page.getByRole('button', { name: confirmation }).waitFor()
+    await page.screenshot({ path: 'C:/dev/nodum/docs/qa/resident-ai-confirmation-390.png', fullPage: true })
+    await page.getByRole('button', { name: confirmation }).click()
+    await page.getByText('Created. Your records have been refreshed.', { exact: true }).waitFor()
+  }
+  await help.getByLabel('Ask Nodum', { exact: true }).fill('Test outage')
+  await help.getByRole('button', { name: 'Ask Nodum', exact: true }).click()
+  await page.getByText('AI unavailable · Use local Guide', { exact: true }).waitFor()
+  await page.getByText('Nodum Guide · Always available', { exact: true }).waitFor()
+  await page.screenshot({ path: 'C:/dev/nodum/docs/qa/resident-guide-outage-390.png', fullPage: true })
+  results.push('Synthetic AI through real orchestrator: typed proposals, explicit confirmation, outage Guide')
+  const snapshot = await (await page.request.get(base + '/resident/snapshot')).json()
+  await page.route('**/resident/snapshot', route => route.fulfill({ status:200,contentType:'application/json',body:JSON.stringify({...snapshot,visitors:[],maintenance:[],notices:[],ring:[]}) }))
+  await navigate('Home'); await page.getByRole('button', { name:'Refresh your information' }).click()
+  await page.getByText('No current building notices.', { exact:true }).waitFor()
+  await navigate('Visitors'); await page.getByText('No visitors scheduled.', { exact:true }).waitFor()
+  await navigate('Maintenance'); await page.getByText('No maintenance requests.', { exact:true }).waitFor()
+  await page.unroute('**/resident/snapshot')
+  await page.route('**/resident/snapshot', route => route.fulfill({status:500,contentType:'application/json',body:JSON.stringify({detail:'PRIVATE_SQL_ERROR'})}))
+  await page.getByRole('button', {name:'Refresh your information'}).click()
+  await page.getByRole('heading',{name:'We can’t open your home right now'}).waitFor()
+  check(!(await page.locator('body').innerText()).includes('PRIVATE_SQL_ERROR'),'Raw error leaked')
+  await page.unroute('**/resident/snapshot')
+  await page.route('**/resident/snapshot', async route => { await new Promise(r=>setTimeout(r,1500)); await route.continue() })
+  await page.reload(); await page.getByText('Opening your information…',{exact:true}).waitFor()
+  await page.getByRole('heading',{name:'Welcome, Ahmed Benali (Synthetic)'}).waitFor()
+  await page.unroute('**/resident/snapshot')
+  results.push('Loading, empty, safe error, recovery')
+  return results
+}

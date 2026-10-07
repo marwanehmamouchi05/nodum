@@ -79,7 +79,14 @@ def session_context(request: Request, response: Response, service: Service, now:
         set_cookie(response, service, cookie, age)
     user = service.user(cookie, now)
     response.headers.update(PRIVATE_HEADERS)
-    return {"user": user.public() if user else None, "csrf_token": csrf_token(cookie)}
+    from app.services.authorization import authorization_mode, AuthorizationService
+    from app.models.authorization import Principal
+    from app.api.authorization import principal_context
+    mode = authorization_mode()
+    authorization = principal_context(AuthorizationService(service.repository,
+        Principal(user_id=user.id, person_id=user.person_id), now)) if user and mode == "scoped" else None
+    return {"user": user.public() if user else None, "csrf_token": csrf_token(cookie),
+            "authorization_mode": mode, "authorization": authorization}
 
 
 class LoginInput(BaseModel):

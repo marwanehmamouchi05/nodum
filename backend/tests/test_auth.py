@@ -1,4 +1,5 @@
 """Authentication tests use real hashing, cookies, ASGI routes and both repositories."""
+from app.database import MIGRATIONS
 from dataclasses import replace
 from datetime import timedelta
 import json
@@ -274,7 +275,7 @@ def test_identity_sessions_and_ownership_survive_restart(tmp_path, settings, rem
     AuthService(second, auth.settings).logout(cookie)
     assert auth.user(cookie, NOW) is None
     with second.database.transaction() as connection:
-        assert [r[0] for r in connection.execute("SELECT version FROM schema_migrations ORDER BY version")] == [1, 2, 3, 4]
+        assert [r[0] for r in connection.execute("SELECT version FROM schema_migrations ORDER BY version")] == [version for version, _ in MIGRATIONS]
 
 
 def test_v3_database_upgrades_without_reassigning_legacy_accounts(tmp_path, monkeypatch, settings, remote):

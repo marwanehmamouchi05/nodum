@@ -33,6 +33,7 @@ def evaluate_access(
     businesses: list[Business] | None = None,
     emergencies: list[EmergencyIncident] | None = None,
     journey_destination: Zone | None = None,
+    legacy_role_access: bool = True,
 ) -> AccessDecision:
     def deny(reason):
         return AccessDecision(allowed=False, reason=reason)
@@ -62,7 +63,7 @@ def evaluate_access(
         key=lambda e: e.emergency_id,
     )
 
-    if person.role in {PersonRole.MANAGER, PersonRole.EMERGENCY_RESPONDER}:
+    if legacy_role_access and person.role in {PersonRole.MANAGER, PersonRole.EMERGENCY_RESPONDER}:
         return AccessDecision(allowed=True, reason=f"{person.role.value} has building-wide access.")
 
     # Every active incident must permit maintenance. An assignment never replaces
@@ -87,6 +88,17 @@ def evaluate_access(
                 return AccessDecision(allowed=True, reason=f"Authorized by work order {order.id}.")
         return deny("No active work order authorizes access to this zone.")
 
+    if not legacy_role_access and person.role not in {PersonRole.GUEST, PersonRole.BUSINESS_VISITOR}:
+        try:
+            grants = [AccessPermission.model_validate(p.model_dump()) for p in permissions]
+        except (ValidationError, ValueError, TypeError, AttributeError):
+            return deny("Invalid permission data.")
+        matches = [p for p in grants if p.person_id == person.id and zone.id in p.allowed_zone_ids
+                   and p.valid_from <= request.requested_at < p.valid_until]
+        if len(matches) != 1:
+            return deny("An explicit physical access grant is required.")
+        return AccessDecision(allowed=True, reason=matches[0].reason, permission=matches[0])
+
     if person.role == PersonRole.BUSINESS_VISITOR:
         # Narrow, opt-in transit context used only by the journey service. This
         # never expands stored guest/business permissions or ordinary access checks.
@@ -98,6 +110,7 @@ def evaluate_access(
                 request.model_copy(update={"zone_id": journey_destination.id}), person,
                 journey_destination, permissions, work_orders, appointments=appointments,
                 businesses=businesses, emergencies=emergencies,
+                legacy_role_access=legacy_role_access,
             )
             if destination_decision.allowed:
                 return AccessDecision(allowed=True, permission=destination_decision.permission,

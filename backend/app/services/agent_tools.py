@@ -13,6 +13,11 @@ from app.repository import Repository
 from app.services import access, appointments, emergencies, guests
 from app.services.agent_actions import PendingActionStore
 from app.services.errors import DomainError
+from app.models.authorization import Permission as P
+from app.services.scoped_repository import ScopedRepository
+from app.services.authorization import scoped_decision
+from app.models.resident import ResidentVisitInput, ResidentMaintenanceInput
+from app.models.business_workspace import BusinessVisitInput, BusinessMaintenanceInput
 
 
 class EmptyInput(BaseModel):
@@ -50,6 +55,13 @@ class CheckInInput(VisitorCheckInInput):
 # No arbitrary Python, URLs, repository writes, permission grants, override roles,
 # incident resolution, or action confirmation are exposed to the model.
 TOOL_SPECS = {
+    "business_context": (EmptyInput, "Read only your affiliated business notices, visitors, staff, maintenance, personal access and permitted devices. No global operations."),
+    "business_invite_visitor": (BusinessVisitInput, "PROPOSE a visitor for your active business. Ask for name and exact start/end timestamps. Explicit confirmation required. No physical access."),
+    "business_report_maintenance": (BusinessMaintenanceInput, "PROPOSE a maintenance issue for your active business. Ask for problem and description. Explicit confirmation required."),
+    "resident_context": (EmptyInput, "Read your own Resident units, current notices, visitors, maintenance and personal access. No global building feeds."),
+    "resident_invite_visitor": (ResidentVisitInput, "PROPOSE your own visitor. Destination derives from active resident affiliation. Ask for visitor name and exact start/end timestamps. Explicit application confirmation required; no physical access."),
+    "resident_report_maintenance": (ResidentMaintenanceInput, "PROPOSE a maintenance request for your affiliated unit. Ask for problem and description. Explicit application confirmation required."),
+    "manager_operations": (EmptyInput, "Read scoped building attention, offline devices, unresolved maintenance and expected visitors. Available only in scoped installations; no actions."),
     "find_people": (SearchInput, "Find people by a specific ID or name (at least 2 characters). No directory export."),
     "find_zones": (SearchInput, "Find zones by ID or name, including type and floor."),
     "find_businesses": (SearchInput, "Find businesses by ID or name and their destination zone IDs."),
@@ -61,7 +73,14 @@ TOOL_SPECS = {
     "create_appointment": (AppointmentCreateInput, "PROPOSE an appointment. Does not execute; manager confirmation is required."),
     "check_in_visitor": (CheckInInput, "PROPOSE check-in against an existing appointment. Does not execute; user confirmation is required."),
 }
-WRITE_TOOLS = frozenset({"invite_guest", "create_appointment", "check_in_visitor"})
+RESIDENT_WRITE_TOOLS = frozenset({"resident_invite_visitor", "resident_report_maintenance", "business_invite_visitor", "business_report_maintenance"})
+WRITE_TOOLS = frozenset({"invite_guest", "create_appointment", "check_in_visitor"}) | RESIDENT_WRITE_TOOLS
+
+
+def tenant_service(name, authorization):
+    from app.services.resident import ResidentService
+    from app.services.business_workspace import BusinessService
+    return (BusinessService if name.startswith("business_") else ResidentService)(authorization, ai_context=True)
 
 
 def tool_config() -> dict:
@@ -72,10 +91,27 @@ def tool_config() -> dict:
     ]}
 
 
-def validate_write_scope(repository: Repository, actor_id: str | None, name: str, payload):
+def validate_write_scope(repository: Repository, actor_id: str | None, name: str, payload, authorization=None):
     """Agent capability boundary, in addition to domain service validation."""
     if not actor_id:
         raise DomainError(403, "An actor_id is required to propose or confirm this action")
+    if name in RESIDENT_WRITE_TOOLS:
+        if not authorization or actor_id != authorization.principal.person_id:
+            raise DomainError(403, "Resident actions require your authenticated account")
+        permission = P.VISITORS_INVITE if name.endswith("invite_visitor") else P.MAINTENANCE_CREATE
+        _, node = tenant_service(name, authorization).target(payload.affiliation_id, permission)
+        return node.scope_id
+    if authorization:
+        if actor_id != authorization.principal.person_id:
+            raise DomainError(403, "Acting identity must match the authenticated account")
+        route, body, params, kind, identifier = tool_operation(name, payload, actor_id)
+        from app.services.authorization_operations import authorize_operation
+        authorize_operation(authorization, route, body, params)
+        binding = repository.get_resource_binding(kind, identifier)
+        if not binding:
+            raise DomainError(403, "AI action requires explicit resource ownership")
+        authorization.require_scope(P.AI_USE, binding.scope_id)
+        return binding.scope_id
     actor = repository.get_person(actor_id)
     is_manager = actor is not None and actor.role == PersonRole.MANAGER
     if name == "invite_guest" and payload.resident_id != actor_id:
@@ -84,6 +120,19 @@ def validate_write_scope(repository: Repository, actor_id: str | None, name: str
         raise DomainError(403, "Agent appointment creation requires a manager actor")
     if name == "check_in_visitor" and payload.visitor_id != actor_id and not is_manager:
         raise DomainError(403, "Check-in must be for the request actor or confirmed by a manager")
+
+
+def tool_operation(name, payload, actor_id):
+    body = payload.model_dump(mode="json")
+    if name == "invite_guest":
+        if payload.resident_id != actor_id:
+            raise DomainError(403, "Inviter must match the authenticated actor")
+        return "/guests/invite", body, {}, "person", actor_id
+    if name == "create_appointment":
+        return "/appointments", body, {}, "business", payload.business_id
+    if name == "check_in_visitor":
+        return "/appointments/{appointment_id}/check-in", body, {"appointment_id": payload.appointment_id}, "appointment", payload.appointment_id
+    raise DomainError(400, "Unsupported action")
 
 
 def execute_write(repository: Repository, name: str, payload, now: datetime):
@@ -101,7 +150,40 @@ def execute_write(repository: Repository, name: str, payload, now: datetime):
 
 
 def confirm_action(repository: Repository, actions: PendingActionStore,
-                   action_id: str, actor_id: str, now: datetime) -> AgentToolResult:
+                   action_id: str, actor_id: str, now: datetime, authorization=None) -> AgentToolResult:
+    if authorization:
+        from app.services.authorization_operations import perform_authorized_write
+        with repository.transaction():
+            action = repository.get_pending_action(action_id)
+            if not action:
+                raise DomainError(404, "Pending action not found or already consumed")
+            if action.authenticated_user_id != authorization.principal.user_id:
+                raise DomainError(403, "Action belongs to a different authenticated identity")
+            if action.tool not in WRITE_TOOLS:
+                raise DomainError(400, "Unsupported action")
+            payload = TOOL_SPECS[action.tool][0].model_validate(action.arguments)
+            scope_id = validate_write_scope(repository, actor_id, action.tool, payload, authorization)
+            if scope_id != action.authorization_scope_id:
+                raise DomainError(403, "Action ownership scope changed")
+            # Commit consumption separately, preserving the audited at-most-once
+            # behavior even when the later domain execution fails.
+        action = actions.consume(action_id, actor_id, now,
+            authenticated_user_id=authorization.principal.user_id, authorization_scope_id=scope_id)
+        if action.tool in RESIDENT_WRITE_TOOLS:
+            with repository.transaction():
+                if validate_write_scope(repository, actor_id, action.tool, payload, authorization) != scope_id:
+                    raise DomainError(403, "Your active unit assignment changed")
+                resident = tenant_service(action.tool, authorization)
+                result = resident.create_visit(payload) if action.tool.endswith("invite_visitor") else resident.create_maintenance(payload)
+                return AgentToolResult(tool=action.tool, status="success", data=jsonable_encoder(result))
+        route, body, params, _, _ = tool_operation(action.tool, payload, actor_id)
+        def execute_confirmed(repo):
+            current_scope = validate_write_scope(repo, actor_id, action.tool, payload, authorization)
+            if current_scope != action.authorization_scope_id:
+                raise DomainError(403, "Action ownership scope changed")
+            return execute_write(repo, action.tool, payload, now)
+        result = perform_authorized_write(authorization, repository, route, body, execute_confirmed, params)
+        return AgentToolResult(tool=action.tool, status="success", data=jsonable_encoder(result))
     action = actions.consume(action_id, actor_id, now)
     if action.tool not in WRITE_TOOLS:
         raise DomainError(400, "Unsupported action")
@@ -114,8 +196,10 @@ def confirm_action(repository: Repository, actions: PendingActionStore,
 
 class AgentTools:
     def __init__(self, repository: Repository, actions: PendingActionStore,
-                 actor_id: str | None, clock: Callable[[], datetime]):
-        self.repository = repository
+                 actor_id: str | None, clock: Callable[[], datetime], authorization=None):
+        self.raw_repository = repository
+        self.authorization = authorization
+        self.repository = ScopedRepository(repository, authorization, ai_context=True) if authorization else repository
         self.actions = actions
         self.actor_id = actor_id
         self.clock = clock
@@ -126,9 +210,15 @@ class AgentTools:
                 raise DomainError(400, "Unknown tool")
             payload = TOOL_SPECS[name][0].model_validate(arguments)
             if name in WRITE_TOOLS:
-                validate_write_scope(self.repository, self.actor_id, name, payload)
+                scope_id = validate_write_scope(self.raw_repository, self.actor_id, name, payload, self.authorization)
+                if name in RESIDENT_WRITE_TOOLS:
+                    permission = P.VISITORS_INVITE if name.endswith("invite_visitor") else P.MAINTENANCE_CREATE
+                    affiliation, _ = tenant_service(name, self.authorization).target(payload.affiliation_id, permission)
+                    payload = payload.model_copy(update={"affiliation_id": affiliation.id})
                 action = self.actions.propose(
-                    self.actor_id, name, payload.model_dump(mode="json"), self.clock())
+                    self.actor_id, name, payload.model_dump(mode="json"), self.clock(),
+                    authenticated_user_id=self.authorization.principal.user_id if self.authorization else None,
+                    authorization_scope_id=scope_id if self.authorization else None)
                 return AgentToolResult(tool=name, status="confirmation_required",
                                        data=action.model_dump(mode="json"))
             result = self.read(name, payload)
@@ -141,7 +231,39 @@ class AgentTools:
                                    data={"status_code": exc.status_code, "detail": exc.detail})
 
     def read(self, name: str, payload):
+        if name == "business_context":
+            if not self.authorization:
+                raise DomainError(403, "Business help requires your authenticated account")
+            snapshot = tenant_service(name, self.authorization).snapshot()
+            return {**snapshot, "visitors": snapshot["visitors"][:20], "maintenance": snapshot["maintenance"][:20], "staff": snapshot["staff"][:20]}
+        if name == "resident_context":
+            if not self.authorization:
+                raise DomainError(403, "Resident help requires your authenticated account")
+            from app.services.resident import ResidentService
+            snapshot = ResidentService(self.authorization, ai_context=True).snapshot()
+            return {**snapshot, "visitors": snapshot["visitors"][:20], "maintenance": snapshot["maintenance"][:20], "notices": snapshot["notices"][:20]}
+        if name == "manager_operations":
+            if not self.authorization:
+                raise DomainError(403, "Operational summary requires a scoped installation")
+            from app.services.resident_boundary import confined
+            from app.services.business_boundary import confined as business_confined
+            if confined(self.authorization) or business_confined(self.authorization):
+                raise DomainError(403, "Use your personal Resident context")
+            from app.services.manager import ManagerService
+            snapshot = ManagerService(self.authorization, ai_context=True).snapshot()
+            return {key: snapshot[key] for key in ("status", "status_note", "coverage", "counts", "attention", "unverified_devices")} | {
+                "offline_devices": [d["name"] for d in snapshot["devices"] if d["status"] == "offline"][:20],
+                "expected_visitors": [{k: v[k] for k in ("name", "destination", "start", "end")} for v in snapshot["visitors"] if v["status"] == "expected"][:20],
+                "maintenance": [{k: r[k] for k in ("title", "location_name", "status")} for r in snapshot["maintenance"] if r["status"] not in {"resolved", "closed"}][:20]}
+
         if name == "check_access":
+            if self.authorization:
+                from app.services.authorization_operations import authorize_operation
+                authorize_operation(self.authorization, "/access/check", payload.model_dump())
+                self.authorization.require(P.AI_USE, "person", payload.person_id)
+                self.authorization.require(P.AI_USE, "location", payload.zone_id)
+                return scoped_decision(self.authorization,
+                    access.check_access(self.raw_repository, payload, self.clock(), legacy_role_access=False))
             return access.check_access(self.repository, payload, self.clock())
         if name == "list_active_emergencies":
             # Bounded context; API remains available for full incident detail.

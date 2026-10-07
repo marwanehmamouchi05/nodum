@@ -68,6 +68,61 @@ MIGRATIONS = (
         "CREATE TABLE auth_throttles (id TEXT PRIMARY KEY NOT NULL, data TEXT NOT NULL CHECK(json_valid(data)))",
         "CREATE INDEX ring_owner_user ON ring_accounts (json_extract(data, '$.owner_user_id'))",
     )),
+    (5, (
+        """CREATE TABLE application_scopes (
+            id TEXT PRIMARY KEY NOT NULL,
+            parent_id TEXT REFERENCES application_scopes(id),
+            data TEXT NOT NULL CHECK(json_valid(data)))""",
+        """CREATE TABLE application_role_assignments (
+            id TEXT PRIMARY KEY NOT NULL,
+            user_id TEXT NOT NULL REFERENCES auth_users(id),
+            scope_id TEXT NOT NULL REFERENCES application_scopes(id),
+            data TEXT NOT NULL CHECK(json_valid(data)))""",
+        "CREATE INDEX application_assignments_user ON application_role_assignments(user_id, scope_id)",
+        """CREATE TABLE application_resource_bindings (
+            resource_type TEXT NOT NULL, resource_id TEXT NOT NULL,
+            scope_id TEXT NOT NULL REFERENCES application_scopes(id),
+            data TEXT NOT NULL CHECK(json_valid(data)),
+            PRIMARY KEY(resource_type, resource_id))""",
+        "CREATE INDEX application_bindings_scope ON application_resource_bindings(scope_id)",
+    )),
+    (6, (
+        """CREATE TABLE product_structure (
+            id TEXT PRIMARY KEY NOT NULL,
+            parent_id TEXT REFERENCES product_structure(id),
+            organization_id TEXT NOT NULL REFERENCES product_structure(id),
+            building_id TEXT REFERENCES product_structure(id),
+            scope_id TEXT NOT NULL REFERENCES application_scopes(id),
+            integration_id TEXT REFERENCES product_structure(id),
+            data TEXT NOT NULL CHECK(json_valid(data)))""",
+        "CREATE INDEX product_structure_building ON product_structure(building_id, parent_id)",
+        """CREATE TABLE product_affiliations (
+            id TEXT PRIMARY KEY NOT NULL,
+            user_id TEXT NOT NULL REFERENCES auth_users(id),
+            target_id TEXT NOT NULL REFERENCES product_structure(id),
+            data TEXT NOT NULL CHECK(json_valid(data)))""",
+        "CREATE INDEX product_affiliations_user ON product_affiliations(user_id, target_id)",
+    )),
+    (7, (
+        """CREATE TABLE product_admin_settings (
+            id TEXT PRIMARY KEY NOT NULL,
+            scope_id TEXT NOT NULL REFERENCES application_scopes(id),
+            data TEXT NOT NULL CHECK(json_valid(data)))""",
+        """CREATE TABLE product_configuration_audit (
+            id TEXT PRIMARY KEY NOT NULL,
+            scope_id TEXT NOT NULL REFERENCES application_scopes(id),
+            data TEXT NOT NULL CHECK(json_valid(data)))""",
+        "CREATE INDEX configuration_audit_scope ON product_configuration_audit(scope_id)",
+    )),
+    (8, (
+        """CREATE TABLE product_operations (
+            kind TEXT NOT NULL CHECK(kind IN ('announcement', 'maintenance', 'operation_activity', 'visitor')),
+            id TEXT NOT NULL,
+            scope_id TEXT NOT NULL REFERENCES application_scopes(id),
+            data TEXT NOT NULL CHECK(json_valid(data)),
+            PRIMARY KEY(kind, id))""",
+        "CREATE INDEX product_operations_scope ON product_operations(scope_id, kind)",
+    )),
 )
 
 

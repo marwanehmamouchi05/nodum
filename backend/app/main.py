@@ -2,7 +2,14 @@ import sqlite3
 from datetime import datetime, timezone
 from fastapi.exceptions import RequestValidationError
 from app.api.operator import require_production_operator
+from app.api.authorization import router as authorization_router, authorize_application_request
 from app.api.auth import router as auth_router
+from app.api.structure import router as structure_router
+from app.api.admin import router as admin_router
+from app.api.manager import router as manager_router
+from app.api.resident import router as resident_router
+from app.api.business_workspace import router as business_workspace_router
+from app.api.demo import router as demo_router
 from app.services.auth import bootstrap_user
 from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI
@@ -27,7 +34,8 @@ async def lifespan(app: FastAPI):
     validate_startup(AppSettings.from_env())
     try:
         repository = SQLiteRepository()
-        repository.initialize()
+        from app.services.authorization import authorization_mode
+        repository.initialize(seed_demo=authorization_mode() == "legacy_demo")
     except (ValueError, OSError, RuntimeError, sqlite3.Error):
         raise ConfigurationError("Database startup failed; check DATABASE_URL, storage permissions and schema version") from None
     bootstrap_user(repository, datetime.now(timezone.utc))
@@ -50,9 +58,18 @@ def create_app():
         allow_headers=["Authorization", "Content-Type", "X-CSRF-Token"],
     )
     for router in (access_router, guests_router, appointments_router,
-                   emergencies_router, agent_router, ring_router, building_router, auth_router):
-        guards = [] if router in (ring_router, auth_router) else [Depends(require_production_operator)]
+                   emergencies_router, agent_router, ring_router, building_router, auth_router, authorization_router):
+        guards = [] if router in (auth_router, authorization_router) else [Depends(authorize_application_request)]
+        if router not in (ring_router, auth_router, authorization_router):
+            guards.append(Depends(require_production_operator))
         application.include_router(router, dependencies=guards)
+
+    application.include_router(structure_router)
+    application.include_router(admin_router)
+    application.include_router(manager_router)
+    application.include_router(resident_router)
+    application.include_router(business_workspace_router)
+    application.include_router(demo_router)
 
     @application.middleware("http")
     async def private_auth_responses(request, call_next):

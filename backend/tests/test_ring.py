@@ -1,4 +1,5 @@
 """Documented Ring wire examples, mocked transport, and policy/persistence regressions."""
+from app.database import MIGRATIONS
 from dataclasses import replace
 from concurrent.futures import ThreadPoolExecutor
 from datetime import timedelta
@@ -342,7 +343,7 @@ def test_restart_preserves_tokens_events_and_emergency(tmp_path, settings, remot
     assert second.process_event(key, PRINCIPAL, "utility-room", NOW) == result
     assert restarted.get_emergency(result.emergency_id).status == "active"
     with restarted.database.transaction() as connection:
-        assert [r[0] for r in connection.execute("SELECT version FROM schema_migrations ORDER BY version")] == [1, 2, 3, 4]
+        assert [r[0] for r in connection.execute("SELECT version FROM schema_migrations ORDER BY version")] == [version for version, _ in MIGRATIONS]
 
 
 def test_http_webhook_and_core_outage(api, service):

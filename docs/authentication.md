@@ -1,4 +1,8 @@
 # Nodum sessions and Ring linking
+This document describes the audited legacy authentication boundary. See
+[Phase A authorization](phase-a-authorization.md) for the opt-in scoped principal,
+multi-role grants and separately selected product database.
+
 
 This is a small application login for Ring operations. In production, the
 operations APIs also require a manager session and CSRF for writes. This coarse

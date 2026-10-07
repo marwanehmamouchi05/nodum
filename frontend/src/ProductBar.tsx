@@ -1,0 +1,37 @@
+import { useEffect, useState } from 'react'
+import { api, request } from './api/client'
+import type { Session } from './api/client'
+import type { Workspace } from './workspaces'
+import './product.css'
+
+type DemoContext = { available: boolean; building?: string }
+export function ProductBar({ session, choices, selected, select }: { session: Session; choices: Workspace[]; selected: Workspace; select: (workspace: Workspace) => void }) {
+  const [demo, setDemo] = useState<DemoContext>({ available: false })
+  const [open, setOpen] = useState(false)
+  const [scenarios, setScenarios] = useState<{ name: string; label: string; description: string }[]>([])
+  const [busy, setBusy] = useState(false)
+  const [message, setMessage] = useState('')
+  const signature = JSON.stringify(session.authorization)
+  const canSimulate = session.authorization?.assignments.some(a => a.permissions.includes('simulation.run'))
+  useEffect(() => {
+    let active = true
+    if (canSimulate) void request<DemoContext>('/demo/context').then(value => { if (active) setDemo(value) }).catch(() => { if (active) setDemo({ available: false }) })
+    return () => { active = false }
+  }, [canSimulate, signature])
+  async function openDemo() {
+    setOpen(!open)
+    if (!open) {
+      setMessage('')
+      try { setScenarios((await api.ringSimulationStatus()).scenarios) } catch { setMessage('Ring simulation is unavailable. Check the local demo setup and try again.') }
+    }
+  }
+  async function run(name: string) {
+    setBusy(true); setMessage('')
+    try {
+      const result = await api.ringSimulationScenario(name)
+      setMessage(`${result.events.length} signed simulation events received and persisted. Open Manager, then refresh Visitors or Activity. Identity is unverified; no door was unlocked.`)
+    } catch { setMessage('The scenario could not be confirmed. Refresh before retrying; events may have been received.') }
+    finally { setBusy(false) }
+  }
+  return <div className="product-bar" data-workspace={selected} data-session-version={session.authorization?.context_version}><div className="product-account"><span>Signed in as <strong>{session.user?.username}</strong></span>{choices.length > 1 && <label>Switch workspace<select aria-label="Switch workspace" value={selected} onChange={e => select(e.target.value as Workspace)}>{choices.map(choice => <option key={choice}>{choice}</option>)}</select></label>}{demo.available && <button onClick={() => void openDemo()} aria-expanded={open}>Demo Mode</button>}<button onClick={async () => { try { await api.logout(); window.dispatchEvent(new Event('nodum:signed-out')) } catch { setMessage('Sign-out could not be confirmed. Reconnect and try again.') } }}>Sign out</button></div>{demo.available && <p className="product-demo-label">Demo / Synthetic · {demo.building} · No physical hardware control</p>}{open && demo.available && <section className="product-demo-panel" aria-label="Ring demo controls"><h2>Ring signal → Nodum workflow</h2><p>Schedule a visitor in Resident or Business. Run an arrival signal here, then review it in Manager. Ring does not establish the visitor’s identity or destination.</p><div>{scenarios.map(s => <button key={s.name} disabled={busy} onClick={() => void run(s.name)} title={s.description}>{s.label}</button>)}</div><p>Simulation uses the signed event pipeline. Access remains policy-controlled. Nodum Edge is not installed.</p></section>}{message && <p role="status">{message}</p>}</div>
+}

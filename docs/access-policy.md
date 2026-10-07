@@ -1,4 +1,8 @@
 # Guest invitations, business appointments, emergencies, and access policy
+The policy below describes audited legacy behavior. In opt-in scoped mode,
+[Phase A authorization](phase-a-authorization.md) separates application authority
+from physical grants and disables automatic Manager/responder building-wide access.
+
 
 The running backend uses a persistent SQLite repository. An in-memory
 implementation remains for isolated tests. There is no AI decision logic,

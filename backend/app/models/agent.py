@@ -31,6 +31,8 @@ class PendingAction(BaseModel):
     arguments: dict
     created_at: UTCTimestamp
     expires_at: UTCTimestamp
+    authenticated_user_id: str | None = None
+    authorization_scope_id: str | None = None
 
 
 class ConfirmActionInput(BaseModel):

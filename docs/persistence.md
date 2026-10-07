@@ -1,4 +1,8 @@
 # SQLite persistence
+Migration 5 adds empty application-authorization tables without assigning legacy
+ownership. See [Phase A authorization](phase-a-authorization.md) for scoped startup,
+database separation and upgrade/rollback boundaries.
+
 
 Nodum uses Python's built-in sqlite3 driver. No database server, ORM, new package,
 container, or cloud resource is required. Existing API paths, response models,

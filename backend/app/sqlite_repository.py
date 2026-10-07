@@ -10,6 +10,10 @@ import sqlite3
 from app.services.errors import DomainError
 
 from app.database import SQLiteDatabase
+from app.authorization_repository import SQLiteAuthorizationRepository
+from app.structure_repository import SQLiteStructureRepository
+from app.admin_repository import SQLiteAdminRepository
+from app.manager_repository import SQLiteManagerRepository
 from app.models.auth import NodumUser, AuthSession, AuthThrottle
 from app.models.access import AccessPermission
 from app.models.agent import PendingAction
@@ -22,7 +26,7 @@ from app.models.integrations import (BuildingIntegration, BuildingDevice, Device
 from app.repository import create_demo_repository
 
 
-class SQLiteRepository:
+class SQLiteRepository(SQLiteAuthorizationRepository, SQLiteStructureRepository, SQLiteAdminRepository, SQLiteManagerRepository):
     def __init__(self, database_url: str | None = None):
         self.database = SQLiteDatabase(database_url)
 

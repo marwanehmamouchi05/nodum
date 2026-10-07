@@ -10,6 +10,9 @@ from app.services.errors import DomainError
 
 def require_production_operator(request: Request, repository=Depends(get_repository),
                                 now=Depends(utc_now)):
+    from app.services.authorization import authorization_mode
+    if authorization_mode() == "scoped":
+        return  # Per-action scope guard replaces the legacy manager-only gate.
     if AppSettings.from_env().environment != "production":
         return  # Local demo compatibility; never use development mode publicly.
     if request.url.path.startswith("/building/ring/"):

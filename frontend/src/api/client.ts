@@ -7,7 +7,7 @@ export class AgentUnavailableError extends ApiError {
   response: AgentResponse
   constructor(response: AgentResponse) { super(response.explanation, 503); this.response = response }
 }
-async function request<T>(path: string, method = 'GET', body?: unknown, csrf?: string): Promise<T> {
+export async function request<T>(path: string, method = 'GET', body?: unknown, csrf?: string): Promise<T> {
   if (method !== 'GET' && !csrf && !path.startsWith('/auth/')) {
     const session = await request<{ csrf_token: string }>('/auth/session')
     csrf = session.csrf_token
@@ -18,6 +18,8 @@ async function request<T>(path: string, method = 'GET', body?: unknown, csrf?: s
     const response = await fetch(`${API_BASE}${path}`, { method, signal: controller.signal, credentials: import.meta.env.VITE_API_USE_CREDENTIALS === 'true' ? 'include' : 'same-origin', headers: { ...(body === undefined ? {} : { 'Content-Type': 'application/json' }), ...(csrf ? { 'X-CSRF-Token': csrf } : {}) }, body: body === undefined ? undefined : JSON.stringify(body) })
     const data = await response.json().catch(() => null)
     if (!response.ok) {
+      if (response.status === 401 && path !== '/auth/session') window.dispatchEvent(new Event('nodum:session-expired'))
+      if (response.status === 403 && !path.startsWith('/auth/')) window.dispatchEvent(new Event('nodum:session-check'))
       if (response.status === 503 && path === '/agent/chat') {
         const preserved = unavailableAgentResponse(data)
         if (preserved) throw new AgentUnavailableError(preserved)
@@ -34,7 +36,9 @@ async function request<T>(path: string, method = 'GET', body?: unknown, csrf?: s
 }
 const id = encodeURIComponent
 export const resourcePaths: Record<keyof BuildingData, string> = { catalog: '/building/catalog', appointments: '/appointments', permissions: '/guests/permissions', emergencies: '/emergencies', integrations: '/building/integrations', devices: '/building/devices', journeys: '/building/journeys', actuators: '/building/actuator-events', scans: '/building/credential-events' }
-type Session = { user: { id: string; username: string; person_id: string } | null; csrf_token: string }
+export type Session = { user: { id: string; username: string; person_id: string } | null; csrf_token: string;
+  authorization_mode?: 'legacy_demo' | 'scoped';
+  authorization?: { context_version?: string; assignments: { role: string; scope_id: string; permissions: string[] }[] } | null }
 async function authenticatedPost<T>(path: string, body: unknown): Promise<T> {
   const session = await request<Session>('/auth/session')
   return request<T>(path, 'POST', body, session.csrf_token)

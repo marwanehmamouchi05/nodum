@@ -6,7 +6,7 @@ from app.services.access_engine import evaluate_access
 from app.services.errors import DomainError
 
 
-def check_access(repository: Repository, payload: AccessCheckInput, now: datetime):
+def check_access(repository: Repository, payload: AccessCheckInput, now: datetime, *, legacy_role_access=True):
     with repository.transaction():
         person = repository.get_person(payload.person_id)
         zone = repository.get_zone(payload.zone_id)
@@ -20,4 +20,5 @@ def check_access(repository: Repository, payload: AccessCheckInput, now: datetim
             appointments=repository.list_appointments(),
             businesses=repository.list_businesses(),
             emergencies=repository.list_emergencies(),
+            legacy_role_access=legacy_role_access,
         )

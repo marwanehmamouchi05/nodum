@@ -1,4 +1,8 @@
 # Nodum agent layer
+The prototype behavior below is retained in legacy mode. In scoped mode,
+[Phase A authorization](phase-a-authorization.md) adds authenticated AI identity,
+filtered tool context, bound proposals and fresh confirmation authorization.
+
 
 The optional agent interprets natural-language requests, resolves names, reads
 building context, proposes actions, and explains service results. It never

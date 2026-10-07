@@ -34,11 +34,14 @@ def get_agent_clock():
 
 
 @router.post("/chat", response_model=AgentResponse, responses={503: {"model": AgentResponse}})
-def chat(payload: AgentRequest, repository: Repository = Depends(get_repository),
+def chat(payload: AgentRequest, request: Request, repository: Repository = Depends(get_repository),
          actions: PendingActionStore = Depends(get_actions),
          gateway=Depends(get_gateway), settings: BedrockSettings = Depends(get_agent_settings),
          clock=Depends(get_agent_clock)):
-    tools = AgentTools(repository, actions, payload.actor_id, clock)
+    authorization = getattr(request.state, "authorization", None)
+    if authorization:
+        payload = payload.model_copy(update={"actor_id": authorization.principal.person_id})
+    tools = AgentTools(repository, actions, payload.actor_id, clock, authorization)
     response = run_agent(payload, gateway, tools, settings)
     if response.status == "unavailable":
         return JSONResponse(status_code=503, content=response.model_dump(mode="json"))
@@ -46,7 +49,8 @@ def chat(payload: AgentRequest, repository: Repository = Depends(get_repository)
 
 
 @router.post("/actions/{action_id}/confirm", response_model=AgentToolResult)
-def confirm(action_id: str, payload: ConfirmActionInput,
+def confirm(action_id: str, payload: ConfirmActionInput, request: Request,
             repository: Repository = Depends(get_repository),
             actions: PendingActionStore = Depends(get_actions), clock=Depends(get_agent_clock)):
-    return confirm_action(repository, actions, action_id, payload.actor_id, clock())
+    return confirm_action(repository, actions, action_id, payload.actor_id, clock(),
+                          getattr(request.state, "authorization", None))

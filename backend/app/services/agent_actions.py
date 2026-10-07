@@ -12,7 +12,8 @@ class PendingActionStore:
     def __init__(self, repository: Repository | None = None):
         self.repository = repository if repository is not None else InMemoryRepository()
 
-    def propose(self, actor_id: str, tool: str, arguments: dict, now: datetime) -> PendingAction:
+    def propose(self, actor_id: str, tool: str, arguments: dict, now: datetime, *,
+                authenticated_user_id=None, authorization_scope_id=None) -> PendingAction:
         with self.repository.transaction():
             active = []
             for action in self.repository.list_pending_actions():
@@ -22,23 +23,31 @@ class PendingActionStore:
                     active.append(action)
             for action in active:
                 if (action.actor_id == actor_id and action.tool == tool
-                        and action.arguments == arguments):
+                        and action.arguments == arguments
+                        and action.authenticated_user_id == authenticated_user_id
+                        and action.authorization_scope_id == authorization_scope_id):
                     return action.model_copy(deep=True)
             if len(active) >= 1000:
                 raise DomainError(429, "Too many pending actions")
             action = PendingAction(id=uuid4().hex, actor_id=actor_id, tool=tool,
                                    arguments=arguments, created_at=now,
-                                   expires_at=now + timedelta(minutes=5))
+                                   expires_at=now + timedelta(minutes=5),
+                                   authenticated_user_id=authenticated_user_id,
+                                   authorization_scope_id=authorization_scope_id)
             self.repository.add_pending_action(action)
             return action
 
-    def consume(self, action_id: str, actor_id: str, now: datetime) -> PendingAction:
+    def consume(self, action_id: str, actor_id: str, now: datetime, *,
+                authenticated_user_id=None, authorization_scope_id=None) -> PendingAction:
         with self.repository.transaction():
             action = self.repository.get_pending_action(action_id)
             if action is None:
                 raise DomainError(404, "Pending action not found or already consumed")
             if actor_id != action.actor_id:
                 raise DomainError(403, "Action belongs to a different actor")
+            if (action.authenticated_user_id != authenticated_user_id
+                    or action.authorization_scope_id != authorization_scope_id):
+                raise DomainError(403, "Action belongs to a different authenticated identity or scope")
             if now < action.created_at:
                 raise DomainError(422, "Confirmation time precedes proposal")
             self.repository.delete_pending_action(action_id)

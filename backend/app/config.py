@@ -86,6 +86,12 @@ class AppSettings:
 def validate_startup(settings):
     """No network/credential-chain lookups; optional integrations stay optional."""
     from app.database import database_path
+    from app.services.authorization import authorization_mode
+
+    if authorization_mode() == "scoped":
+        from app.database import DEFAULT_DATABASE_URL
+        if not os.getenv("DATABASE_URL") or database_path() == database_path(DEFAULT_DATABASE_URL):
+            raise ConfigurationError("Scoped mode requires a separate explicit DATABASE_URL; audited default database is protected")
 
     url = os.getenv("DATABASE_URL", "")
     if settings.environment == "production":
