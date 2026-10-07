@@ -101,6 +101,12 @@ async (page) => {
     check(!overflow, 'Guide must not overflow on mobile')
     await page.screenshot({ path: 'artifacts/ui-polish/qa-guide-mobile.png', fullPage: true })
     results.push('Mobile layout has no horizontal overflow')
+    const helpUrl = page.url()
+    await page.getByRole('link', { name: 'Skip to content', exact: true }).focus()
+    await page.keyboard.press('Enter')
+    check(page.url() === helpUrl, 'Skip link must preserve the selected page')
+    check(await page.evaluate(() => document.activeElement?.id === 'content'), 'Skip link must focus main content')
+    results.push('Keyboard skip link focuses content without changing pages')
     return { passed: results, mockedChatRequests: chatRequests, buildingWrites: writes.filter(path => path !== '/agent/chat') }
   } finally {
     await page.context().setOffline(false)

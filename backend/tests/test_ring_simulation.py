@@ -125,6 +125,29 @@ def test_run_scenario_emits_expected_signals(simulation):
         assert saved.status == "received"
 
 
+@pytest.mark.parametrize("scenario,signals", [
+    ("visitor_arrives", ["motion", "doorbell", "person"]),
+    ("package_delivery", ["motion", "doorbell", "package"]),
+    ("after_hours_person", ["motion", "person", "motion", "person"]),
+    ("emergency_access", ["motion", "doorbell"]),
+    ("contact_sensor_sequence", ["contact_open", "contact_closed"]),
+    ("device_lifecycle", ["device_offline", "device_online"]),
+])
+def test_each_scenario_returns_persisted_normalized_signals(simulation, scenario, signals):
+    delivered = simulation.run_scenario(scenario, NOW)
+    assert [event["signal"] for event in delivered] == signals
+    for event in delivered:
+        saved = simulation.repository.get_ring_event(event["id"])
+        assert saved.signal == event["signal"]
+        assert event["is_simulation"] is True
+        raw = saved.raw_payload.encode()
+        signature = simulation._sign(raw, simulation.settings.signing_key)
+        assert simulation.ring_service.receive_event(raw, signature, NOW)["status"] == "duplicate"
+        with pytest.raises(DomainError) as exc:
+            simulation.ring_service.receive_event(raw, "sha256=" + "0" * 64, NOW)
+        assert exc.value.status_code == 401
+
+
 def test_run_scenario_advances_timestamps(simulation):
     delivered = simulation.run_scenario("contact_sensor_sequence", NOW)
     first, second = delivered[0], delivered[1]

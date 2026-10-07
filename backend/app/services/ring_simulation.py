@@ -91,7 +91,7 @@ SCENARIOS: dict[str, dict[str, Any]] = {
     },
     "emergency_access": {
         "label": "Emergency / access event",
-        "description": "Doorbell press and an emergency access indication.",
+        "description": "Motion and doorbell arrival context for an operator-led emergency demo. Does not create an incident or grant access.",
         "events": (
             {"kind": "motion_detected", "device": "sim-camera-lobby"},
             {"kind": "button_press", "device": "sim-doorbell-front"},
@@ -242,9 +242,10 @@ class RingSimulationService:
         raw = self._envelope(kind, device_id, request_id, event_id, now)
         signature = self._sign(raw, key)
         result = self.ring_service.receive_event(raw, signature, now)
+        saved = self.repository.get_ring_event(result["id"])
         # ``result`` may be a dict (success) or raise; pass it through unchanged.
         return {"status": result["status"], "id": result["id"], "event_type": kind,
-                "device_id": device_id, "signal": kind,
+                "device_id": device_id, "signal": saved.signal,
                 "request_id": request_id, "event_id": event_id,
                 "is_simulation": True}
 

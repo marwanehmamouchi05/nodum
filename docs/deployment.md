@@ -154,6 +154,19 @@ No secrets are build arguments or image environment defaults.
 
 ## Before live HTTPS testing
 
+For Railway, use `backend/` as the service root/build context and the existing
+Dockerfile. Start with `python -m app.run`, bind `HOST=0.0.0.0`, and use the
+service's `PORT`. Mount a persistent volume at `/data` and set
+`DATABASE_URL=sqlite:////data/nodum.db`; keep one replica. Railway volumes are
+root-owned: this image uses UID 10001, so configure the documented
+`RAILWAY_RUN_UID=0` service setting unless volume ownership has been provisioned
+for UID 10001. See the [Railway volume documentation](https://docs.railway.com/volumes).
+Use HTTPS frontend/API domains on the same site for the existing SameSite=Lax
+session cookies. Separate unrelated domains need a same-site reverse proxy;
+credentialed CORS alone cannot override cookie restrictions. Serve the frontend
+`dist/` with a production static host; the Vite development server is not a
+production start command.
+
 - Provide a domain, TLS certificate/termination, ingress restrictions and rate limits.
 - Mount persistent writable storage and arrange SQLite/key backups.
 - Supply runtime secrets and AWS IAM permissions only for enabled capabilities.
