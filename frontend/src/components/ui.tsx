@@ -1,9 +1,10 @@
+import { Icon } from './Icon'
 import { useState } from 'react'
 import type { ReactNode, FormEvent } from 'react'
 import type { Decision } from '../api/types'
 
 export function Badge({ children, tone = '' }: { children: ReactNode; tone?: string }) { return <span className={`badge ${tone}`}>{children}</span> }
-export function Empty({ children }: { children: ReactNode }) { return <div className="empty"><span>◌</span><p>{children}</p></div> }
+export function Empty({ children }: { children: ReactNode }) { return <div className="empty"><Icon name="inbox" size={28} /><p>{children}</p></div> }
 export function Section({ title, eyebrow, children, action }: { title: string; eyebrow?: string; children: ReactNode; action?: ReactNode }) { return <section className="panel"><div className="section-heading"><div>{eyebrow && <div className="eyebrow">{eyebrow}</div>}<h2>{title}</h2></div>{action}</div>{children}</section> }
 export function Policy({ decision }: { decision: Decision }) { return <div className={`policy ${decision.allowed ? 'allow' : 'deny'}`}><strong>{decision.allowed ? '✓ ALLOW' : '⊘ DENY'}</strong><span>{decision.reason}</span><small>Deterministic policy result</small></div> }
 export type Field = { name: string; label: string; type?: string; options?: { value: string; label: string }[]; value?: string; optional?: boolean; min?: number; max?: number }

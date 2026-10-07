@@ -176,3 +176,7 @@ secrets/
 *.sql
 *.har
 .smoke.*
+
+# Local browser QA and engineering audit output
+artifacts/
+.playwright-mcp/

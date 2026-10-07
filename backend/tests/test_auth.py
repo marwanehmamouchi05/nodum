@@ -324,6 +324,21 @@ def test_missing_production_auth_configuration_keeps_health_available(api, monke
     assert api("GET", "/health")[0] == 200
 
 
+@pytest.mark.parametrize("path,method", [
+    ("/ring/simulation", "GET"),
+    ("/ring/simulation/devices", "GET"),
+    ("/ring/simulation/events", "GET"),
+    ("/ring/simulation/scenarios/visitor_arrives", "POST"),
+])
+def test_simulation_requires_manager_session(api, auth, service, path, method):
+    app.dependency_overrides[get_ring_service] = lambda: service
+    assert api(method, path, {} if method == "POST" else None)[0] == 401
+    auth.create_user("resident", PASSWORD, "resident-1", NOW)
+    cookie, csrf, _ = sign_in(api, "resident")
+    assert api(method, path, {} if method == "POST" else None,
+               headers=protected(cookie, csrf))[0] == 403
+
+
 @pytest.mark.parametrize("username,person", [("admin@example.test", "responder-1"), ("another", "manager-1")])
 def test_duplicate_user_or_person_is_rejected(auth, username, person):
     with pytest.raises(DomainError) as exc:

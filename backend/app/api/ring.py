@@ -11,6 +11,7 @@ from app.api.dependencies import get_repository, utc_now
 from app.api.auth import get_current_user, get_auth_service, browser_page
 from app.integrations.ring.config import RingSettings
 from app.models.ring import RingLinkInput, RingPrincipal
+from app.models.building import PersonRole
 from app.services.errors import DomainError
 from app.services.ring import RingService
 from app.services.ring_simulation import RingSimulationService, SCENARIOS, SIM_DEVICES
@@ -48,6 +49,16 @@ Service = Annotated[RingService, Depends(get_ring_service)]
 Simulation = Annotated[RingSimulationService, Depends(get_ring_simulation)]
 Principal = Annotated[RingPrincipal, Depends(require_ring_principal)]
 Now = Annotated[datetime, Depends(utc_now)]
+
+
+def require_simulation_operator(principal: Principal, repository=Depends(get_repository)):
+    person = repository.get_person(principal.person_id)
+    if not person or person.role != PersonRole.MANAGER:
+        raise DomainError(403, "Ring simulation requires a manager account")
+    return principal
+
+
+SimulationOperator = Annotated[RingPrincipal, Depends(require_simulation_operator)]
 
 
 @router.post("/token-exchange")
@@ -124,7 +135,7 @@ def process_event(event_id: str, payload: ProcessEventInput, principal: Principa
 # RingService.receive_event() path; nothing is faked inside the API layer.
 
 @router.get("/simulation")
-def simulation_status(simulation: Simulation, now: Now):
+def simulation_status(simulation: Simulation, now: Now, principal: SimulationOperator):
     """Report current mode plus the seeded simulation account (if available)."""
     payload: dict = {"mode": simulation.settings.mode,
                      "scenarios": [{"name": n, "label": s["label"],
@@ -138,7 +149,7 @@ def simulation_status(simulation: Simulation, now: Now):
 
 
 @router.get("/simulation/devices")
-def simulation_devices(simulation: Simulation, principal: Principal):
+def simulation_devices(simulation: Simulation, principal: SimulationOperator):
     """Return the simulator's device catalog (no remote call)."""
     if simulation.settings.mode != "simulation":
         raise DomainError(403, "Ring simulation is only available in RING_MODE=simulation")
@@ -146,8 +157,8 @@ def simulation_devices(simulation: Simulation, principal: Principal):
 
 
 @router.get("/simulation/events")
-def simulation_events(simulation: Simulation, principal: Principal):
-    """Owner-only audit inbox for the simulated account; raw payload excluded."""
+def simulation_events(simulation: Simulation, principal: SimulationOperator):
+    """Manager-only demo inbox for the simulated account; raw payload excluded."""
     if simulation.settings.mode != "simulation":
         raise DomainError(403, "Ring simulation is only available in RING_MODE=simulation")
     return [event.model_dump(mode="json", exclude={"raw_payload"})
@@ -163,7 +174,7 @@ class SimulationScenarioInput(BaseModel):
 
 @router.post("/simulation/scenarios/{scenario}")
 def run_simulation_scenario(scenario: str, payload: SimulationScenarioInput,
-                             simulation: Simulation, principal: Principal, now: Now):
+                             simulation: Simulation, principal: SimulationOperator, now: Now):
     """Deliver a deterministic scenario into the real Ring webhook pipeline.
 
     Events go through ``RingService.receive_event()`` (signature-verified,

@@ -19,7 +19,8 @@ export interface Transition { id: string; journey_id: string; zone_id: string; a
 export interface ToolResult { tool: string; status: 'success' | 'error' | 'confirmation_required'; data: unknown }
 export interface AgentResponse { status: string; explanation: string; explanation_is_authoritative: false; tool_results: ToolResult[] }
 export interface RingDevice { id: string; name: string; attributes: Record<string, unknown>; related: Record<string, unknown> }
-export interface RingEvent { id: string; event_type: string; received_at: string; occurred_at?: string; signal?: string }
+// Optional presentation provenance is attached only to events read from the simulation inbox.
+export interface RingEvent { is_simulation?: boolean; id: string; event_type: string; received_at: string; occurred_at?: string; signal?: string }
 export interface AccessEntry { id: string; at: string; person_id: string; zone_id: string; decision: Decision }
 export interface RingSimulationScenario { name: string; label: string; description: string; event_count: number }
 export interface RingSimulationStatus { mode: 'simulation' | 'live'; scenarios: RingSimulationScenario[]; device_count: number; account?: { account_id: string; environment: string; status: string; owner_id: string | null; is_simulation: boolean } }

@@ -113,14 +113,14 @@ An existing contractor work order alone cannot bypass a Ring-derived incident.
 
 ## Simulation mode (hackathon / demo)
 
-`RING_MODE=simulation` enables a built-in Ring Playground simulator so the
+`RING_MODE=simulation` enables Nodum's internal Ring-like event simulator so the
 demo can run without physical Ring hardware or a live Ring Partner OAuth link.
 The simulator builds the documented v1.1 webhook envelope, signs it with the
 configured `RING_SIGNING_KEY`, and routes every event through
 `RingService.receive_event()` so the entire Nodum backend sees the data:
 
 ```
-Ring Playground / simulator
+Nodum internal simulator
   -> Ring event adapter
   -> event normalization
   -> Nodum backend
@@ -156,6 +156,15 @@ misrepresented as live Ring data.
 Ring webhooks reach the inbox and the OAuth handshake is enforced.
 
 ## Configuration and deployment
+
+The internal simulator is separate from the external Ring Developers Playground.
+Nodum has no Playground OAuth-token import or external Playground adapter.
+External Playground verification remains a manual portal workflow; never supply
+its temporary token to Nodum's simulation configuration.
+Simulation status, device catalog, inbox, and scenario endpoints require a
+signed-in manager. The simulation inbox is shared demo data, not a live
+account-owned inbox. Signed live webhook receipt and owner-bound linking remain
+separate.
 
 Copy the names in `.env.example` into the backend process environment (the example
 file itself is not automatically loaded). Set `RING_CLIENT_ID`,

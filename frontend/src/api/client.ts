@@ -1,7 +1,12 @@
 import type { AgentResponse, Appointment, BuildingData, Credential, Decision, Device, DeviceStatus, Incident, Journey, RingDevice, RingEvent, RingSimulationDelivery, RingSimulationStatus, Scan, ToolResult, Transition } from './types'
+import { unavailableAgentResponse } from './agentResponse'
 
 export const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000').replace(/\/$/, '')
 export class ApiError extends Error { status: number; constructor(message: string, status: number) { super(message); this.status = status } }
+export class AgentUnavailableError extends ApiError {
+  response: AgentResponse
+  constructor(response: AgentResponse) { super(response.explanation, 503); this.response = response }
+}
 async function request<T>(path: string, method = 'GET', body?: unknown, csrf?: string): Promise<T> {
   if (method !== 'GET' && !csrf && !path.startsWith('/auth/')) {
     const session = await request<{ csrf_token: string }>('/auth/session')
@@ -13,6 +18,10 @@ async function request<T>(path: string, method = 'GET', body?: unknown, csrf?: s
     const response = await fetch(`${API_BASE}${path}`, { method, signal: controller.signal, credentials: import.meta.env.VITE_API_USE_CREDENTIALS === 'true' ? 'include' : 'same-origin', headers: { ...(body === undefined ? {} : { 'Content-Type': 'application/json' }), ...(csrf ? { 'X-CSRF-Token': csrf } : {}) }, body: body === undefined ? undefined : JSON.stringify(body) })
     const data = await response.json().catch(() => null)
     if (!response.ok) {
+      if (response.status === 503 && path === '/agent/chat') {
+        const preserved = unavailableAgentResponse(data)
+        if (preserved) throw new AgentUnavailableError(preserved)
+      }
       const detail = data?.detail
       const message = typeof detail === 'string' ? detail : Array.isArray(detail) ? detail.map((e: { loc?: string[]; msg?: string }) => `${e.loc?.join('.')}: ${e.msg}`).join('; ') : data?.explanation || `Request failed (${response.status})`
       throw new ApiError(message, response.status)
