@@ -1,0 +1,56 @@
+{
+  "updated": "2026-10-15",
+  "original_workspace": "C:/dev/nodum",
+  "original_branch": "product-platform",
+  "worktree": "C:/Users/marwa/.codex/worktrees/pilot-readiness/nodum",
+  "branch": "codex/pilot-readiness",
+  "last_verified_checkpoint": "86ab9c8",
+  "baseline": {
+    "backend_targeted_passed": 222,
+    "frontend_unit_passed": 32,
+    "source_hashes_verified": 411,
+    "databases_backed_up_and_checked": 1
+  },
+  "active_task": {
+    "id": "PILOT-001",
+    "status": "COMPLETED",
+    "approach": "Explicit-path SQLite backup, verify and restore-to-new-file CLI; no migrations or overwrites",
+    "impact": "high: data recovery",
+    "complexity": "medium",
+    "uncertainty": "low",
+    "review_minutes": 30,
+    "failed_approaches": 0,
+    "tests": {
+      "recovery_and_persistence_passed": 54,
+      "initial_failed": 2,
+      "resolution": "Windows fsync requires writable file handle"
+    }
+  },
+  "queue": [
+    {
+      "id": "PILOT-002",
+      "task": "Read-only pilot configuration and database preflight",
+      "impact": "high",
+      "complexity": "medium",
+      "uncertainty": "low"
+    },
+    {
+      "id": "PILOT-003",
+      "task": "Document verified hardware integration boundaries and choose first protocol fixture",
+      "impact": "high",
+      "complexity": "medium",
+      "uncertainty": "medium"
+    }
+  ],
+  "blockers": [],
+  "deferred": [],
+  "astra_escalations": [],
+  "promotion": "Owner approval required; no merge or deployment authorized",
+  "modified_files": [
+    "backend/app/maintenance.py",
+    "backend/tests/test_maintenance.py",
+    "docs/backup-recovery.md",
+    "docs/development-state.json"
+  ],
+  "next_recommended_task": "PILOT-002 read-only preflight"
+}
