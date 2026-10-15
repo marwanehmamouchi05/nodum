@@ -18,6 +18,7 @@ backend = root / 'backend'
 sys.path.insert(0, str(backend))
 from app.sqlite_repository import SQLiteRepository
 from demo_product import seed_demo
+from scripts.drill_support import isolated_environment
 
 with tempfile.TemporaryDirectory(prefix='nodum-pilot-drill-') as folder:
     folder = Path(folder)
@@ -25,7 +26,7 @@ with tempfile.TemporaryDirectory(prefix='nodum-pilot-drill-') as folder:
     archive = folder / 'archive.db'
     restored = folder / 'restored.db'
     # Deliberately exclude inherited private/provider configuration.
-    env = {k:v for k,v in os.environ.items() if not k.startswith(('AWS_', 'BEDROCK_', 'RING_', 'AUTH_', 'NODUM_', 'CORS_')) and k not in {'DATABASE_URL','APP_ENV','PYTHONPATH'}}
+    env = isolated_environment()
     env.update(APP_ENV='production', NODUM_AUTHORIZATION_MODE='scoped', NODUM_AI_ENABLED='false',
                AUTH_PUBLIC_ORIGIN='https://nodum.example', DATABASE_URL='sqlite:///'+str(original),
                HOST='127.0.0.1', ACCESS_LOG='false', RING_MODE='simulation', RING_REQUIRED='false')

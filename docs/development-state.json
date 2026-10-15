@@ -4,14 +4,29 @@
   "original_branch": "product-platform",
   "worktree": "C:/Users/marwa/.codex/worktrees/pilot-readiness/nodum",
   "branch": "codex/pilot-readiness",
-  "last_verified_checkpoint": "febe213",
+  "last_verified_checkpoint": "40b4769",
   "baseline": {
     "backend_targeted_passed": 222,
     "frontend_unit_passed": 32,
     "source_hashes_verified": 411,
     "databases_backed_up_and_checked": 1
   },
-  "active_task": null,
+  "active_task": {
+    "id": "PILOT-005",
+    "status": "COMPLETED",
+    "approach": "Disposable loopback TLS certificate, production secure-cookie/CSRF login/logout acceptance; isolated dependency install",
+    "review_minutes": 30,
+    "failed_approaches": 0,
+    "baseline_targeted_passed": 87,
+    "evidence": {
+      "baseline_tests": 87,
+      "auth_and_drill_tests": 55,
+      "fresh_venv_pins": "installed",
+      "tls_drill": "passed",
+      "recovery_drill_fresh_venv": "passed",
+      "proxy_deployment": "not verified"
+    }
+  },
   "queue": [
     {
       "id": "PILOT-005",
@@ -80,6 +95,6 @@
     "PILOT-001-hardening"
   ],
   "original_preservation_verified": true,
-  "session_status": "CHECKPOINTED",
+  "session_status": "ACTIVE",
   "checkpoint_recovery": "Resume isolated branch at HEAD; last code validation at febe213. Original backup manifest outside Git under LocalAppData/NodumBackups/pilot-baseline-20261015."
 }

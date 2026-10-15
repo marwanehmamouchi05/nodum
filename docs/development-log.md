@@ -48,3 +48,7 @@ Post-review bounded malformed/huge schema-version input before constructing a ve
 
 ## 2026-10-15 — Final isolated session checkpoint
 SQLite-specific auth, authorization and product-release tests: 162 passed. No active task or failed approach left open. Code checkpoint febe213; machine state tracks completed iterations and independent queue. Working tree clean after documentation commit. Original branch remains product-platform with all prior changes preserved; no promotion, deployment or physical commands.
+
+
+## 2026-10-15 — PILOT-005 isolated installation/TLS iteration COMPLETED
+Resumed verified clean 40b4769. 87 targeted baseline tests and 55 auth/isolation tests passed. Fresh Windows Python 3.13 venv installed backend pins; pip check, recovery/startup drill and real HTTPS session drill passed. Added shared allowlisted drill environment and temporary TLS fixture. Certificate trust/cookie rotation/CSRF/Origin/logout checks use actual HTTPS. No OS trust-store or existing config changes. Proxy/frontend topology remains unverified. Broker dependencies separated after identifying a test-only Click pin conflict.
