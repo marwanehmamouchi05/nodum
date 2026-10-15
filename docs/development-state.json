@@ -4,7 +4,7 @@
   "original_branch": "product-platform",
   "worktree": "C:/Users/marwa/.codex/worktrees/pilot-readiness/nodum",
   "branch": "codex/pilot-readiness",
-  "last_verified_checkpoint": "86ab9c8",
+  "last_verified_checkpoint": "316b64d",
   "baseline": {
     "backend_targeted_passed": 222,
     "frontend_unit_passed": 32,
@@ -12,18 +12,16 @@
     "databases_backed_up_and_checked": 1
   },
   "active_task": {
-    "id": "PILOT-001",
+    "id": "PILOT-002",
     "status": "COMPLETED",
-    "approach": "Explicit-path SQLite backup, verify and restore-to-new-file CLI; no migrations or overwrites",
-    "impact": "high: data recovery",
+    "approach": "Read-only local config/schema/onboarding checks; no network, migration or seeding",
+    "impact": "high: safe installation",
     "complexity": "medium",
     "uncertainty": "low",
     "review_minutes": 30,
     "failed_approaches": 0,
     "tests": {
-      "recovery_and_persistence_passed": 54,
-      "initial_failed": 2,
-      "resolution": "Windows fsync requires writable file handle"
+      "preflight_passed": 11
     }
   },
   "queue": [
@@ -47,10 +45,10 @@
   "astra_escalations": [],
   "promotion": "Owner approval required; no merge or deployment authorized",
   "modified_files": [
-    "backend/app/maintenance.py",
-    "backend/tests/test_maintenance.py",
-    "docs/backup-recovery.md",
-    "docs/development-state.json"
+    "backend/app/preflight.py",
+    "backend/tests/test_preflight.py",
+    "docs/pilot.env.example",
+    "docs/pilot-preflight.md"
   ],
-  "next_recommended_task": "PILOT-002 read-only preflight"
+  "next_recommended_task": "PILOT-004 fail-closed authentication origin parsing"
 }
