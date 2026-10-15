@@ -23,6 +23,7 @@ sys.path.insert(0, str(ROOT / "backend"))
 from scripts.drill_support import isolated_environment
 from scripts.mqtt_drill import wait_for
 from scripts.tls_drill import certificate
+from app.maintenance import copy_database
 from app.auth_config import AuthSettings
 from app.integrations.mqtt_sensor import (
     ContactIngestor,
@@ -128,28 +129,32 @@ def run(broker_python):
         server = broker = client = subscriber = None
         started = time.monotonic()
         try:
-            server = subprocess.Popen(
-                [
-                    sys.executable,
-                    "-m",
-                    "uvicorn",
-                    "app.main:app",
-                    "--host",
-                    "127.0.0.1",
-                    "--port",
-                    str(api_port),
-                    "--ssl-certfile",
-                    str(cert),
-                    "--ssl-keyfile",
-                    str(key),
-                    "--no-access-log",
-                    "--no-proxy-headers",
-                ],
-                cwd=ROOT / "backend",
-                env=env,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-            )
+
+            def start_server():
+                return subprocess.Popen(
+                    [
+                        sys.executable,
+                        "-m",
+                        "uvicorn",
+                        "app.main:app",
+                        "--host",
+                        "127.0.0.1",
+                        "--port",
+                        str(api_port),
+                        "--ssl-certfile",
+                        str(cert),
+                        "--ssl-keyfile",
+                        str(key),
+                        "--no-access-log",
+                        "--no-proxy-headers",
+                    ],
+                    cwd=ROOT / "backend",
+                    env=env,
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+
+            server = start_server()
             http = build_opener(ProxyHandler({}), HTTPSHandler(context=trusted))
 
             def api_ready():
@@ -256,12 +261,39 @@ def run(broker_python):
             broker = start_broker()
             wait_for(lambda: subscriber.status == "subscribed")
             folder.joinpath("restart.complete").touch()
+            wait_for(lambda: client_alive_until(folder / "restore.request"))
+            before_restore = dict(subscriber.counts)
+            subscriber.stop()
+            stop(server)
+            stop(broker)
+            archive, restored = folder / "archive.db", folder / "restored.db"
+            backup = copy_database(folder / "synthetic.db", archive)
+            recovery = copy_database(archive, restored)
+            if backup["schema_version"] != recovery["schema_version"]:
+                raise RuntimeError("Restore schema mismatch")
+            env["DATABASE_URL"] = "sqlite:///" + str(restored)
+            repo = SQLiteRepository(env["DATABASE_URL"])
+            repo.initialize(seed_demo=False)
+            server = start_server()
+            wait_for(api_ready)
+            broker = start_broker()
+            subscriber = ContactSubscriber(
+                ContactIngestor(auth, ingestor.binding),
+                host="127.0.0.1",
+                port=mqtt_port,
+                tls_context=trusted,
+                username="nodum-collector",
+                password=collector_password,
+            )
+            subscriber.start()
+            wait_for(lambda: subscriber.status == "subscribed")
+            folder.joinpath("restore.complete").touch()
             client.wait(timeout=20)
             result = json.loads(report_path.read_text(encoding="utf-8"))
             if client.returncode or result["verdict"] != "PASS":
                 raise RuntimeError("External contract failed: " + json.dumps(result))
             # Supplemental server evidence; external client independently checked API facts.
-            if subscriber.counts != {
+            if before_restore != {
                 "recorded": 3,
                 "duplicate": 1,
                 "rejected": 2,
@@ -270,9 +302,25 @@ def run(broker_python):
                 raise RuntimeError(
                     "Fixture transport counters did not confirm both rejection paths"
                 )
+            if subscriber.counts != {
+                "recorded": 0,
+                "duplicate": 0,
+                "rejected": 1,
+                "failed": 0,
+            }:
+                raise RuntimeError(
+                    "Revocation did not survive full environment restore"
+                )
             return result | {
                 "elapsed_seconds": round(time.monotonic() - started, 2),
-                "supplemental_collector_counts": dict(subscriber.counts),
+                "supplemental_collector_counts": before_restore,
+                "restored_collector_counts": dict(subscriber.counts),
+                "recovery": {
+                    "integrity": recovery["integrity"],
+                    "foreign_keys": recovery["foreign_keys"],
+                    "schema_version": recovery["schema_version"],
+                    "snapshots_structurally_verified": True,
+                },
                 "bootstrap": "trusted organization/recovery only",
                 "client_process": "standalone; no database path, Nodum imports or shared repository objects",
             }

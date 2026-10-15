@@ -25,7 +25,7 @@ import { ResidentWorkspace } from './resident/ResidentWorkspace'
 import { BusinessWorkspace } from './business/BusinessWorkspace'
 import { AdminWorkspace } from './admin/AdminWorkspace'
 import { API_BASE } from './api/client'
-import { workspaceChoices } from './workspaces'
+import { workspaceChoices, workspaceFromHash } from './workspaces'
 import type { Workspace } from './workspaces'
 import { ProductBar } from './ProductBar'
 const pages: Page[] = ['Overview', 'Building', 'Visitors', 'Businesses', 'Access', 'Emergencies', 'Integrations', 'Activity', 'AI Assistant']
@@ -87,7 +87,7 @@ function OperatorWorkspace() {
 export default function App() {
   const [session, setSession] = useState<Session>()
   const [error, setError] = useState('')
-  const [preferred, setPreferred] = useState<Workspace>()
+  const [preferred, setPreferred] = useState<Workspace | undefined>(() => workspaceFromHash(window.location.hash))
   useEffect(() => {
     let generation = 0
     const load = () => {

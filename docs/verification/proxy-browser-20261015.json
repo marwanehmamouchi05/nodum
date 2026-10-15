@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-15",
+  "proxy": "Caddy 2.11.7",
+  "routing": "PASS; frontend, SPA fallback, API 401/404, auth script",
+  "unsafe_proxy_wildcard": "rejected before startup",
+  "verdict": "PASS",
+  "checks": [
+    "actual browser login and redirect",
+    "Resident invitation and pass",
+    "Resident workspace and visit survive refresh",
+    "SPA deep path fallback",
+    "secure HttpOnly SameSite cookie",
+    "missing CSRF 403",
+    "wrong Origin 403",
+    "invalid body 422",
+    "unknown API 404",
+    "logout then API 401",
+    "Manager and Business section refresh",
+    "Resident forged Admin URL remains denied",
+    "zero browser runtime errors"
+  ],
+  "certificate": "isolated browser context ignores temporary fixture certificate; OS trust unchanged"
+}

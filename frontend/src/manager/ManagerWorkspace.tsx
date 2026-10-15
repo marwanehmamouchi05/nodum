@@ -1,3 +1,4 @@
+import { workspacePageFromHash } from '../workspaces'
 import { AssistantPanel } from '../components/AssistantPanel'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { api, AgentUnavailableError } from '../api/client'
@@ -17,7 +18,7 @@ import './manager-phase-g.css'
 export function ManagerWorkspace({ session }: { session: Session }) {
   const permissions = session.authorization?.assignments.flatMap(a => a.permissions) || []
   const pages = visibleManagerPages(permissions)
-  const [page, setPage] = useState<ManagerPage>('Overview')
+  const [page, setPage] = useState<ManagerPage>(() => workspacePageFromHash(window.location.hash, 'Manager', pages, 'Overview'))
   const [data, setData] = useState<Snapshot>()
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
@@ -40,7 +41,7 @@ export function ManagerWorkspace({ session }: { session: Session }) {
     window.addEventListener('nodum:signed-out', clear)
     return () => { clear(); clearTimeout(initial); clearInterval(timer); window.removeEventListener('nodum:signed-out', clear) }
   }, [refresh])
-  function navigate(next: ManagerPage) { if (pages.includes(next)) { setPage(next); setHelp(false); document.getElementById('manager-content')?.focus(); window.scrollTo(0, 0) } }
+  function navigate(next: ManagerPage) { if (pages.includes(next)) { setPage(next); history.replaceState(null, '', '#Manager/' + encodeURIComponent(next)); setHelp(false); document.getElementById('manager-content')?.focus(); window.scrollTo(0, 0) } }
   const options = (action: keyof Snapshot['actions']) => data?.nodes.filter(n => data.actions[action].includes(n.id)).map(n => ({ value: n.id, label: n.name })) || []
   const activity = (limit: number) => <>{!data?.activity.length && <Empty>No operational activity in your scope.</Empty>}{data?.activity.slice(0, limit).map(e => <article className="manager-event" key={e.id}><time dateTime={e.at}>{date(e.at)}</time><div><strong>{human(e.what)}</strong><p>{e.who} · {e.where}</p><small>{e.result}</small> {e.simulated && <Badge tone="blue">Simulation</Badge>}</div></article>)}</>
   const rings = <div className="signal-log">{!data?.ring.length && <Empty>No entrance signals recorded.</Empty>}{data?.ring.slice(-6).reverse().map(e => <article className="signal-row" key={e.id}><Icon name="visitors" size={17}/><div><strong>{e.signal === 'person' ? 'Person detected' : e.signal === 'doorbell' ? 'Doorbell pressed' : human(e.signal)}</strong><small>{data.nodes.find(n => n.id === e.location_id && !['device','integration'].includes(n.kind))?.name || 'Location not mapped'}</small></div><time>{date(e.at)}</time>{e.simulated && <Badge>Simulation</Badge>}</article>)}{(data?.ring.length || 0) > 6 && <details><summary>Earlier signals ({data!.ring.length - 6})</summary>{data!.ring.slice(0,-6).reverse().map(e => <p key={e.id}>{date(e.at)} · {human(e.signal)}{e.simulated ? ' · Simulation' : ''}</p>)}</details>}<p className="fine">Signals do not identify visitors or unlock doors.</p></div>

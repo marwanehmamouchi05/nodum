@@ -1,0 +1,40 @@
+{
+  "verdict": "PASS",
+  "scenario": "external-contact-v1",
+  "seed": 1729,
+  "buildings_provisioned_via_https": 2,
+  "persisted_source_events": 3,
+  "checks": [
+    "authenticated onboarding",
+    "event correlation and normalized values",
+    "duplicate and malformed rejection",
+    "foreign timeline and guessed-device denial",
+    "broker restart and new delivery",
+    "application grant revocation",
+    "full stop, backup/new-path restore, durable API observations and retained revocation"
+  ],
+  "negative_observation_seconds": 0.75,
+  "physical_execution": "NOT TESTED",
+  "official_ring": "NOT TESTED",
+  "elapsed_seconds": 14.69,
+  "supplemental_collector_counts": {
+    "recorded": 3,
+    "duplicate": 1,
+    "rejected": 2,
+    "failed": 0
+  },
+  "restored_collector_counts": {
+    "recorded": 0,
+    "duplicate": 0,
+    "rejected": 1,
+    "failed": 0
+  },
+  "recovery": {
+    "integrity": "ok",
+    "foreign_keys": "ok",
+    "schema_version": 10,
+    "snapshots_structurally_verified": true
+  },
+  "bootstrap": "trusted organization/recovery only",
+  "client_process": "standalone; no database path, Nodum imports or shared repository objects"
+}

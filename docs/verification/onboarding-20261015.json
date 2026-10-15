@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-15",
+  "verdict": "PASS",
+  "fresh_backend": "installed core + optional MQTT + dev requirements; pip check passed",
+  "fresh_frontend": "npm ci; Vite development server",
+  "workflow": "browser login, Manager Demo Mode visitor-arrival, three persisted simulation signals independently read via API",
+  "status": 200,
+  "signals": [
+    {
+      "signal": "motion",
+      "simulated": true
+    },
+    {
+      "signal": "doorbell",
+      "simulated": true
+    },
+    {
+      "signal": "person",
+      "simulated": true
+    }
+  ],
+  "official_ring": "NOT TESTED"
+}

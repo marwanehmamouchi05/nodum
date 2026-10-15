@@ -307,6 +307,27 @@ def run(config):
         publish("external-revoked")
         time.sleep(0.75)  # negative observation, after a successful transport barrier
         evaluate(samples(), expected, created[0]["device"])
+        LAST_STEP = "complete environment stop and restored API observation"
+        publisher.disconnect()
+        publisher.loop_stop()
+        folder.joinpath("restore.request").touch()
+        wait_for(lambda: folder.joinpath("restore.complete").exists(), seconds=35)
+        # Observe the restored database through HTTPS only. The fixture alone
+        # owns backups; the independent client never receives a database path.
+        evaluate(samples(), expected, created[0]["device"])
+        require(
+            observers[1].request("GET", "/manager/activity")["items"] == [],
+            "Restored foreign timeline leakage",
+        )
+        observers[1].request(
+            "GET", "/structure/nodes/" + created[0]["device"], expected=403
+        )
+        publisher.connect("127.0.0.1", config["mqtt_port"], keepalive=10)
+        publisher.loop_start()
+        wait_for(connected.is_set)
+        publish("external-revoked-after-restore")
+        time.sleep(0.75)
+        evaluate(samples(), expected, created[0]["device"])
         folder.joinpath("finished").touch()
         return {
             "verdict": "PASS",
@@ -321,6 +342,7 @@ def run(config):
                 "foreign timeline and guessed-device denial",
                 "broker restart and new delivery",
                 "application grant revocation",
+                "full stop, backup/new-path restore, durable API observations and retained revocation",
             ],
             "negative_observation_seconds": 0.75,
             "physical_execution": "NOT TESTED",

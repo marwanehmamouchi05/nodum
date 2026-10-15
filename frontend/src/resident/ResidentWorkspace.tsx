@@ -1,3 +1,4 @@
+import { workspacePageFromHash } from '../workspaces'
 import { AssistantPanel } from '../components/AssistantPanel'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Session } from '../api/client'
@@ -14,7 +15,7 @@ import './resident.css'
 import './resident-accessibility-phase-g.css'
 
 export function ResidentWorkspace({ session }: { session: Session }) {
-  const [page, setPage] = useState<ResidentPage>('Home')
+  const [page, setPage] = useState<ResidentPage>(() => workspacePageFromHash(window.location.hash, 'Resident', residentPages, 'Home'))
   const [data, setData] = useState<ResidentSnapshot>()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -40,7 +41,7 @@ export function ResidentWorkspace({ session }: { session: Session }) {
     window.addEventListener('focus', focused); window.addEventListener('nodum:signed-out', clear)
     return () => { clear(); clearTimeout(initial); clearInterval(timer); window.removeEventListener('focus', focused); window.removeEventListener('nodum:signed-out', clear) }
   }, [refresh])
-  function navigate(next: ResidentPage, openForm = false) { setPage(next); setHelp(false); setForm(openForm); setActionError(''); document.getElementById('resident-content')?.focus(); window.scrollTo(0, 0) }
+  function navigate(next: ResidentPage, openForm = false) { setPage(next); history.replaceState(null, '', '#Resident/' + encodeURIComponent(next)); setHelp(false); setForm(openForm); setActionError(''); document.getElementById('resident-content')?.focus(); window.scrollTo(0, 0) }
   const notices = data ? currentNotices(data.notices) : []
   const nextVisit = data?.visitors.filter(v => ['expected', 'arrived'].includes(v.status)).sort((a, b) => a.starts_at.localeCompare(b.starts_at))[0]
   const activeMaintenance = data?.maintenance.find(r => !['resolved', 'closed'].includes(r.status))

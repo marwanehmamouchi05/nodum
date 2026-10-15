@@ -1,3 +1,4 @@
+import { workspacePageFromHash } from '../workspaces'
 import { AssistantPanel } from '../components/AssistantPanel'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Session } from '../api/client'
@@ -17,14 +18,14 @@ import './business.css'
 import './business-phase-g.css'
 
 export function BusinessWorkspace({session}:{session:Session}){
-  const [page,setPage]=useState<BusinessPage>('Home'),[data,setData]=useState<BusinessSnapshot>(),[busy,setBusy]=useState(false),[error,setError]=useState(''),[form,setForm]=useState(false),[help,setHelp]=useState(false),[actionError,setActionError]=useState(''),[task,setTask]=useState(''),[visitFilter,setVisitFilter]=useState('current'),[visitorPass,setVisitorPass]=useState<Visit>()
+  const [page,setPage]=useState<BusinessPage>(() => workspacePageFromHash(window.location.hash, 'Business', ['Home', 'Visitors', 'Staff', 'Maintenance', 'Access', 'Notices', 'My Business'] as const, 'Home')),[data,setData]=useState<BusinessSnapshot>(),[busy,setBusy]=useState(false),[error,setError]=useState(''),[form,setForm]=useState(false),[help,setHelp]=useState(false),[actionError,setActionError]=useState(''),[task,setTask]=useState(''),[visitFilter,setVisitFilter]=useState('current'),[visitorPass,setVisitorPass]=useState<Visit>()
   const generation=useRef(0)
   const refresh=useCallback(async()=>{const version=++generation.current;setBusy(true);try{const next=await businessApi.snapshot();if(version===generation.current){setData(next);setVisitorPass(previous=>previous?next.visitors.find(v=>v.id===previous.id):undefined);setError('')}}catch(e){if(version===generation.current){setData(undefined);setHelp(false);setError(businessError(e))}}finally{if(version===generation.current)setBusy(false)}},[])
   useEffect(()=>{const initial=setTimeout(()=>void refresh(),0);const clear=()=>{generation.current++;setData(undefined);setForm(false);setHelp(false);setVisitorPass(undefined)};const focused=()=>void refresh();const timer=setInterval(focused,60000);window.addEventListener('focus',focused);window.addEventListener('nodum:signed-out',clear);return()=>{clear();clearTimeout(initial);clearInterval(timer);window.removeEventListener('focus',focused);window.removeEventListener('nodum:signed-out',clear)}},[refresh])
   const pages=businessPages(data?.permissions||[],data?.role==='business_admin')
   const simulationInSharedHeader=session.authorization?.assignments.some(a=>a.permissions.includes('simulation.run'))||false
   const allowed=(p:string)=>data?.permissions.includes(p)
-  function navigate(next:BusinessPage,openForm=false){if(!pages.includes(next))return;setPage(next);setForm(openForm);setHelp(false);setActionError('');document.getElementById('business-content')?.focus();window.scrollTo(0,0)}
+  function navigate(next:BusinessPage,openForm=false){if(!pages.includes(next))return;setPage(next);history.replaceState(null, '', '#Business/' + encodeURIComponent(next));setForm(openForm);setHelp(false);setActionError('');document.getElementById('business-content')?.focus();window.scrollTo(0,0)}
   async function visitAction(id:string,action:'cancel'|'arrive'){setTask(id);setActionError('');try{await businessApi[action](id);await refresh()}catch(e){setActionError(businessError(e))}finally{setTask('')}}
   const notices=data?currentNotices(data.notices):[]
   const noticesList=()=>notices.length?notices.map(n=><article className="business-notice" key={n.id}><h3>{n.title}</h3><p>{n.message}</p><small>Published {date(n.published_at)}{n.expires_at&&` · Until ${date(n.expires_at)}`}</small></article>):<p>No current business notices.</p>
