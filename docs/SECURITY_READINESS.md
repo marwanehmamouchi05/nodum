@@ -9,7 +9,7 @@ current evidence. None of these statuses constitutes whole-product certification
 | Stable meeting demo preserved | PASS | `codex/meeting-demo-20261020` at `c8db547`; no merge/deploy |
 | HTTP body size and receive deadline | PASS | SEC-HTTP-001 fixed; hostile ASGI and actual route tests |
 | Auth, CSRF, origins, deployment/privacy regression | PASS | 173 tests including body guard; in-process scope |
-| Broker TLS, authentication, per-topic ACLs | NOT TESTED | Pending new local secure wire fixture |
+| Local broker TLS, authentication, per-topic ACLs | PASS | New MQTT-TLS-001 wire drill; deployment broker remains unverified |
 | Cross-building authorization, all roles | NOT TESTED | Existing tests available; current rerun pending |
 | Actual deployment proxy and browser | BLOCKED | Selected production deployment unavailable |
 | Physical actuator and emergency safety | BLOCKED | No authorized bench or independent actuator review |
