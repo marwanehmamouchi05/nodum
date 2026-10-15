@@ -1,0 +1,3 @@
+# Optional collector dependency. Core startup does not import Paho.
+# Paho license: EPL-2.0 or EDL-1.0 (upstream dual licensing).
+paho-mqtt==2.1.0

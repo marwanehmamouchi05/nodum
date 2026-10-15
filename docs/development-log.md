@@ -52,3 +52,7 @@ SQLite-specific auth, authorization and product-release tests: 162 passed. No ac
 
 ## 2026-10-15 — PILOT-005 isolated installation/TLS iteration COMPLETED
 Resumed verified clean 40b4769. 87 targeted baseline tests and 55 auth/isolation tests passed. Fresh Windows Python 3.13 venv installed backend pins; pip check, recovery/startup drill and real HTTPS session drill passed. Added shared allowlisted drill environment and temporary TLS fixture. Certificate trust/cookie rotation/CSRF/Origin/logout checks use actual HTTPS. No OS trust-store or existing config changes. Proxy/frontend topology remains unverified. Broker dependencies separated after identifying a test-only Click pin conflict.
+
+
+## 2026-10-15 — PILOT-003 contact MQTT iteration COMPLETED
+Added optional read-only Paho subscriber with strict contact payload, exact device/building topics, per-event revocable authorization, durable SQLite activity binding/idempotency, no actuator/publish method. Added bounded private-config collector and actual separate aMQTT wire drill. 16 final SQLite MQTT tests passed, including concurrent dedup, restart and rollback; earlier Manager/MQTT SQLite batch 46 passed. Actual broker restart/resubscription, retained/malformed rejection, grant revocation and Manager simulation labeling passed. Test broker dependency conflict isolated into a separate environment. No real sensors or deployed broker TLS/ACL claims.

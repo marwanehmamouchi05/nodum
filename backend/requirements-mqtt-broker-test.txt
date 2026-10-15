@@ -1,0 +1,3 @@
+# Test broker ONLY. Install in a separate venv; do not combine with core pins.
+# aMQTT license: MIT. Transitive dependencies are resolved in that test environment.
+amqtt==0.11.3

@@ -229,7 +229,7 @@ class ManagerService:
                         "who": "Ring", "where": place(binding.scope_id) if binding else "Ring device (location unverified)", "result": e["status"], "simulated": e["simulated"]})
             for e in self.records("operation_activity", P.ACTIVITY_READ):
                 activity.append({"id": e["id"], "at": e["at"], "what": e["action"].replace(".", " ").replace("_", " "),
-                    "who": who(e["actor_id"]), "where": place(e["location_id"]), "result": "Recorded", "simulated": False})
+                    "who": who(e["actor_id"]), "where": place(e["location_id"]), "result": "Recorded", "simulated": bool(e.get("simulated", False))})
             for e in scoped.list_actuator_events():
                 activity.append({"id": e.id, "at": e.at, "what": "Access granted" if e.decision.allowed else "Access denied",
                     "who": who(e.person_id), "where": place(e.zone_id), "result": "Executed" if e.executed else "Not executed", "simulated": e.simulated})
