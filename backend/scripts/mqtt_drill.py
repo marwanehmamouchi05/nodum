@@ -102,13 +102,16 @@ def run(broker_python, events=3):
             manager_user=users['demo-manager']
             manager=AuthorizationService(repo,Principal(user_id=manager_user.id,person_id=manager_user.person_id),datetime.now(timezone.utc))
             activity=[e for e in ManagerService(manager).snapshot()['activity'] if e['what']=='sensor contact open']
-            if len(activity)!=events+1 or not all(e['simulated'] for e in activity):
+            recorded=[e for e in repo.list_operational_records('operation_activity') if e.get('source')=='MQTT contact observation']
+            if (len(recorded)!=events+1 or len(activity)!=min(events+1,100)
+                    or not all(e['simulated'] for e in activity)):
                 raise RuntimeError('Scoped activity verification failed')
             if repo.list_actuator_events():raise RuntimeError('Unexpected actuator record')
             return {'protocol':'MQTT 3.1.1 over loopback TCP', 'broker':'aMQTT 0.11.3',
                     'events':events,'elapsed_seconds':round(elapsed,3),'counts':dict(subscriber.counts),
                     'reconnect':'PASS','retained_and_malformed':'rejected','grant_revocation':'PASS',
-                    'manager_activity':len(activity),'physical_hardware':'not tested','broker_tls_acl':'not tested'}
+                    'manager_activity':len(activity),'persisted_observations':len(recorded),
+                    'physical_hardware':'not tested','broker_tls_acl':'not tested'}
         finally:
             if subscriber:subscriber.stop()
             if publisher:publisher.disconnect();publisher.loop_stop()

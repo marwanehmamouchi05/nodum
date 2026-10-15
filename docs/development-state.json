@@ -4,7 +4,7 @@
   "original_branch": "product-platform",
   "worktree": "C:/Users/marwa/.codex/worktrees/pilot-readiness/nodum",
   "branch": "codex/pilot-readiness",
-  "last_verified_checkpoint": "2c8fe4e",
+  "last_verified_checkpoint": "dd15134",
   "baseline": {
     "backend_targeted_passed": 222,
     "frontend_unit_passed": 32,
@@ -12,17 +12,15 @@
     "databases_backed_up_and_checked": 1
   },
   "active_task": {
-    "id": "PILOT-003",
+    "id": "ARCH-002",
     "status": "COMPLETED",
-    "approach": "Optional Paho MQTT 3.1.1 contact subscriber; exact scoped sensor binding; existing activity storage; actual separate loopback aMQTT process",
-    "review_minutes": 30,
-    "failed_approaches": 0,
+    "approach": "Use indexed point reads for single-record Manager writes, preserving authorization order",
     "tests": {
-      "mqtt_sqlite_passed": 16,
-      "manager_sqlite_batch_passed": 46,
-      "wire": "4 recorded, 1 duplicate, 3 rejected; reconnect/revocation/activity passed",
-      "physical": "not tested"
-    }
+      "manager_mqtt_sqlite_passed": 48,
+      "point_read_sqlite_passed": 1,
+      "mqtt_load": "250 events / 3.678 sec, 251 persisted including reconnect, 100 visible by design"
+    },
+    "failed_approaches": 0
   },
   "queue": [
     {

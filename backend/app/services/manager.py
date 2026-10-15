@@ -73,7 +73,7 @@ class ManagerService:
     def arrive(self, identifier):
         with self.repo.transaction():
             self.auth.require(P.VISITORS_CHECK_IN, "visitor", identifier)
-            record = next((r for r in self.repo.list_operational_records("visitor") if r["id"] == identifier), None)
+            record = self.repo.get_operational_record("visitor", identifier)
             if not record:
                 raise DomainError(403, "Visit is unavailable")
             self.target(record["location_id"], P.VISITORS_CHECK_IN)
@@ -92,7 +92,7 @@ class ManagerService:
     def update_maintenance(self, identifier, payload):
         with self.repo.transaction():
             self.auth.require(P.MAINTENANCE_MANAGE, "maintenance", identifier)
-            record = next((r for r in self.repo.list_operational_records("maintenance") if r["id"] == identifier), None)
+            record = self.repo.get_operational_record("maintenance", identifier)
             if not record:
                 raise DomainError(403, "Maintenance request is unavailable")
             self.target(record["location_id"], P.MAINTENANCE_MANAGE)
