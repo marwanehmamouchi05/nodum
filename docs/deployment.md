@@ -1,5 +1,10 @@
 # Backend deployment preparation
 
+For the current scoped multi-tenant pilot, start with [pilot preflight](pilot-preflight.md)
+and [backup/recovery](backup-recovery.md). Use explicit
+`NODUM_AUTHORIZATION_MODE=scoped` and a separate database; the older legacy-demo
+examples below do not establish pilot readiness. See [current evidence](PILOT_READINESS.md).
+
 This prepares a single FastAPI/Uvicorn process behind a TLS-terminating reverse
 proxy or hosting platform. Nothing is deployed by these commands unless you run
 the container/startup commands yourself. `/health` remains `200 {"status":"healthy"}`.

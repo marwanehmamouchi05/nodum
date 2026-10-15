@@ -164,6 +164,11 @@ rollback, and schema initialization. Test databases never use the development DB
 
 ## Remaining limits and backups
 
+Current isolated pilot development adds explicit online backup, verification and
+restore-to-new-file tooling: see [backup/recovery](backup-recovery.md). The historical
+limitations below describe the earlier persistence milestone; use
+[current pilot evidence](PILOT_READINESS.md) for today's scoped-auth status.
+
 Use a local disk and back up the database. For a simple manual backup, stop all
 backend processes cleanly before copying the database and any remaining WAL
 sidecar. Do not copy only the main file while the server is writing: recent

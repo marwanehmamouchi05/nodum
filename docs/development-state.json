@@ -4,7 +4,7 @@
   "original_branch": "product-platform",
   "worktree": "C:/Users/marwa/.codex/worktrees/pilot-readiness/nodum",
   "branch": "codex/pilot-readiness",
-  "last_verified_checkpoint": "316b64d",
+  "last_verified_checkpoint": "e58b99b",
   "baseline": {
     "backend_targeted_passed": 222,
     "frontend_unit_passed": 32,
@@ -12,16 +12,17 @@
     "databases_backed_up_and_checked": 1
   },
   "active_task": {
-    "id": "PILOT-002",
+    "id": "PILOT-004",
     "status": "COMPLETED",
-    "approach": "Read-only local config/schema/onboarding checks; no network, migration or seeding",
-    "impact": "high: safe installation",
-    "complexity": "medium",
+    "approach": "Reject malformed/wildcard/ambiguous configured origins without printing values",
+    "impact": "high: fail-closed authentication configuration",
+    "complexity": "small",
     "uncertainty": "low",
     "review_minutes": 30,
     "failed_approaches": 0,
     "tests": {
-      "preflight_passed": 11
+      "auth_and_origin_passed": 86,
+      "full_backend_passed": 994
     }
   },
   "queue": [
@@ -40,9 +41,28 @@
       "uncertainty": "medium"
     }
   ],
-  "blockers": [],
-  "deferred": [],
-  "astra_escalations": [],
+  "blockers": [
+    "No selected authorized pilot hardware/bench",
+    "No confirmed live Ring linking transport evidence"
+  ],
+  "deferred": [
+    "Real actuation until durable delivery design and bench acceptance",
+    "Outbound notifications until transport and recipient approval"
+  ],
+  "astra_escalations": [
+    {
+      "id": "ASTRA-HW-001",
+      "severity": "HIGH",
+      "status": "ESCALATED",
+      "delivery": "documented only; no external message"
+    },
+    {
+      "id": "ASTRA-RING-002",
+      "severity": "HIGH",
+      "status": "BLOCKED",
+      "dependency": "confirmed provider contract and authorized staging account"
+    }
+  ],
   "promotion": "Owner approval required; no merge or deployment authorized",
   "modified_files": [
     "backend/app/preflight.py",
@@ -50,5 +70,12 @@
     "docs/pilot.env.example",
     "docs/pilot-preflight.md"
   ],
-  "next_recommended_task": "PILOT-004 fail-closed authentication origin parsing"
+  "next_recommended_task": "PILOT-005 clean-machine install and TLS/proxy session acceptance, or PILOT-003 read-only MQTT fixture",
+  "tests": {
+    "full_backend_default_passed": 994,
+    "frontend_unit_passed": 32,
+    "dependency_consistency": "passed",
+    "disposable_cli_recovery_startup": "passed",
+    "sqlite_security_regression": "running"
+  }
 }
