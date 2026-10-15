@@ -6,9 +6,9 @@ Checkpoint: 2026-10-15, isolated `codex/pilot-readiness` worktree. The existing
 | Gate | State | Evidence / remaining work |
 |---|---|---|
 | A — Functional | PARTIAL | Existing Admin/Manager/Resident/Business and signed simulated Ring workflows covered by regression tests. No newly verified package-delivery workflow or outbound notification delivery. Pilot user acceptance still required. |
-| B — Security | PARTIAL | 994 backend tests passed in default repository mode, including tenant/resource boundaries and malformed-origin regression tests. No professional security certification, ingress abuse test or penetration test. |
-| C — Integrations | BLOCKED FOR PHYSICAL PILOT | Ring/software simulators tested; no real hardware verified. Exact pilot models, account/license access and adapter acceptance required. See HARDWARE_COMPATIBILITY.md. |
-| D — Deployment/recovery | PARTIAL, IMPROVED | New backup/verify/restore and preflight CLI tested. Actual disposable restored production-mode backend returned health 200, anonymous Manager 401 and docs 404. Clean-machine dependency install, TLS/proxy/browser configuration, encrypted backup storage, scheduled recovery and update acceptance remain. |
+| B — Security | PARTIAL | 1013 backend tests passed in default repository mode (one SQLite-only case separately verified), including tenant/resource boundaries and malformed-origin regression tests. No professional security certification, ingress abuse test or penetration test. |
+| C — Integrations | BLOCKED FOR PHYSICAL PILOT | Ring/software simulators and explicit MQTT contact wire fixture tested; no real hardware verified. Exact pilot models, account/license access and adapter acceptance required. See HARDWARE_COMPATIBILITY.md. |
+| D — Deployment/recovery | PARTIAL, IMPROVED | New backup/verify/restore and preflight CLI tested. Actual disposable restored production-mode backend returned health 200, anonymous Manager 401 and docs 404. Fresh-venv install and direct HTTPS session checks now passed (see update below). Clean target OS, deployed TLS/proxy/browser configuration, encrypted backup storage, scheduled recovery and update acceptance remain. |
 | E — Operations | PARTIAL | Existing provider/network failure tests; bounded recovery tooling and actionable prerequisite report. Operator ownership, monitoring/alerting, retention and operational runbooks still needed for selected building. |
 | F — Physical validation | BLOCKED | No pilot building, physical devices, safety/egress acceptance or owner-approved bench available to this run. |
 

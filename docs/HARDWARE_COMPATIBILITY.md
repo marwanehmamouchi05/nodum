@@ -32,13 +32,14 @@ Current actuator contracts are pure simulator state transformations within datab
 transactions. Physical I/O must not be inserted into those transactions: uncertain
 network outcomes and command replay need durable reconciliation first (ASTRA-HW-001).
 
-The next practical integration is read-only MQTT sensor telemetry, initially on a
-loopback broker fixture. Before coding, specify authenticated device/building binding,
-fixed topic/payload contract, timestamp/replay handling, retained-message treatment,
-deduplication, disconnect/stale status and limited storage. Test malformed messages,
-cross-building topics, reconnect and no command publication. Label PROTOCOL TESTED
-only after actual broker exchanges pass. Connect a physical contact sensor later,
-with owner-approved isolated hardware and evidence; only then consider HARDWARE VERIFIED.
+The first read-only MQTT contact integration is now protocol tested against a
+loopback broker. The fixed topic/payload, explicit device/building binding,
+retained-message rejection, timestamp/replay bounds and reconnect behavior are
+implemented; see `mqtt-contact.md`. Next, validate real broker TLS/authentication
+and per-topic ACLs, then design durable offline delivery and retention before
+sustained operational use. No command publication is implemented. Physical contact
+sensor acceptance still requires selected equipment, an owner-approved bench and
+recorded evidence before any HARDWARE VERIFIED label.
 
 ## Real-hardware acceptance procedure
 

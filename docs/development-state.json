@@ -4,7 +4,7 @@
   "original_branch": "product-platform",
   "worktree": "C:/Users/marwa/.codex/worktrees/pilot-readiness/nodum",
   "branch": "codex/pilot-readiness",
-  "last_verified_checkpoint": "9bff8b1",
+  "last_verified_checkpoint": "5b3d29b",
   "baseline": {
     "backend_targeted_passed": 222,
     "frontend_unit_passed": 32,
@@ -66,22 +66,6 @@
   "promotion": "Owner approval required; no merge or deployment authorized",
   "modified_files": [],
   "next_recommended_task": "MQTT-TLS-001 or ARCH-005; do not reinstall app/broker environments or repeat completed drills without changes",
-  "tests": {
-    "full_backend_default_passed": 994,
-    "frontend_unit_passed": 32,
-    "dependency_consistency": "passed",
-    "disposable_cli_recovery_startup": "passed",
-    "sqlite_security_regression": {
-      "passed": 162,
-      "files": [
-        "tests/test_auth.py",
-        "tests/test_authorization.py",
-        "tests/test_product_release.py"
-      ]
-    },
-    "full_backend_default_note": "994 passed before final maintenance hardening; all 12 maintenance tests passed after it",
-    "maintenance_final_passed": 12
-  },
   "completed_iterations": [
     "PILOT-001",
     "PILOT-002",
@@ -115,5 +99,21 @@
       "persisted_including_reconnect": 251,
       "manager_visible_cap": 100
     }
+  },
+  "tests_previous_session": {
+    "full_backend_default_passed": 994,
+    "frontend_unit_passed": 32,
+    "dependency_consistency": "passed",
+    "disposable_cli_recovery_startup": "passed",
+    "sqlite_security_regression": {
+      "passed": 162,
+      "files": [
+        "tests/test_auth.py",
+        "tests/test_authorization.py",
+        "tests/test_product_release.py"
+      ]
+    },
+    "full_backend_default_note": "994 passed before final maintenance hardening; all 12 maintenance tests passed after it",
+    "maintenance_final_passed": 12
   }
 }
