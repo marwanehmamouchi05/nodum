@@ -15,6 +15,15 @@ const paths = {
   device: 'M5 3h14v18H5z M9 7h6 M9 17h6 M12 12v.01',
   inbox: 'M3 3h18v18H3z M3 14h5l2 3h4l2-3h5',
   check: 'M5 12l4 4L19 6',
+  home: 'M3 10.5 12 3l9 7.5 M5 9v12h14V9 M9 21v-7h6v7',
+  people: 'M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2 M10 7a4 4 0 1 1-8 0 4 4 0 0 1 8 0 M16 11a4 4 0 1 0 0-8 M20 21v-2a4 4 0 0 0-3-3.87',
+  maintenance: 'M14.7 6.3a4 4 0 0 0-5.6 5.6l-6.6 6.6a2 2 0 0 0 2.8 2.8l6.6-6.6a4 4 0 0 0 5.6-5.6L15 11l-2-2z',
+  notice: 'M4 5h16v12H8l-4 4z M8 9h8 M8 13h5',
+  floor: 'M3 5h18v4H3z M5 9v10h14V9 M8 12h3 M13 12h3 M8 16h3 M13 16h3',
+  map: 'M3 6l6-3 6 3 6-3v15l-6 3-6-3-6 3z M9 3v15 M15 6v15',
+  clock: 'M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20 M12 6v6l4 2',
+  alert: 'M12 3 2 21h20z M12 9v5 M12 17v.01',
+  lock: 'M5 11h14v10H5z M8 11V7a4 4 0 1 1 8 0v4 M12 15v3',
 } as const
 
 export type IconName = keyof typeof paths

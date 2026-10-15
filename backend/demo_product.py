@@ -13,7 +13,7 @@ PASSWORD = "Synthetic-demo-only-2026"
 PREFIX = "demo:reference:"
 
 
-def seed_demo(repo, now):
+def seed_demo(repo, now, *, presentation=False):
     from app.models.authorization import Principal, Role, RoleAssignment, ResourceBinding, Permission as P
     from app.models.building import Person, PersonRole
     from app.models.structure import Affiliation
@@ -96,20 +96,40 @@ def seed_demo(repo, now):
         message="Reception is open until 18:00.", audience="business"))
     manager.create("maintenance", MaintenanceInput(location_id=PREFIX+"building", title="Lobby lighting inspection",
         description="Synthetic request for the building team."))
+    if presentation:
+        from app.services.resident import ResidentService
+        from app.services.business_workspace import BusinessService
+        from app.models.resident import ResidentVisitInput
+        from app.models.business_workspace import BusinessVisitInput
+        # Real scoped service writes in the disposable synthetic database only.
+        for username, service, model, names in (
+            ("demo-presenter", ResidentService, ResidentVisitInput, ("Sara Benali",)),
+            ("demo-resident", ResidentService, ResidentVisitInput, ("Youssef Amrani",)),
+            ("demo-business", BusinessService, BusinessVisitInput, ("Lina Haddad", "Omar Idrissi")),
+        ):
+            user = users[username]
+            scoped = service(AuthorizationService(repo, Principal(user_id=user.id, person_id=user.person_id), now))
+            for index, name in enumerate(names):
+                scoped.create_visit(model(name=name, starts_at=now+timedelta(minutes=15+index*30),
+                    ends_at=now+timedelta(hours=3), note="Synthetic demonstration visit"))
     return users
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--start", action="store_true", help="Explicitly load synthetic data into a disposable DB and start localhost:8770")
+    parser.add_argument("--port", type=int, default=8770, help="Disposable localhost API port")
+    parser.add_argument("--frontend-port", type=int, default=5178, help="Trusted localhost frontend port")
     args = parser.parse_args()
+    if not all(1024 <= port <= 65535 for port in (args.port, args.frontend_port)):
+        parser.error("Demo ports must be between 1024 and 65535")
     if not args.start:
         parser.error("Pass --start to explicitly load the synthetic demo; no data has been changed")
     with TemporaryDirectory(prefix="nodum-product-demo-") as directory:
         from cryptography.fernet import Fernet
         os.environ.update(DATABASE_URL="sqlite:///"+directory+"/demo.db", NODUM_AUTHORIZATION_MODE="scoped",
-            APP_ENV="development", AUTH_PUBLIC_ORIGIN="http://127.0.0.1:8770",
-            AUTH_TRUSTED_ORIGINS="http://127.0.0.1:5178", CORS_ALLOWED_ORIGINS="http://127.0.0.1:5178",
+            APP_ENV="development", AUTH_PUBLIC_ORIGIN=f"http://127.0.0.1:{args.port}",
+            AUTH_TRUSTED_ORIGINS=f"http://127.0.0.1:{args.frontend_port}", CORS_ALLOWED_ORIGINS=f"http://127.0.0.1:{args.frontend_port}",
             CORS_ALLOW_CREDENTIALS="true", RING_MODE="simulation", RING_SIGNING_KEY=secrets.token_urlsafe(32),
             RING_ENCRYPTION_KEY=Fernet.generate_key().decode())
         for key in ("AUTH_BOOTSTRAP_USERNAME", "AUTH_BOOTSTRAP_PASSWORD", "AUTH_BOOTSTRAP_PERSON_ID"):
@@ -117,7 +137,7 @@ def main():
         from app.sqlite_repository import SQLiteRepository
         repo = SQLiteRepository(os.environ["DATABASE_URL"])
         repo.initialize(seed_demo=False)
-        users = seed_demo(repo, datetime.now(timezone.utc))
+        users = seed_demo(repo, datetime.now(timezone.utc), presentation=True)
         from app.main import app
         from app.api.agent import get_gateway
         from app.integrations.bedrock import BedrockUnavailable
@@ -128,7 +148,7 @@ def main():
         print("DEMO / SYNTHETIC — disposable data, no physical control, local Guide only", flush=True)
         print("Accounts: " + ", ".join(users) + "\nSynthetic local password: " + PASSWORD, flush=True)
         import uvicorn
-        uvicorn.run(app, host="127.0.0.1", port=8770, log_level="warning")
+        uvicorn.run(app, host="127.0.0.1", port=args.port, log_level="warning")
 
 
 if __name__ == "__main__":

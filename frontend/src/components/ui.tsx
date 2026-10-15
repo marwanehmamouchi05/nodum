@@ -14,8 +14,9 @@ export function ActionForm({ title, fields, submit, onSubmit, disabled = false }
   const [success, setSuccess] = useState(false)
   async function send(e: FormEvent<HTMLFormElement>) {
     e.preventDefault(); setBusy(true); setError(''); setSuccess(false)
+    const form = e.currentTarget
     const values = Object.fromEntries(new FormData(e.currentTarget)) as Record<string, string>
-    try { const outcome = await onSubmit(values); setSuccess(outcome !== false) } catch (e) { setError(e instanceof Error ? e.message : 'Request failed') } finally { setBusy(false) }
+    try { const outcome = await onSubmit(values); setSuccess(outcome !== false); if (outcome !== false) { const disclosure = form.closest<HTMLDetailsElement>('details[data-close-on-success]'); if (disclosure) { disclosure.open = false; disclosure.querySelector<HTMLElement>('summary')?.focus() } } } catch (e) { setError(e instanceof Error ? e.message : 'Request failed') } finally { setBusy(false) }
   }
   return <form onSubmit={send} className="action-form">{title && <h3>{title}</h3>}<div className="form-grid">{fields.map(f => <label key={f.name}>{f.label}{f.options ? <select aria-label={f.label} name={f.name} required={!f.optional} defaultValue={f.value || ''}><option value="">Select…</option>{f.options.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}</select> : <input name={f.name} type={f.type || 'text'} defaultValue={f.value} required={!f.optional} min={f.min} max={f.max} />}</label>)}</div><button className="primary" disabled={busy || disabled}>{busy ? 'Working…' : submit}</button>{error && <p className="error" role="alert">{error}</p>}{success && <p className="success" role="status">Request completed.</p>}</form>
 }

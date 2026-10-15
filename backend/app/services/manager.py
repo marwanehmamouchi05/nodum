@@ -172,13 +172,13 @@ class ManagerService:
                 state = "completed" if a.status == "cancelled" else "expired" if now >= end else "active" if a.checked_in_at else "expected"
                 business = scoped.get_business(a.business_id)
                 visitors.append({"can_check_in": self.allowed(P.VISITORS_CHECK_IN, "appointment", a.id) and start <= now < end and not a.checked_in_at, "id": a.id, "name": a.visitor_name, "host": business.name if business else "Scoped host",
-                    "destination": place(a.destination_zone_id), "start": start, "end": end,
+                    "destination": place(a.destination_zone_id), "location_id": a.destination_zone_id, "start": start, "end": end,
                     "status": state, "source": "scheduled", "appointment": a})
             from datetime import datetime
             for v in self.records("visitor", P.VISITORS_READ):
                 start, end = datetime.fromisoformat(v["starts_at"]), datetime.fromisoformat(v["ends_at"])
                 visitors.append({"id": v["id"], "name": v["name"], "host": who(v["host_id"]),
-                    "destination": place(v["location_id"]), "start": start, "end": end,
+                    "destination": place(v["location_id"]), "location_id": v["location_id"], "start": start, "end": end,
                     "status": "cancelled" if v.get("cancelled_at") else "completed" if now >= end and v["checked_in_at"] else "expired" if now >= end else "arrived" if v["checked_in_at"] else "expected",
                     "source": "demo/simulation" if v["demo"] else "scheduled", "appointment": None,
                     "can_arrive": not v.get("cancelled_at") and not v["checked_in_at"] and start <= now < end and self.allowed(P.VISITORS_CHECK_IN, "visitor", v["id"]),
@@ -201,6 +201,18 @@ class ManagerService:
                 "simulated": (e.source.startswith("simulation:") or e.account_id == "simulation.playground"), "source": "Ring",
                 "description": "Arrival signal; visitor identity and destination are not established by this event. No door was unlocked." if e.signal in {"doorbell", "person", "motion"} else "Recorded Ring signal for operator review. This signal does not establish physical readiness or grant access."}
                 for e in scoped.list_ring_events()]
+            from app.services.ring import identity
+            for projection in ring:
+                event = self.repo.get_ring_event(projection["id"])
+                mapped = next((device for device in self.repo.list_building_devices()
+                    if event and device.external_device_id == event.source
+                    and device.external_account_key == identity(event.environment, event.account_id)
+                    and self.allowed(P.HARDWARE_READ, "device", device.id)), None)
+                binding = self.repo.get_resource_binding("device", mapped.id) if mapped else None
+                # A resource binding is the only product-scope location link available
+                # here. Leave the signal unmapped when no authorized link exists.
+                projection["location_id"] = binding.scope_id if binding and any(
+                    node.scope_id == binding.scope_id for node in nodes) else None
             ring.sort(key=lambda e: e["at"])
             activity = []
             for e in ring:

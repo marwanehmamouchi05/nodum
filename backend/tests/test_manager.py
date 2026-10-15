@@ -199,6 +199,7 @@ def test_ring_scenarios_manager_projection_no_identity_or_unlock(manager, api, s
     snapshot = manager.snapshot()
     assert len(snapshot["ring"]) == len(delivered["events"])
     assert all(e["simulated"] for e in snapshot["ring"])
+    assert all(e["location_id"] is None for e in snapshot["ring"])
     assert len(snapshot["activity"]) == len(delivered["events"])
     assert not snapshot["visitors"]
     assert before == manager.repo.list_permissions()

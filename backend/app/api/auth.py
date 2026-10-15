@@ -1,6 +1,7 @@
 """Same-origin browser login and authenticated session dependencies."""
 from datetime import datetime
 from pathlib import Path
+from html import escape
 from typing import Annotated
 from fastapi import APIRouter, Depends, Request, Response
 from fastapi.responses import HTMLResponse
@@ -53,16 +54,21 @@ def set_cookie(response, service, cookie, age):
                         httponly=True, secure=service.settings.secure, samesite="lax", path="/")
 
 
-def browser_page():
-    return HTMLResponse((WEB / "auth.html").read_text(encoding="utf-8"), headers={
+def browser_page(continuation=""):
+    markup = (WEB / "auth.html").read_text(encoding="utf-8").replace(
+        'name="nodum-return" content=""', f'name="nodum-return" content="{escape(continuation, quote=True)}"')
+    return HTMLResponse(markup, headers={
         **PRIVATE_HEADERS,
         "Content-Security-Policy": "default-src 'none'; script-src 'self'; style-src 'unsafe-inline'; connect-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'",
     })
 
 
 @router.get("/login", response_class=HTMLResponse)
-def login_page():
-    return browser_page()
+def login_page(return_to: str = "", settings: AuthSettings = Depends(get_auth_settings)):
+    # Exact configured origin roots only. No arbitrary paths, protocol-relative
+    # redirects, Host-derived authority, credentials, query strings or fragments.
+    allowed = {origin + "/" for origin in (settings.public_origin, *settings.trusted_origins)}
+    return browser_page(return_to if return_to in allowed else "")
 
 
 @router.get("/client.js", include_in_schema=False)

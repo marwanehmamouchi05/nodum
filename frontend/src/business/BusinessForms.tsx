@@ -3,18 +3,19 @@ import type { FormEvent } from 'react'
 import { businessApi } from './api'
 import { businessError, businessPermissionNames } from './model'
 import type { BusinessSnapshot, Staff } from './model'
+import type { Visit } from '../resident/model'
 
 function PermissionChoices({ options, selected, change }: { options: string[]; selected: string[]; change: (values: string[]) => void }) {
   return <fieldset className="business-permissions"><legend>Business Staff permissions</legend>{options.map(p => <label key={p}><input type="checkbox" checked={selected.includes(p)} onChange={e => change(e.target.checked ? [...selected,p] : selected.filter(v => v !== p))} />{businessPermissionNames[p] || p}</label>)}<p className="fine">Only permissions delegated to you and permitted for Business Staff can be granted. Application permissions do not grant physical access.</p></fieldset>
 }
-export function BusinessForm({ kind, data, refresh }: { kind: 'visitor' | 'maintenance' | 'staff'; data: BusinessSnapshot; refresh: () => Promise<void> }) {
+export function BusinessForm({ kind, data, refresh, onVisitCreated }: { kind: 'visitor' | 'maintenance' | 'staff'; data: BusinessSnapshot; refresh: () => Promise<void>; onVisitCreated?: (visit: Visit) => void }) {
   const [permissions, setPermissions] = useState<string[]>(data.staff_options.filter(p => ['locations.read','announcements.read','visitors.read','maintenance.read','maintenance.create'].includes(p)))
   const [busy,setBusy] = useState(false), [error,setError] = useState(''), [success,setSuccess] = useState('')
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); const form=event.currentTarget; const values=Object.fromEntries(new FormData(form)) as Record<string,string>
     setBusy(true); setError(''); setSuccess('')
     try {
-      if (kind==='visitor') await businessApi.visit({affiliation_id:data.affiliation_id,name:values.name,note:values.note,starts_at:new Date(values.starts_at).toISOString(),ends_at:new Date(values.ends_at).toISOString()})
+      if (kind==='visitor') { const visit = await businessApi.visit({affiliation_id:data.affiliation_id,name:values.name,note:values.note,starts_at:new Date(values.starts_at).toISOString(),ends_at:new Date(values.ends_at).toISOString()}); onVisitCreated?.(visit) }
       else if (kind==='maintenance') await businessApi.report({affiliation_id:data.affiliation_id,title:values.title,description:values.description,priority:values.priority})
       else await businessApi.addStaff({name:values.name,username:values.username,password:values.password,permissions})
       form.reset(); setSuccess(kind==='visitor' ? 'Visitor scheduled. Physical building access is not configured automatically.' : kind==='maintenance' ? 'Your maintenance request was submitted.' : 'Staff account created. Share the initial credentials through your approved private channel.'); await refresh()

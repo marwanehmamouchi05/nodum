@@ -1,0 +1,123 @@
+/* Phase G final composition: neutral architecture, purposeful work surfaces. */
+:root{--canvas:#f4f5f3;--surface:#fff;--surface-subtle:#f7f8f6;--ink:#263531;--muted:#586761;--border:#dce2dc;--accent:#17645b;--accent-hover:#104d45;--nav:#1d2c29;--selected:#e5eeea;--focus:#17645b}
+body{background:var(--canvas)}
+.sidebar,.admin-nav{background:var(--nav)}
+.panel,.business-section,.resident-section,.record,.business-record,.resident-record{box-shadow:none;border-radius:10px}
+.panel{padding:22px;margin-bottom:20px}
+.page-intro,.admin-intro{padding:0;margin:0 0 24px}
+.page-intro h1,.admin-intro h1,.business-heading h1,.resident-heading h1{font-size:30px;margin:0 0 6px}
+.page-intro p,.admin-intro p{margin:0}
+.page-tools{display:flex;gap:8px;flex-wrap:wrap}
+.page-tools{align-self:start;align-items:center}
+.page-intro>.page-tools{float:right;margin-left:16px}
+.page-intro{display:grid;grid-template-columns:1fr auto;gap:6px 16px}.page-intro>.page-tools{grid-column:2;grid-row:1 / span 2;float:none;margin:0}.page-intro h1,.page-intro p{grid-column:1}
+.resident-header>.resident-demo-tag{flex:0 0 auto;white-space:nowrap;background:transparent;font-size:11px}
+.visitor-register .visit-window small{display:block;margin-top:4px}
+.visitor-register>.record>.row{align-items:flex-start;flex-wrap:wrap}
+.task-compose{margin:0 0 18px;border-bottom:1px solid var(--border)}
+.task-compose>summary{min-height:48px;padding:12px 0;color:var(--accent);font-weight:650;cursor:pointer}
+.task-compose>.panel{margin-top:12px}
+.task-compose .panel>h2{display:none}
+.manager-command-heading{align-items:flex-start;margin:4px 0 24px}
+.manager-command-heading h1{font-size:28px}
+.manager-command-heading-actions{align-items:flex-end;flex-direction:column;gap:8px}
+.manager-command-layout{grid-template-columns:minmax(0,1.8fr) minmax(280px,1fr);gap:0;background:white;border:1px solid var(--border);border-radius:12px;overflow:hidden;align-items:start}
+.manager-command-layout>.building-section-panel{border:0;border-radius:0;box-shadow:none;padding:24px}
+.manager-attention-rail{border:0;border-left:1px solid var(--border);border-radius:0;padding:24px;background:transparent}
+.manager-attention-rail>.manager-ops-summary{display:block;margin-top:20px}
+.manager-attention-rail>.manager-ops-summary button{display:grid;grid-template-columns:1fr auto;width:100%;border:0;border-top:1px solid var(--border);border-radius:0;min-height:62px;padding:12px 0;background:transparent}
+.manager-attention-rail>.manager-ops-summary button strong{font-size:22px}
+.manager-attention-rail>.manager-ops-summary button span{display:none}
+.manager-arrival-card,.manager-arrival-card.is-simulated{border:0;border-left:3px solid var(--accent);border-radius:0;background:var(--surface-subtle);padding:12px}
+.manager-overview-lower{margin-top:24px;gap:32px}
+.manager-recent-activity,.manager-quick-actions{border:0;background:transparent;padding:0;border-radius:0}
+.visitor-register>.record{display:grid;grid-template-columns:minmax(180px,1.1fr) minmax(150px,1fr) minmax(160px,1fr);gap:8px 22px;border:0;border-bottom:1px solid var(--border);border-radius:0;background:transparent;padding:20px 0}
+.visitor-register .record-heading{align-items:start;gap:8px}.visitor-register h3{margin:0}
+.visit-place{display:grid;align-content:start;gap:4px}.visit-window{margin:0;font-size:13px}
+.visit-record-detail{grid-column:1/-1;font-size:12px}.visitor-register details p{font-size:13px}
+.manager-shell main[data-page=Visitors] .panel>label{max-width:240px}
+.visitor-register>.record{padding:14px 0;gap:4px 22px;margin:0;min-height:0}
+.visitor-register .visit-record-detail{grid-column:3;grid-row:2}
+.manager-shell main[data-page=Maintenance] .panel>.record{border:0;border-bottom:1px solid var(--border);border-radius:0;background:transparent;padding:10px 0}
+.signal-row{display:grid;grid-template-columns:20px minmax(100px,1fr) auto auto;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--border)}
+.signal-row small{display:block}.signal-row time{font-size:12px;color:var(--muted)}
+.manager-shell .list-row{padding-block:16px}.empty{padding:24px;min-height:0}
+/* One continuous structural envelope. No separated card bevels or invented rooms. */
+.building-section-panel{box-shadow:none;border-radius:10px}
+.building-section-heading{margin-bottom:24px}.building-section-heading p{font-size:12px}
+.building-controls>div{background:transparent;border:0;padding:0;border-bottom:1px solid var(--border);border-radius:0}
+.building-controls button{border-radius:4px;box-shadow:none!important;font-size:12px}
+.building-stack{padding-top:8px}.building-stack::before{display:none}
+.building-floor-row,.building-floor-row.is-selected{margin:0;transform:none;gap:10px;grid-template-columns:76px minmax(0,1fr)}
+.building-slab,.building-floor-row.is-selected .building-slab{border:0;border-inline:2px solid #8e9e94;border-bottom:2px solid #8e9e94;border-radius:0;padding:0;background:#fafbf9;box-shadow:none;transform:none}
+.building-floor-row.is-roof .building-slab{border-top:5px solid #526b60;border-radius:0;background:#eef2ed}
+.building-floor-row.is-ground .building-slab{background:#eef3ef;border-bottom-color:#526b60}
+.building-floor-row.is-service .building-slab{background:#e8ece6;border-bottom:5px solid #526b60}
+.building-spaces{gap:0;min-height:66px}.building-space{background:transparent;border-right:1px solid #d1d9d0;border-radius:0;padding:10px 4px;min-width:0}
+.building-space .space-name{font-weight:600;font-size:13px}.building-space .space-meta{font-size:11px;margin-top:3px}
+.building-space:hover,.building-space[aria-pressed=true]{background:var(--selected);box-shadow:inset 0 -3px var(--accent)}
+.building-floor-row.is-selected .building-floor-label{color:var(--accent)}
+.space-marker{top:3px;right:3px;box-shadow:none;min-width:17px;height:17px;font-size:10px}
+.building-base{margin:0 0 0 86px;padding:10px 0;background:transparent;border:0;font-size:11px}
+.building-inspector{border:0;border-top:1px solid var(--border);background:transparent;border-radius:0;padding:16px 0 0}
+.building-inspector-items{max-height:250px;overflow:auto}.building-unmapped{font-size:12px}
+/* Resident identity is a useful personal object, never a wide empty banner. */
+.resident-home-grid{display:grid;grid-template-columns:340px minmax(0,1fr);gap:36px;align-items:start}
+.resident-home-grid>*{min-width:0}.resident-profile-top>.resident-credential-state{flex-basis:100%;width:fit-content;flex-grow:0;max-width:100%;border:0;padding:4px 0;white-space:normal}
+.resident-profile-top>div:nth-child(2){flex-basis:calc(100% - 60px)}
+.resident-profile-place{display:grid;gap:4px;margin-left:0}
+.resident-next-visit-row{min-width:0;max-width:100%;flex-wrap:wrap}.resident-next-visit-row>span{min-width:0}
+.visit-pass{max-width:740px;background:var(--nav);box-shadow:none;border-radius:16px}
+.resident-profile-card{padding:24px;border-radius:16px;background:var(--nav);min-height:0;box-shadow:none}
+.resident-profile-top{display:flex;flex-wrap:wrap;gap:12px}.resident-profile-top h2{font-size:19px}.resident-profile-card>p{margin:22px 0 0;font-size:12px}
+.resident-profile-place{margin-top:26px}.resident-home-actions{display:grid;grid-template-columns:1fr;gap:8px;margin-top:14px}
+.resident-home-actions button{justify-content:center;min-height:46px}
+.resident-today>.resident-section,.resident-today>.resident-next-visit{background:transparent;border:0;border-bottom:1px solid var(--border);border-radius:0;padding:0 0 22px;margin:0 0 22px}
+.resident-today .resident-notice{padding:0}.resident-today .resident-section-title{margin-bottom:12px}
+.resident-access-summary{padding:0;gap:12px;flex-wrap:wrap}.resident-today h2{font-size:18px}
+.business-home-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(250px,1fr);gap:24px;align-items:start}
+.business-reception{grid-row:span 3;margin:0;padding:24px;border-radius:10px;box-shadow:none}
+.business-home-tools{grid-column:2;grid-row:1}.business-home-tools .business-actions{display:flex;flex-wrap:wrap;gap:8px}
+.business-home-grid>.business-section{margin:0;padding:0;background:transparent;border:0;border-radius:0}
+.business-home-grid>.business-today{grid-column:1/-1;border:0;border-top:1px solid var(--border);background:transparent;margin:0}
+.business-home-grid>.business-today button{background:transparent}
+.business-eyebrow{display:none}.business-today-list,.business-reception .business-today-list{border:0;border-radius:0;padding:0}
+.business-reception-grid{grid-template-columns:1fr}.business-visit-row{padding:18px 0}.business-visit-row strong{font-size:15px}
+.business-visit-stats{margin:22px 0;padding:16px 0}.business-visit-stats strong{font-size:26px}
+.business-heading{margin-bottom:22px}.business-header small{display:none}
+/* Admin uses one studio surface, with directory and inspector separated by rules. */
+.admin-workspace main{padding-top:24px}.admin-topbar{min-height:52px;padding-block:4px}
+.admin-building-studio{gap:0;border:1px solid var(--border);border-radius:10px;background:white;overflow:hidden;grid-template-columns:140px minmax(0,1fr) 220px}
+.admin-studio-hierarchy,.admin-studio-inspector,.admin-building-studio>.building-section-panel{border:0;border-radius:0;background:transparent;padding:18px}
+.admin-studio-hierarchy{border-right:1px solid var(--border)}.admin-studio-inspector{border-left:1px solid var(--border)}
+.admin-studio-hierarchy .admin-hierarchy-toggle{display:none}.product-feedback{display:flex;align-items:center;gap:16px}.product-feedback p{font-size:13px;flex:1}
+.admin-studio-inspector h2{font-size:18px}.admin-configure-place{font-size:13px}
+.admin-hardware{padding-block:20px;grid-template-columns:minmax(0,1fr) 280px}.inline-editor>summary{cursor:pointer;min-height:44px;padding:12px 0;color:var(--accent)}
+.admin-hardware h3{margin:0 0 6px}.admin-hardware p{margin:6px 0;font-size:13px}.admin-hardware small{display:block;margin-top:6px}
+.admin-create-building{background:transparent;border:0;margin-bottom:8px}.admin-create-building>summary{padding-left:0}
+.admin-workspace main[data-page=Building] .admin-intro{margin-bottom:0;padding-bottom:12px}
+.admin-workspace main[data-page=Building]>.admin-create-building{margin-bottom:0}
+.integration-detail{margin:12px 0}.integration-detail>summary{min-height:44px;padding:12px 0;cursor:pointer;color:var(--accent)}
+.product-account{min-height:52px}.product-demo-label{background:transparent;color:var(--accent);font-size:11px;letter-spacing:.03em}
+@media(max-width:1199px){
+ .admin-shell{display:block}.admin-nav{position:relative;inset:auto;width:auto;height:auto;padding:14px 18px;overflow:visible}.admin-nav .brand{margin:0 0 10px;font-size:26px}.admin-workspace-label{display:none}.admin-workspace{margin-left:0}.product-bar[data-workspace=Admin]{margin-left:0}
+ .admin-studio-hierarchy .admin-hierarchy-toggle{display:block;color:var(--accent);font-weight:650}.admin-studio-hierarchy[data-expanded=false]>:not(.admin-hierarchy-toggle){display:none}
+ .admin-nav nav{display:flex;flex-wrap:nowrap;overflow-x:auto;gap:4px;padding-bottom:4px}.admin-nav nav button{width:auto;flex:0 0 auto;white-space:nowrap;padding:10px;min-height:44px}
+ .manager-command-layout{grid-template-columns:1fr}.manager-attention-rail{border-left:0;border-top:1px solid var(--border)}
+ .manager-command-layout>.building-section-panel{order:0}.manager-attention-rail{order:1}
+ .manager-attention-rail>.manager-ops-summary{display:grid;grid-template-columns:1fr 1fr;gap:0 24px}
+ .admin-building-studio{grid-template-columns:minmax(0,1fr) 220px}.admin-studio-hierarchy{grid-column:1/-1;border-right:0;border-bottom:1px solid var(--border)}
+}
+@media(max-width:850px){.resident-home-grid{grid-template-columns:280px minmax(0,1fr);gap:24px}.business-home-grid{grid-template-columns:1fr}.business-home-tools{grid-column:auto;grid-row:auto}.business-reception{grid-row:auto}.admin-building-studio{grid-template-columns:1fr}.admin-studio-inspector{border-left:0;border-top:1px solid var(--border)}}
+@media(max-width:600px){
+ .page-intro>.page-tools{float:none;margin:0 0 16px}.manager-command-heading{display:block}.manager-command-heading-actions{align-items:flex-start;margin-top:14px}
+ .page-intro{grid-template-columns:1fr}.page-intro>.page-tools{grid-column:1;grid-row:3;margin-top:8px}.resident-header>.resident-demo-tag{white-space:normal;max-width:72px}
+ .manager-command-layout>.building-section-panel,.manager-attention-rail{padding:16px}.manager-command-heading h1{font-size:25px}
+ .resident-home-grid{grid-template-columns:1fr;gap:28px}.resident-home-actions{grid-template-columns:1fr 1fr}.resident-home-actions>.primary{grid-column:1/-1}.resident-home-actions button{font-size:12px}
+ .resident-heading h1,.business-heading h1,.admin-intro h1{font-size:26px}.resident-profile-card{padding:20px}
+ .visitor-register>.record{grid-template-columns:1fr;gap:10px}.signal-row{grid-template-columns:20px 1fr auto}.signal-row time{grid-column:2}.signal-row>.badge{grid-column:3;grid-row:1}
+ .visitor-register .visit-record-detail{grid-column:1;grid-row:auto}
+ .business-reception{padding:16px}.business-reception-actions{display:block}.business-home-grid{gap:20px}
+ .admin-hardware{grid-template-columns:1fr}.panel{padding:18px}.building-base{display:block}.building-base span:last-child{display:none}
+}
+@container(max-width:460px){.building-floor-row,.building-floor-row.is-selected{grid-template-columns:58px minmax(0,1fr);gap:6px}.building-base{margin-left:64px}.building-space .space-name{font-size:11px}.building-space .space-meta{display:none}.building-spaces{min-height:64px}.building-floor-label small{display:none}.building-slab{padding:0}.building-floor-label span{font-size:11px}}

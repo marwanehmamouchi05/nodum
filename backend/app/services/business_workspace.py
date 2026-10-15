@@ -42,6 +42,8 @@ class BusinessService:
     def location_name(self, identifier):
         return self.context()[1].name
 
+    building_name = ResidentService.building_name
+
     def homes(self):
         # Reuse safe E1 value projections, not its Resident authority checks.
         return [self.context()]
@@ -234,6 +236,7 @@ class BusinessService:
             staff,access=self.staff(),self.access()
             permissions=[p.value for p in P if self.allowed(p,'structure',node.id)]
             return {'name':node.name,'floor':next((self.repo.get_structure_node(i).name for i in physical_path(self.repo,node.id) if self.repo.get_structure_node(i).kind.value=='floor'),None),
+                'building':self.building_name(node.id),
                 'affiliation_id':a.id,'role':a.role.value,'demo':node.demo,'permissions':permissions,
                 'visitors':visits,'maintenance':maintenance,'notices':self.notices(),'staff':staff,'staff_options':self.staff_options(),
                 'access':access,'access_status':'Review needed' if any(p['status']=='Denied' for p in access) else 'Active' if access and all(p['status']=='Allowed' for p in access) else 'Not evaluated' if access else 'Not configured',

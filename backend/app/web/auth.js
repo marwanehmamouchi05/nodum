@@ -2,6 +2,7 @@
 const byId = id => document.getElementById(id);
 const params = new URLSearchParams(window.location.search);
 let linking = window.location.pathname === '/ring/link';
+const continuation = document.querySelector('meta[name="nodum-return"]').content;
 let context;
 let completed = false;
 async function request(path, payload) {
@@ -23,10 +24,13 @@ function render() {
   byId('login').hidden = !!context.user;
   byId('signed-in').hidden = !context.user;
   byId('claim').hidden = !linking || completed;
+  byId('continue').hidden = linking || !continuation || !context.user;
   byId('identity').textContent = context.user ? 'Signed in as ' + context.user.username : '';
-  byId('heading').textContent = completed ? 'Ring connected' : linking ? 'Connect your Ring account' : 'Nodum account';
-  byId('intro').textContent = linking ? 'Sign in, then confirm which Nodum account will own this Ring connection. The Ring link expires after 10 minutes.' : 'Return to the Nodum Integrations screen after signing in, or start account linking from Ring.';
+  byId('heading').textContent = completed ? 'Ring connected' : linking ? 'Connect your Ring account' : 'Sign in to Nodum';
+  byId('capability-note').textContent = linking || completed ? 'Ring credentials stay on the server. Connecting Ring does not grant building access.' : 'Your account permissions determine which workspace and records you can access.';
+  byId('intro').textContent = linking ? 'Sign in, then confirm which Nodum account will own this Ring connection. The Ring link expires after 10 minutes.' : 'Sign in to open your authorized Nodum workspace.';
 }
+byId('continue').addEventListener('click', () => { if (!linking && continuation) window.location.assign(continuation); });
 async function run(work) {
   document.querySelectorAll('button').forEach(button => { button.disabled = true; });
   byId('message').textContent = 'Working…';
@@ -46,6 +50,7 @@ byId('login').addEventListener('submit', event => {
     completed = false;
     render();
     byId('message').textContent = linking ? 'Confirm below to link Ring to this signed-in user.' : 'Signed in successfully.';
+    if (!linking && continuation) window.location.assign(continuation);
   });
 });
 byId('claim').addEventListener('click', () => run(async () => {
@@ -65,5 +70,5 @@ byId('logout').addEventListener('click', () => run(async () => {
 }));
 run(async () => {
   context = await request('/auth/session');
-  render(); byId('message').textContent = context.user ? 'Your session is ready.' : 'Sign in to continue. Your Ring parameters remain on this page.';
+  render(); byId('message').textContent = context.user ? 'Your session is ready.' : (linking ? 'Sign in to continue. Your Ring parameters remain on this page.' : 'Sign in to continue.');
 });

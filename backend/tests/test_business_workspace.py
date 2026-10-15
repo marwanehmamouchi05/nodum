@@ -62,6 +62,15 @@ def test_same_floor_business_list_detail_guessed_id_isolation(businesses,kind):
     assert x.detail(kind,a['id'])==a
 
 
+def test_business_snapshot_and_visitors_include_related_building_context(businesses):
+    x, y, *_ = businesses
+    assert x.snapshot()['building'] == 'Mixed-use reference building'
+    created = visit(x)
+    assert created['building'] == 'Mixed-use reference building'
+    assert x.detail('visitor', created['id'])['building'] == 'Mixed-use reference building'
+    assert visit(y)['destination'] == 'Business Y'
+
+
 def test_staff_records_are_personal_and_admin_records_business_scoped(businesses):
     admin,_,staff,_,_=businesses
     own=visit(staff); visit(admin); issue(admin); mine=issue(staff)

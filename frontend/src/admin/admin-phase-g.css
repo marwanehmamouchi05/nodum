@@ -1,0 +1,36 @@
+.admin-create-building{margin:0 0 14px;border:1px solid var(--border);border-radius:12px;background:#fff}
+.admin-create-building>summary{min-height:44px;padding:12px 16px;color:var(--accent);font-weight:650;cursor:pointer;list-style:none}
+.admin-create-building>summary::-webkit-details-marker{display:none}
+.admin-create-building>summary::before{content:"+";display:inline-grid;place-items:center;width:20px;height:20px;margin-right:8px;border-radius:50%;background:var(--selected);color:var(--accent)}
+.admin-create-building[open]>summary::before{content:"−"}
+.admin-create-building[open] .panel{margin:0;border:0;border-top:1px solid var(--border);border-radius:0 0 12px 12px}
+.admin-create-building:focus-within,.admin-create-building>summary:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.admin-nav nav button{display:flex;align-items:center;gap:10px}.admin-nav nav button .icon{width:17px;height:17px;flex:none}
+@media(max-width:700px){.admin-workspace main{padding:16px 14px 28px}.admin-nav nav button{display:flex;align-items:center;gap:7px;padding:8px;font-size:12px}.admin-nav nav button .icon{width:15px;height:15px}}
+
+.admin-floor-picker,.admin-place-picker{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.admin-floor-picker button,.admin-place-picker button{min-height:44px}.admin-floor-picker button[aria-pressed=true],.admin-place-picker button[aria-pressed=true]{background:var(--selected);border-color:var(--accent)}.admin-place-detail{border-top:1px solid var(--border);padding-top:16px}.admin-place-detail>button{margin:5px}.admin-demo-tools{margin:20px 0}.admin-demo-tools>summary{min-height:44px;padding:12px;cursor:pointer}
+
+/* One selection connects the floor directory, section and configuration. */
+.admin-building-studio{display:grid;grid-template-columns:150px minmax(0,1fr) 230px;gap:16px;align-items:start;margin-bottom:24px}
+.admin-studio-hierarchy,.admin-studio-inspector{min-width:0;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px}
+.admin-studio-hierarchy h2{font-size:16px;margin:0}.admin-studio-hierarchy p{font-size:12px;margin:6px 0 16px}
+.admin-studio-hierarchy .admin-floor-picker,.admin-studio-hierarchy .admin-place-picker{display:grid;gap:4px}
+.admin-studio-hierarchy button{text-align:left;width:100%;border-color:transparent;background:transparent;padding:9px 8px;overflow-wrap:anywhere}
+.admin-studio-hierarchy button[aria-pressed=true]{background:var(--selected);color:var(--accent);border-left:3px solid var(--accent);font-weight:650}
+.admin-studio-hierarchy h3{font-size:13px;margin-top:20px}.admin-studio-hierarchy .admin-place-picker{padding-left:8px;border-left:1px solid var(--border)}
+.admin-studio-hierarchy .admin-edit-building{border-top:1px solid var(--border);border-radius:0;margin-top:16px;color:var(--accent)}
+.admin-studio-inspector .admin-place-detail{border:0;padding:0}.admin-studio-inspector h2{font-size:20px;overflow-wrap:anywhere;margin:8px 0}
+.admin-inspector-label{font-size:12px;color:var(--muted)}.admin-studio-inspector p{font-size:13px}.admin-studio-inspector details{margin-top:20px;border-top:1px solid var(--border);padding-top:14px}.admin-studio-inspector details p{overflow-wrap:anywhere}
+.admin-inspector-places{display:grid;margin:18px 0;gap:5px}.admin-inspector-places button{display:flex;justify-content:space-between;align-items:center;gap:8px;text-align:left}
+.admin-studio-inspector .admin-configure-place{margin:20px 0 0;width:100%;white-space:normal}.admin-studio-inspector .admin-editor{margin-top:16px}.admin-studio-inspector .form-grid{grid-template-columns:1fr}
+.admin-building-studio>.building-section-panel{padding:18px}.admin-building-studio .building-section-heading h2{font-size:20px}
+@media(max-width:1250px){.admin-building-studio{grid-template-columns:minmax(0,1fr) 230px}.admin-studio-hierarchy{grid-column:1/-1}.admin-studio-hierarchy .admin-floor-picker,.admin-studio-hierarchy .admin-place-picker{display:flex;flex-wrap:wrap}.admin-studio-hierarchy button{width:auto}.admin-studio-hierarchy .admin-edit-building{margin-top:0}.admin-studio-hierarchy p{margin-bottom:8px}}
+@media(max-width:1100px){.admin-building-studio{grid-template-columns:minmax(0,1fr)}.admin-studio-inspector{padding:20px}.admin-inspector-places{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.admin-topbar{padding-block:8px;min-height:60px}
+.admin-workspace main[data-page=Building]{padding-top:20px}
+.admin-workspace main[data-page=Building] .admin-intro{padding:0 0 16px}
+.admin-workspace main[data-page=Building] .admin-intro h1{font-size:32px;margin:0 0 6px}
+.admin-workspace main[data-page=Building] .admin-intro p{font-size:14px;margin:0}
+.admin-add-space{border:1px solid var(--border);border-radius:12px;background:var(--surface)}
+.admin-add-space>summary{cursor:pointer;min-height:44px;padding:14px 18px;color:var(--accent);font-weight:650}
+.admin-add-space>.panel{border:0;border-top:1px solid var(--border);margin:0}

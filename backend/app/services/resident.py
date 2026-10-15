@@ -96,11 +96,20 @@ class ResidentService:
     def location_name(self, identifier):
         return next((n.name for _, n in self.homes() if n.id == identifier), "Your unit")
 
+    def building_name(self, identifier):
+        node = self.repo.get_structure_node(identifier)
+        if not node:
+            return "Building name unavailable"
+        return next((parent.name for key in physical_path(self.repo, node.id)
+                     if (parent := self.repo.get_structure_node(key)) and parent.kind.value == "building"),
+                    "Building name unavailable")
+
     def visit_view(self, record):
         now = self.auth.now
         start, end = datetime.fromisoformat(record["starts_at"]), datetime.fromisoformat(record["ends_at"])
         status = "cancelled" if record.get("cancelled_at") else "completed" if now >= end and record.get("checked_in_at") else "expired" if now >= end else "arrived" if record.get("checked_in_at") else "expected"
         return {"id": record["id"], "name": record["name"], "destination": self.location_name(record["location_id"]),
+            "building": self.building_name(record["location_id"]),
             "starts_at": record["starts_at"], "ends_at": record["ends_at"], "status": status,
             "note": record.get("note", ""), "physical_access": False,
             "logical_authorization": "Revoked" if status == "cancelled" else "Ended" if status in {"expired", "completed"} else "Scheduled" if now < start else "Active",
@@ -189,6 +198,7 @@ class ResidentService:
             notices, access = self.notices(), self.access()
             return {"name": self.repo.get_person(self.auth.principal.person_id).name,
                 "units": [{"affiliation_id": a.id, "name": n.name, "demo": n.demo,
+                    "building": self.building_name(n.id),
                     "floor": next((self.repo.get_structure_node(i).name for i in physical_path(self.repo, n.id)
                         if self.repo.get_structure_node(i).kind.value == "floor"), None),
                     "can_invite": self.allowed(P.VISITORS_INVITE, "structure", n.id),

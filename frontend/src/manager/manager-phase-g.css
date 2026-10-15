@@ -1,0 +1,21 @@
+
+.manager-shell .topbar{justify-content:flex-end;min-height:54px;height:auto;padding:5px 24px}
+.manager-command-layout .building-section-view:not(.list){grid-template-columns:minmax(0,1fr)}
+.manager-command-layout .building-section-heading{display:grid}
+.manager-command-layout .building-inspector{min-height:0}
+.manager-attention-rail>.manager-ops-summary{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:12px 0 0}
+.manager-attention-rail>.manager-ops-summary button{min-height:72px;padding:10px;gap:4px}
+.manager-attention-rail>.manager-ops-summary small,.manager-attention-rail>.manager-ops-summary span{font-size:12px}
+.manager-attention-rail>.manager-ops-summary strong{font-size:17px}
+.manager-attention-rail>.manager-ops-summary button{grid-template-columns:minmax(0,1fr);align-content:start}
+.manager-attention-rail>.manager-ops-summary strong{font-size:25px;line-height:1.2;letter-spacing:-.03em}
+.manager-attention-rail>.manager-ops-summary button:last-child strong{font-size:20px}
+.manager-command-layout .building-controls button,.manager-command-layout .building-floor-label,.manager-command-layout .building-space,.manager-arrival-card>.primary,.manager-section-heading button,.manager-quick-actions>div:last-child button{min-height:44px}
+@media(max-width:1199px){
+ .manager-shell{display:block}.manager-shell .sidebar{position:relative;width:auto;height:auto;min-height:0;padding:12px 18px}
+ .manager-shell .workspace{margin-left:0}.manager-shell .sidebar .brand{margin-bottom:8px}
+ .manager-shell .building-label,.manager-shell .sidebar-bottom,.manager-shell .sidebar nav>button{display:none}
+ .manager-shell .manager-mobile-nav{display:block;width:100%;color:#dbe7ec}.manager-shell .sidebar nav{display:block}
+ .manager-command-layout,.manager-overview-lower{grid-template-columns:minmax(0,1fr)}
+ .manager-command-layout .building-section-view:not(.list){grid-template-columns:minmax(0,1fr)}
+}

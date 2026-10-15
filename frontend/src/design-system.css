@@ -1,0 +1,25 @@
+/* Nodum Phase G foundations: one material and status language across roles. */
+:root{--canvas:#F3F6F8;--surface:#FFFFFF;--surface-subtle:#F7FAFB;--ink:#173342;--muted:#526B78;--border:#DAE4E9;--accent:#086D78;--accent-hover:#055560;--nav:#142D3B;--focus:#087E8B;--selected:#E4F1F2;--attention:#855914;--attention-surface:#FFF5E6;--critical:#923F32;--critical-surface:#FAE8E4;--confirmed:#236751;--confirmed-surface:#E3F3EE;--unknown:#526B78;--unknown-surface:#EDF2F5}
+body{background:var(--canvas);color:var(--ink)}
+.nodum-assistant-panel{scroll-margin-top:110px;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-top:20px;outline-offset:3px}
+.nodum-assistant-heading{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.nodum-assistant-heading button{min-height:44px}
+.nodum-assistant-panel:focus{outline:3px solid var(--focus)}
+.nodum-assistant-panel .resident-help,.nodum-assistant-panel .business-help{border:0;padding:0;margin:0}
+h1{font-size:clamp(28px,2.5vw,32px);letter-spacing:-.03em;font-weight:650}
+h2{font-size:19px;letter-spacing:-.02em;font-weight:650}
+h3{font-size:16px;letter-spacing:-.015em;font-weight:650}
+p{font-size:15px;line-height:1.58;color:var(--muted)}
+small,.fine{font-size:12px;color:var(--muted)}
+button,input,select,textarea{border-radius:8px}
+button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+button.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+.panel{border-radius:16px;padding:24px}
+.record,.resident-record,.business-record,.manager-assistant{border-radius:14px}
+.badge{font-size:12px;letter-spacing:0;padding:4px 9px;border-radius:999px;background:var(--unknown-surface);color:var(--unknown)}
+.badge.mint{background:var(--confirmed-surface);color:var(--confirmed)}
+.badge.red{background:var(--critical-surface);color:var(--critical)}
+.badge.amber{background:var(--attention-surface);color:var(--attention)}
+.badge.blue{background:var(--selected);color:#185863}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:3px solid #087E8B;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}

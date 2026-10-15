@@ -105,7 +105,7 @@ export default function App() {
   }, [])
   if (!session) return <main><h1>Nodum</h1><p role={error ? 'alert' : 'status'}>{error || 'Opening your workspace…'}</p>{error && <button onClick={() => location.reload()}>Try again</button>}</main>
   if (session.authorization_mode === 'scoped') {
-    if (!session.user) return <main><h1>Welcome to Nodum</h1><p>Sign in to open your authorized workspace.</p><a href={API_BASE + '/auth/login'}>Sign in to Nodum</a></main>
+    if (!session.user) return <main><h1>Welcome to Nodum</h1><p>Sign in to open your authorized workspace.</p><a href={API_BASE + '/auth/login?return_to=' + encodeURIComponent(window.location.origin + '/')}>Sign in to Nodum</a></main>
     const choices = workspaceChoices(session)
     if (!choices.length) return <main><h1>Your account is ready</h1><p>An administrator must assign permissions before you can open a workspace.</p><button onClick={async () => { await api.logout(); window.dispatchEvent(new Event('nodum:signed-out')) }}>Sign out</button></main>
     const selected = preferred && choices.includes(preferred) ? preferred : choices[0]

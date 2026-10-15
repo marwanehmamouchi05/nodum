@@ -78,6 +78,8 @@ def test_visitor_logical_authorization_and_safe_revocation(residents):
     own, _, _, manager = residents
     before = own.repo.list_permissions()
     created = visit(own, note='Meet at reception')
+    assert created['building'] == 'Mixed-use reference building'
+    assert own.snapshot()['units'][0]['building'] == 'Mixed-use reference building'
     stored = own.repo.list_operational_records('visitor')[0]
     assert stored['host_id'] == 'r101' and stored['location_id'] == ROOT+'apartment-101'
     assert stored['logical_authorization']['physical_access'] is False

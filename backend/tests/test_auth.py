@@ -22,6 +22,22 @@ from test_ring import ACCOUNT, settings, remote, service, nonce_for  # noqa: F40
 PASSWORD = "test-only-password-782!"
 
 
+@pytest.mark.parametrize("target,accepted", [
+    ("http://test/", True), ("http://frontend.test/", True),
+    ("https://evil.test/", False), ("//evil.test/", False),
+    ("http://test/redirect?next=https://evil.test", False),
+    ("http://test/#Admin", False), ("http://test@evil.test/", False),
+    ('http://test/\" onload=\"alert(1)', False),
+])
+def test_product_login_continuation_is_exact_configured_root(api, auth, target, accepted):
+    app.dependency_overrides[get_auth_settings] = lambda: AuthSettings("http://test", ("http://frontend.test",))
+    status, markup = api("GET", "/auth/login?" + urlencode({"return_to": target}))
+    assert status == 200
+    expected = target if accepted else ""
+    assert f'name="nodum-return" content="{expected}"' in markup
+    assert 'onload="alert(1)' not in markup
+
+
 @pytest.fixture
 def auth(api, repo):
     config = AuthSettings("http://test")

@@ -9,7 +9,7 @@ export const businessPermissionNames: Record<string,string> = {
   'activity.read':'Read own activity', 'ai.use':'Ask Nodum with authorized context',
 }
 export type BusinessSnapshot = {
-  name: string; floor: string | null; affiliation_id: string; role: 'business_admin' | 'business_staff'; demo: boolean; permissions: string[]; at: string;
+  name: string; floor: string | null; building: string; affiliation_id: string; role: 'business_admin' | 'business_staff'; demo: boolean; permissions: string[]; at: string;
   visitors: (Visit & { can_arrive: boolean })[]; maintenance: Request[]; notices: Notice[]; staff: Staff[]; staff_options: string[];
   access: { area: string; status: string; reason: string; valid_from: string; valid_until: string }[]; access_status: string;
   devices: { id: string; name: string; status: string; connection_path: string; demo: boolean }[];

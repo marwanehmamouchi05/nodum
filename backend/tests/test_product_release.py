@@ -18,14 +18,14 @@ from test_authorization import headers
 
 
 @pytest.fixture
-def product(repo, monkeypatch):
+def product(repo, monkeypatch, request):
     monkeypatch.setenv('NODUM_AUTHORIZATION_MODE','scoped')
     monkeypatch.setenv('APP_ENV','development')
     monkeypatch.setenv('AUTH_PUBLIC_ORIGIN','http://test')
     monkeypatch.setenv('RING_MODE','simulation')
     monkeypatch.setenv('RING_SIGNING_KEY','Synthetic-release-signing-only')
     monkeypatch.setenv('RING_ENCRYPTION_KEY',Fernet.generate_key().decode())
-    users=seed_demo(repo,NOW)
+    users=seed_demo(repo,NOW,presentation=getattr(request,"param",False))
     def auth(name):
         user=users[name]
         return AuthorizationService(repo,Principal(user_id=user.id,person_id=user.person_id),NOW)
@@ -119,3 +119,17 @@ def test_clean_v8_install_v7_upgrade_restart_and_integrity(tmp_path):
                 assert connection.execute('PRAGMA integrity_check').fetchone()[0]=='ok'
                 assert [row[0] for row in connection.execute('SELECT version FROM schema_migrations ORDER BY version')]==list(range(1,9))
             assert not repository.list_structure_nodes() and not repository.list_auth_users()
+
+
+@pytest.mark.parametrize("product", [True], indirect=True)
+def test_presentation_visits_are_real_scoped_records_without_physical_access(product):
+    repo, users, auth = product
+    resident = ResidentService(auth("demo-resident")).snapshot()["visitors"]
+    business = BusinessService(auth("demo-business")).snapshot()["visitors"]
+    presenter = ResidentService(auth("demo-presenter")).snapshot()["visitors"]
+    assert [v["name"] for v in resident] == ["Youssef Amrani"]
+    assert {v["name"] for v in business} == {"Lina Haddad", "Omar Idrissi"}
+    assert [v["name"] for v in presenter] == ["Sara Benali"]
+    assert all(v["status"] == "expected" and v["physical_access"] is False for v in resident + business + presenter)
+    assert not BusinessService(auth("demo-business-y")).snapshot()["visitors"]
+    assert not repo.list_ring_events()

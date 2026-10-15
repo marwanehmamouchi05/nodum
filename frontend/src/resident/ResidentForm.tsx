@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import type { Unit } from './model'
+import type { Visit } from './model'
 import { residentError } from './model'
 import { residentApi } from './api'
 
-export function ResidentForm({ kind, units, refresh }: { kind: 'visitor' | 'maintenance'; units: Unit[]; refresh: () => Promise<void> }) {
+export function ResidentForm({ kind, units, refresh, onVisitorCreated }: { kind: 'visitor' | 'maintenance'; units: Unit[]; refresh: () => Promise<void>; onVisitorCreated?: (visit: Visit) => void }) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -16,8 +17,11 @@ export function ResidentForm({ kind, units, refresh }: { kind: 'visitor' | 'main
     setBusy(true); setError(''); setSuccess('')
     try {
       const target = { affiliation_id: choices.length === 1 ? choices[0].affiliation_id : values.affiliation_id }
-      if (kind === 'visitor') await residentApi.visit({ ...target, name: values.name, note: values.note,
-        starts_at: new Date(values.starts_at).toISOString(), ends_at: new Date(values.ends_at).toISOString() })
+      if (kind === 'visitor') {
+        const visit = await residentApi.visit({ ...target, name: values.name, note: values.note,
+          starts_at: new Date(values.starts_at).toISOString(), ends_at: new Date(values.ends_at).toISOString() })
+        onVisitorCreated?.(visit)
+      }
       else await residentApi.report({ ...target, title: values.title, description: values.description, priority: values.priority })
       form.reset(); setSuccess(kind === 'visitor' ? 'Visitor scheduled. No physical door access was granted.' : 'Your maintenance request was submitted.'); await refresh()
     } catch (e) { setError(residentError(e)) } finally { setBusy(false) }
