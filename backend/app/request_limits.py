@@ -66,7 +66,7 @@ class RequestLimitsMiddleware:
             return
 
         buffered = bytes(body)
-        del body
+        body.clear()
         delivered = False
 
         async def replay():

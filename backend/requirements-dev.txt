@@ -1,0 +1,2 @@
+# Development tool only; do not add to the production runtime installation.
+ruff==0.17.1

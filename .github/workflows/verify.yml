@@ -1,0 +1,54 @@
+name: Verify Nodum
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      APP_ENV: development
+      NODUM_AUTHORIZATION_MODE: legacy_demo
+      AUTH_PUBLIC_ORIGIN: http://test
+      AI_ENABLED: "false"
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.13"
+      - run: python -m pip install -r backend/requirements.txt -r backend/requirements-dev.txt -r backend/requirements-mqtt.txt
+      - run: python -m pip check
+      - run: ruff check backend tools/contract_client
+      - run: ruff format --check backend/app/services/activity.py backend/scripts/external_contract_drill.py backend/scripts/benchmark_activity.py backend/tests/test_activity_pages.py backend/tests/test_contact_budget.py backend/tests/test_external_contract_oracle.py tools/contract_client/client.py
+      - run: python -m pytest -q
+        working-directory: backend
+      - run: python -m pytest -q --repository-backend sqlite tests/test_activity_pages.py tests/test_contact_budget.py tests/test_session_budget.py tests/test_security_tenants.py tests/test_mqtt_sensor.py tests/test_request_limits.py tests/test_maintenance.py
+        working-directory: backend
+      - run: python -m venv .broker
+      - run: .broker/bin/python -m pip install -r backend/requirements-mqtt-broker-test.txt
+      - run: python backend/scripts/external_contract_drill.py --broker-python .broker/bin/python
+      - run: python backend/scripts/pilot_drill.py
+  frontend:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npm test
+      - run: npm run lint
+      - run: npm run build
