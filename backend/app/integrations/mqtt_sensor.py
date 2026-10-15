@@ -49,9 +49,12 @@ def _unique_object(pairs):
 
 class ContactIngestor:
     """Authorization factory is called for every event; grants remain revocable."""
-    def __init__(self, authorization_factory, binding):
+    def __init__(self, authorization_factory, binding, *, max_observations=100000):
+        if type(max_observations) is not int or not 1 <= max_observations <= 1000000:
+            raise ValueError('Observation budget must be 1 to 1000000')
         self.authorization_factory = authorization_factory
         self.binding = binding
+        self.max_observations = max_observations
 
     def validate_binding(self, auth):
         repo = auth.repository
@@ -92,6 +95,10 @@ class ContactIngestor:
                 if existing.get('observation_digest') != digest:
                     raise DomainError(409, 'Event identity already recorded with different content')
                 return 'duplicate'
+            # Reserve capacity under the same write transaction. Keep audit and
+            # replay history intact; full capacity rejects new observations only.
+            if repo.count_contact_observations(device.id) >= self.max_observations:
+                raise DomainError(429, 'Contact observation storage budget reached')
             entry = {'id':identifier, 'scope_id':device.scope_id, 'at':now.isoformat(),
                      'action':'sensor.contact.'+event.state, 'resource_id':device.id,
                      'location_id':location.id, 'actor_id':auth.principal.person_id,
@@ -153,8 +160,10 @@ class ContactSubscriber:
         try:
             outcome = self.ingestor.receive(message.topic, message.payload, retained=message.retain)
             self.counts[outcome] += 1
-        except DomainError:
+        except DomainError as error:
             self.counts['rejected'] += 1
+            if error.status_code == 429:
+                self.status = 'capacity_reached'
         except Exception:
             # A failing store must not silently drop an acknowledged observation.
             # Clean session means recovery is explicitly lossy; stop and expose failure.

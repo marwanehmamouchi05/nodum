@@ -32,6 +32,7 @@ class CollectorConfig(BaseModel):
     building_id: str=Field(min_length=1,max_length=256)
     device_id: str=Field(min_length=1,max_length=256)
     operator_user_id: str=Field(min_length=1,max_length=256)
+    max_observations: int=Field(default=100000,ge=1,le=1000000,strict=True)
 
 
 def main(argv=None):
@@ -54,7 +55,7 @@ def main(argv=None):
         def auth():
             return AuthorizationService(repo,Principal(user_id=user.id,person_id=user.person_id),datetime.now(timezone.utc))
         binding=SensorBinding(config.building_id,config.device_id)
-        ingestor=ContactIngestor(auth,binding)
+        ingestor=ContactIngestor(auth,binding,max_observations=config.max_observations)
         with repo.transaction():
             ingestor.validate_binding(auth())
         context=ssl.create_default_context(cafile=config.ca_file)

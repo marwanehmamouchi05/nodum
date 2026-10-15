@@ -9,6 +9,11 @@ def activity_key(record):
 
 
 class MemoryManagerRepository:
+    def count_contact_observations(self, device_id):
+        with self._lock:
+            return sum(kind == "operation_activity" and record.get("source") == "MQTT contact observation"
+                and record.get("resource_id") == device_id for (kind, _), record in self._operational_records.items())
+
     def page_operation_activity(self, scope_ids, *, before=None, limit=101):
         if not 1 <= limit <= 101:
             raise ValueError("Activity candidate limit must be 1 to 101")
@@ -34,6 +39,12 @@ class MemoryManagerRepository:
 
 
 class SQLiteManagerRepository:
+    def count_contact_observations(self, device_id):
+        with self.database.transaction() as connection:
+            return connection.execute("SELECT count(*) FROM product_operations WHERE kind='operation_activity' "
+                "AND json_extract(data, '$.source')='MQTT contact observation' "
+                "AND json_extract(data, '$.resource_id')=?", (device_id,)).fetchone()[0]
+
     def page_operation_activity(self, scope_ids, *, before=None, limit=101):
         if not 1 <= limit <= 101:
             raise ValueError("Activity candidate limit must be 1 to 101")

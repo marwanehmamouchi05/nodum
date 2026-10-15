@@ -94,12 +94,12 @@ def test_membership_expiry_and_revocation_change_private_cache_generation(produc
     assert principal_context(resident)['context_version']!=initial
 
 
-def test_clean_v8_install_v7_upgrade_restart_and_integrity(tmp_path):
+def test_clean_install_v7_upgrade_restart_and_integrity(tmp_path):
     import sqlite3
     from contextlib import closing
     from app.database import MIGRATIONS
     from app.sqlite_repository import SQLiteRepository
-    assert [version for version,_ in MIGRATIONS]==list(range(1,9))
+    assert [version for version,_ in MIGRATIONS]==list(range(1,MIGRATIONS[-1][0]+1))
     for upgrade in (False,True):
         path=tmp_path/('upgrade.db' if upgrade else 'clean.db')
         if upgrade:
@@ -117,7 +117,7 @@ def test_clean_v8_install_v7_upgrade_restart_and_integrity(tmp_path):
                 assert connection.execute('PRAGMA foreign_keys').fetchone()[0]==1
                 assert connection.execute('PRAGMA foreign_key_check').fetchall()==[]
                 assert connection.execute('PRAGMA integrity_check').fetchone()[0]=='ok'
-                assert [row[0] for row in connection.execute('SELECT version FROM schema_migrations ORDER BY version')]==list(range(1,9))
+                assert [row[0] for row in connection.execute('SELECT version FROM schema_migrations ORDER BY version')]==list(range(1,MIGRATIONS[-1][0]+1))
             assert not repository.list_structure_nodes() and not repository.list_auth_users()
 
 

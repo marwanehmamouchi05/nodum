@@ -127,6 +127,10 @@ MIGRATIONS = (
         "CREATE INDEX product_activity_page ON product_operations "
         "(scope_id, kind, json_extract(data, '$.at') DESC, id DESC)",
     )),
+    (10, (
+        "CREATE INDEX product_contact_budget ON product_operations "
+        "(kind, json_extract(data, '$.source'), json_extract(data, '$.resource_id'))",
+    )),
 )
 
 

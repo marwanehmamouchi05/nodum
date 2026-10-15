@@ -69,11 +69,12 @@ def test_missing_database_not_created(installation, monkeypatch, tmp_path):
 
 def test_no_seed_or_migration(installation):
     with closing(sqlite3.connect(installation)) as conn:
-        conn.execute('DELETE FROM schema_migrations WHERE version=8')
+        conn.execute('DELETE FROM schema_migrations WHERE version=(SELECT MAX(version) FROM schema_migrations)')
         conn.commit()
+        before = conn.execute('SELECT version FROM schema_migrations ORDER BY version').fetchall()
     assert report()['status'] == 'FAIL'
     with closing(sqlite3.connect(installation)) as conn:
-        assert conn.execute('SELECT MAX(version) FROM schema_migrations').fetchone()[0] == 7
+        assert conn.execute('SELECT version FROM schema_migrations ORDER BY version').fetchall() == before
 
 
 def test_empty_installation_requires_onboarding(tmp_path, monkeypatch, installation):
