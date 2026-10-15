@@ -43,3 +43,16 @@ port and shuts down its own server. Results contain no credentials. The scripts
 require the existing installed backend dependencies; no new package was added.
 
 Original-environment promotion, merging and deployment require owner approval.
+
+
+## Resume session evidence — 2026-10-15
+- Exact clean checkpoint 40b4769 verified; 87 fresh targeted baseline tests passed.
+- Fresh Python 3.13 backend venv installed existing pins; dependency check, recovery/startup and actual HTTPS session drills passed. TLS proof covers temporary trusted loopback certificate, secure cookie/rotation, authenticated Manager reads, Origin/CSRF rejection, logout and untrusted-certificate failure. It does not verify a deployed reverse proxy, frontend browser topology or clean operating system.
+- Optional MQTT contact adapter is PROTOCOL TESTED against actual aMQTT 0.11.3 over loopback MQTT 3.1.1. Final SQLite MQTT tests: 16 passed. No physical sensors or deployed broker TLS/ACL verified. Runtime collector requires verified TLS/credentials, scoped operator grants and existing SQLite; no commands or discovery.
+- 250-event wire burst: 3.678 seconds, 251 persisted with reconnect event; Manager intentionally returns latest 100. No retention/capacity claim.
+- Single-record Manager mutations now use indexed lookups, preserving authorization. Behavioral SQLite test passed; architecture findings and remaining history/retention issues tracked in ARCHITECTURE_AUDIT.md.
+- Current frontend unit tests: 32 passed. Frontend source/layout unchanged.
+- Original-environment promotion remains prohibited without owner approval. Gates A/B/D/E remain partial, C/F remain blocked for physical pilot.
+
+
+Final resume-session regression: **1013 backend tests passed, 1 skipped** (SQLite-only rollback/restart; separately passed in the 16-case SQLite MQTT run). Current frontend unit tests: 32 passed. Application and separate broker pip checks passed. Final TLS drill additionally rejected a trusted certificate with the wrong hostname. Small MQTT wire drill repeated after fixture cleanup hardening. Source, Git-state and private configuration hashes for the original workspace remained unchanged. These results supersede historical session counts for the tested code; no release-candidate or physical pilot declaration.

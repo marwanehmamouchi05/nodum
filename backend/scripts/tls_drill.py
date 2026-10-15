@@ -130,9 +130,16 @@ def run():
             assert isinstance(exc.reason, ssl.SSLCertVerificationError)
         else:
             raise RuntimeError('Untrusted certificate was accepted')
+        try:
+            wrong_name = build_opener(ProxyHandler({}), HTTPSHandler(context=trusted))
+            wrong_name.open(base.replace('127.0.0.1', 'localhost')+'/health', timeout=3)
+        except URLError as exc:
+            assert isinstance(exc.reason, ssl.SSLCertVerificationError)
+        else:
+            raise RuntimeError('Certificate hostname mismatch was accepted')
         return {'https':'verified with temporary CA only', 'secure_cookie':'PASS', 'rotation':'PASS',
                 'csrf_and_origin':'PASS', 'authenticated_manager':'PASS', 'logout':'PASS',
-                'untrusted_certificate':'rejected', 'deployment_proxy':'not tested'}
+                'untrusted_certificate':'rejected', 'wrong_certificate_hostname':'rejected', 'deployment_proxy':'not tested'}
 
 
 if __name__ == '__main__':

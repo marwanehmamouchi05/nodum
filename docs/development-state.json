@@ -4,38 +4,37 @@
   "original_branch": "product-platform",
   "worktree": "C:/Users/marwa/.codex/worktrees/pilot-readiness/nodum",
   "branch": "codex/pilot-readiness",
-  "last_verified_checkpoint": "dd15134",
+  "last_verified_checkpoint": "9bff8b1",
   "baseline": {
     "backend_targeted_passed": 222,
     "frontend_unit_passed": 32,
     "source_hashes_verified": 411,
     "databases_backed_up_and_checked": 1
   },
-  "active_task": {
-    "id": "ARCH-002",
-    "status": "COMPLETED",
-    "approach": "Use indexed point reads for single-record Manager writes, preserving authorization order",
-    "tests": {
-      "manager_mqtt_sqlite_passed": 48,
-      "point_read_sqlite_passed": 1,
-      "mqtt_load": "250 events / 3.678 sec, 251 persisted including reconnect, 100 visible by design"
-    },
-    "failed_approaches": 0
-  },
+  "active_task": null,
   "queue": [
     {
-      "id": "PILOT-005",
-      "task": "Clean-machine installation and TLS/proxy browser session acceptance",
+      "id": "MQTT-TLS-001",
       "status": "PLANNED",
+      "task": "Real local broker TLS and per-topic authentication/ACL acceptance; no devices",
       "impact": "high",
       "complexity": "medium",
       "uncertainty": "medium",
       "review_minutes": 30
     },
     {
-      "id": "PILOT-003",
-      "task": "Read-only MQTT contact telemetry contract and loopback broker fixture",
+      "id": "ARCH-005",
       "status": "PLANNED",
+      "task": "Scope-safe indexed activity pagination and retention; measure before API changes",
+      "impact": "high",
+      "complexity": "medium",
+      "uncertainty": "medium",
+      "review_minutes": 30
+    },
+    {
+      "id": "PILOT-005-proxy",
+      "status": "PLANNED",
+      "task": "Selected reverse-proxy and same-site frontend browser acceptance",
       "impact": "high",
       "complexity": "medium",
       "uncertainty": "medium",
@@ -65,17 +64,8 @@
     }
   ],
   "promotion": "Owner approval required; no merge or deployment authorized",
-  "modified_files": [
-    "backend/app/integrations/mqtt_sensor.py",
-    "backend/app/manager_repository.py",
-    "backend/app/repository.py",
-    "backend/app/services/manager.py",
-    "backend/scripts/mqtt_collect.py",
-    "backend/scripts/mqtt_drill.py",
-    "backend/scripts/mqtt_fixture_broker.py",
-    "backend/tests/test_mqtt_sensor.py"
-  ],
-  "next_recommended_task": "PILOT-005 clean-machine install and TLS/proxy session acceptance, or PILOT-003 read-only MQTT fixture",
+  "modified_files": [],
+  "next_recommended_task": "MQTT-TLS-001 or ARCH-005; do not reinstall app/broker environments or repeat completed drills without changes",
   "tests": {
     "full_backend_default_passed": 994,
     "frontend_unit_passed": 32,
@@ -96,9 +86,34 @@
     "PILOT-001",
     "PILOT-002",
     "PILOT-004",
-    "PILOT-001-hardening"
+    "PILOT-001-hardening",
+    "PILOT-005-local-TLS-install",
+    "PILOT-003-contact-protocol",
+    "ARCH-002-indexed-mutations"
   ],
   "original_preservation_verified": true,
-  "session_status": "ACTIVE",
-  "checkpoint_recovery": "Resume isolated branch at HEAD; last code validation at febe213. Original backup manifest outside Git under LocalAppData/NodumBackups/pilot-baseline-20261015."
+  "session_status": "CHECKPOINTED",
+  "checkpoint_recovery": "Resume codex/pilot-readiness at HEAD in this worktree. Original remains untouched; all current tasks checkpointed. Optional app environment artifacts/install-smoke; separate broker artifacts/mqtt-broker (ignored local artifacts).",
+  "tests_current_session": {
+    "resume_targeted_passed": 87,
+    "auth_and_isolation_passed": 55,
+    "mqtt_sqlite_final_passed": 16,
+    "manager_mqtt_sqlite_batch_passed": 48,
+    "point_read_sqlite_passed": 1,
+    "full_backend_default_passed": 1013,
+    "full_backend_default_skipped": 1,
+    "skip_reason": "SQLite-only rollback/restart case; passed separately in SQLite mode",
+    "frontend_unit_passed": 32,
+    "application_pip_check": "passed",
+    "broker_pip_check": "passed",
+    "fresh_venv_requirements_install": "passed",
+    "tls_drill": "passed including wrong-host rejection",
+    "recovery_startup_drill_fresh_venv": "passed",
+    "mqtt_wire_drill": "passed",
+    "mqtt_250_event_burst": {
+      "elapsed_seconds": 3.678,
+      "persisted_including_reconnect": 251,
+      "manager_visible_cap": 100
+    }
+  }
 }

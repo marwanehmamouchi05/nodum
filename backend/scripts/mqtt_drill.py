@@ -61,7 +61,12 @@ def run(broker_python, events=3):
                     try:
                         with socket.create_connection(('127.0.0.1',port),timeout=.2):return True
                     except OSError:return False
-                wait_for(ready)
+                try:
+                    wait_for(ready)
+                except BaseException:
+                    process.terminate()
+                    process.wait(timeout=10)
+                    raise
                 return process
             broker=start_broker()
             connected=threading.Event()

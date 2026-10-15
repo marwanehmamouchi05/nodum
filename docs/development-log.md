@@ -60,3 +60,7 @@ Added optional read-only Paho subscriber with strict contact payload, exact devi
 
 ## 2026-10-15 — ARCH-002 indexed operation reads COMPLETED
 Manager arrival and maintenance mutations now use indexed get_operational_record after authorization instead of loading complete histories. SQLite behavioral regression forbids bulk loads and passed. Existing Manager/MQTT SQLite batch had 48 pass and one test-fixture setup error; fixture import repaired and point-read test passed. Bounded real-broker burst: 250 observations in 3.678 sec, 251 persisted including post-reconnect sample, duplicate/retained/malformed/revoked samples handled. Initial load-drill assertion incorrectly expected all records in the capped UI; corrected to verify full storage separately from 100-item projection. Architecture audit records remaining pagination/retention and durable-delivery gaps.
+
+
+## 2026-10-15 — Resume-session validation checkpoint
+1013 backend tests passed, 1 SQLite-only case skipped (separately passed with 16 SQLite MQTT tests). 32 frontend unit tests passed; app/broker pip checks clean. TLS acceptance repeated with explicit wrong-host certificate rejection; MQTT fixture startup now stops its child if readiness fails, wire drill repeated. Original source/private-config/Git-state hashes verified unchanged. Updated hardware evidence, architecture audit, readiness and exact resume queue. No merge, deploy, real provider/device contact or physical command. Next: broker TLS/ACL fixture or scope-safe activity paging; proxy/browser acceptance still partial.
