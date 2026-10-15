@@ -18,6 +18,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import AppSettings, ConfigurationError, validate_startup
 from app.sqlite_repository import SQLiteRepository
 from app.services.errors import DomainError
+from app.request_limits import RequestLimitsMiddleware
 
 from app.api.access import router as access_router
 from app.api.guests import router as guests_router
@@ -57,6 +58,7 @@ def create_app():
         allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         allow_headers=["Authorization", "Content-Type", "X-CSRF-Token"],
     )
+    application.add_middleware(RequestLimitsMiddleware)
     for router in (access_router, guests_router, appointments_router,
                    emergencies_router, agent_router, ring_router, building_router, auth_router, authorization_router):
         guards = [] if router in (auth_router, authorization_router) else [Depends(authorize_application_request)]
