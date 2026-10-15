@@ -4,7 +4,7 @@
   "original_branch": "product-platform",
   "worktree": "C:/Users/marwa/.codex/worktrees/pilot-readiness/nodum",
   "branch": "codex/pilot-readiness",
-  "last_verified_checkpoint": "5b3d29b",
+  "last_verified_checkpoint": "6d0377b",
   "baseline": {
     "backend_targeted_passed": 222,
     "frontend_unit_passed": 32,
@@ -14,9 +14,9 @@
   "active_task": null,
   "queue": [
     {
-      "id": "MQTT-TLS-001",
+      "id": "SEC-STORAGE-003",
       "status": "PLANNED",
-      "task": "Real local broker TLS and per-topic authentication/ACL acceptance; no devices",
+      "task": "Measure and bound persistent telemetry/history growth; coordinate scope-safe retention with ARCH-005",
       "impact": "high",
       "complexity": "medium",
       "uncertainty": "medium",
@@ -65,7 +65,7 @@
   ],
   "promotion": "Owner approval required; no merge or deployment authorized",
   "modified_files": [],
-  "next_recommended_task": "MQTT-TLS-001 or ARCH-005; do not reinstall app/broker environments or repeat completed drills without changes",
+  "next_recommended_task": "SEC-STORAGE-003 / ARCH-005. Selected deployment proxy/browser and production broker policy still require environment evidence. Do not rerun completed checks without a relevant change.",
   "completed_iterations": [
     "PILOT-001",
     "PILOT-002",
@@ -73,12 +73,52 @@
     "PILOT-001-hardening",
     "PILOT-005-local-TLS-install",
     "PILOT-003-contact-protocol",
-    "ARCH-002-indexed-mutations"
+    "ARCH-002-indexed-mutations",
+    "SEC-HTTP-001",
+    "MQTT-TLS-001",
+    "SEC-AUTH-002",
+    "SEC-TENANT-THREE-BUILDING"
   ],
   "original_preservation_verified": true,
   "session_status": "CHECKPOINTED",
-  "checkpoint_recovery": "Resume codex/pilot-readiness at HEAD in this worktree. Original remains untouched; all current tasks checkpointed. Optional app environment artifacts/install-smoke; separate broker artifacts/mqtt-broker (ignored local artifacts).",
+  "checkpoint_recovery": "Resume isolated codex/pilot-readiness at HEAD. Tested code checkpoint 6d0377b; later checkpoint commit updates documentation only. Demo branch remains c8db547; original C:/dev/nodum unchanged. Existing app and separate broker environments retained.",
   "tests_current_session": {
+    "full_backend_default_passed": 1038,
+    "full_backend_default_skipped": 1,
+    "skip_reason": "SQLite-only rollback/restart; passed in final SQLite subset",
+    "sqlite_security_final_passed": 41,
+    "auth_origin_session_batch_passed": 89,
+    "mqtt_tls_auth_acl_wire": "passed; own/foreign topic and read-only own-topic attacks; Nodum revocation independently verified",
+    "https_session_wire": "passed after both defenses",
+    "https_body_wire": {
+      "oversized_declared": 413,
+      "partial_body": 408,
+      "partial_body_seconds": 10.01,
+      "health_after": 200
+    },
+    "osv_core_pins_checked": 30,
+    "osv_optional_versions_checked": 2,
+    "osv_advisories_returned": 0,
+    "secret_scan": "committed and working session changes; pattern scan, no full history assurance",
+    "frontend": "unchanged; prior 32-pass evidence historical, not rerun"
+  },
+  "tests_previous_session": {
+    "full_backend_default_passed": 994,
+    "frontend_unit_passed": 32,
+    "dependency_consistency": "passed",
+    "disposable_cli_recovery_startup": "passed",
+    "sqlite_security_regression": {
+      "passed": 162,
+      "files": [
+        "tests/test_auth.py",
+        "tests/test_authorization.py",
+        "tests/test_product_release.py"
+      ]
+    },
+    "full_backend_default_note": "994 passed before final maintenance hardening; all 12 maintenance tests passed after it",
+    "maintenance_final_passed": 12
+  },
+  "tests_prior_checkpoint": {
     "resume_targeted_passed": 87,
     "auth_and_isolation_passed": 55,
     "mqtt_sqlite_final_passed": 16,
@@ -100,20 +140,17 @@
       "manager_visible_cap": 100
     }
   },
-  "tests_previous_session": {
-    "full_backend_default_passed": 994,
-    "frontend_unit_passed": 32,
-    "dependency_consistency": "passed",
-    "disposable_cli_recovery_startup": "passed",
-    "sqlite_security_regression": {
-      "passed": 162,
-      "files": [
-        "tests/test_auth.py",
-        "tests/test_authorization.py",
-        "tests/test_product_release.py"
-      ]
-    },
-    "full_backend_default_note": "994 passed before final maintenance hardening; all 12 maintenance tests passed after it",
-    "maintenance_final_passed": 12
+  "meeting_demo": {
+    "branch": "codex/meeting-demo-20261020",
+    "checkpoint": "c8db547",
+    "meeting_date": "2026-10-20",
+    "status": "FROZEN; no merge/deploy"
+  },
+  "security_readiness": {
+    "audit": "docs/SECURITY_AUDIT.md",
+    "matrix": "docs/SECURITY_READINESS.md",
+    "physical_pilot_approved": false,
+    "open_medium": "SEC-STORAGE-003",
+    "physical_safety": "BLOCKED; existing Astra handoff; no live actuators"
   }
 }
