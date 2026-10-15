@@ -102,6 +102,17 @@ def test_sqlite_page_plan_and_bounded_decode(manager, request, monkeypatch):
         pytest.skip("SQLite query plan and JSON materialization")
     events(manager, 200)
     repo = manager.repo
+    # Model a populated schema-8 database, then verify additive index upgrades
+    # preserve its existing journal and bindings rather than only empty installs.
+    before = repo.list_operational_records("operation_activity")
+    with repo.transaction():
+        repo.database.connection.execute("DROP INDEX product_activity_page")
+        repo.database.connection.execute("DROP INDEX product_contact_budget")
+        repo.database.connection.execute(
+            "DELETE FROM schema_migrations WHERE version > 8"
+        )
+    repo.initialize(seed_demo=False)
+    assert repo.list_operational_records("operation_activity") == before
     with repo.transaction():
         statements = []
         repo.database.connection.set_trace_callback(statements.append)
