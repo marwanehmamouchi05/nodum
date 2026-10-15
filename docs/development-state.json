@@ -4,36 +4,32 @@
   "original_branch": "product-platform",
   "worktree": "C:/Users/marwa/.codex/worktrees/pilot-readiness/nodum",
   "branch": "codex/pilot-readiness",
-  "last_verified_checkpoint": "4b2f1d6",
+  "last_verified_checkpoint": "febe213",
   "baseline": {
     "backend_targeted_passed": 222,
     "frontend_unit_passed": 32,
     "source_hashes_verified": 411,
     "databases_backed_up_and_checked": 1
   },
-  "active_task": {
-    "id": "PILOT-001-hardening",
-    "status": "COMPLETED",
-    "approach": "Bound untrusted migration version validation and enforce deadline through digest publication",
-    "tests": {
-      "maintenance_final_passed": 12
-    },
-    "failed_approaches": 0
-  },
+  "active_task": null,
   "queue": [
     {
-      "id": "PILOT-002",
-      "task": "Read-only pilot configuration and database preflight",
+      "id": "PILOT-005",
+      "task": "Clean-machine installation and TLS/proxy browser session acceptance",
+      "status": "PLANNED",
       "impact": "high",
       "complexity": "medium",
-      "uncertainty": "low"
+      "uncertainty": "medium",
+      "review_minutes": 30
     },
     {
       "id": "PILOT-003",
-      "task": "Document verified hardware integration boundaries and choose first protocol fixture",
+      "task": "Read-only MQTT contact telemetry contract and loopback broker fixture",
+      "status": "PLANNED",
       "impact": "high",
       "complexity": "medium",
-      "uncertainty": "medium"
+      "uncertainty": "medium",
+      "review_minutes": 30
     }
   ],
   "blockers": [
@@ -59,19 +55,23 @@
     }
   ],
   "promotion": "Owner approval required; no merge or deployment authorized",
-  "modified_files": [
-    "backend/app/maintenance.py",
-    "backend/tests/test_maintenance.py",
-    "docs/development-state.json"
-  ],
+  "modified_files": [],
   "next_recommended_task": "PILOT-005 clean-machine install and TLS/proxy session acceptance, or PILOT-003 read-only MQTT fixture",
   "tests": {
     "full_backend_default_passed": 994,
     "frontend_unit_passed": 32,
     "dependency_consistency": "passed",
     "disposable_cli_recovery_startup": "passed",
-    "sqlite_security_regression": "running",
-    "full_backend_default_note": "994 passed before final maintenance hardening; all 12 maintenance tests passed after it"
+    "sqlite_security_regression": {
+      "passed": 162,
+      "files": [
+        "tests/test_auth.py",
+        "tests/test_authorization.py",
+        "tests/test_product_release.py"
+      ]
+    },
+    "full_backend_default_note": "994 passed before final maintenance hardening; all 12 maintenance tests passed after it",
+    "maintenance_final_passed": 12
   },
   "completed_iterations": [
     "PILOT-001",
@@ -79,5 +79,7 @@
     "PILOT-004",
     "PILOT-001-hardening"
   ],
-  "original_preservation_verified": true
+  "original_preservation_verified": true,
+  "session_status": "CHECKPOINTED",
+  "checkpoint_recovery": "Resume isolated branch at HEAD; last code validation at febe213. Original backup manifest outside Git under LocalAppData/NodumBackups/pilot-baseline-20261015."
 }

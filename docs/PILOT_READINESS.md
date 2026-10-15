@@ -27,6 +27,7 @@ prerequisites only and cannot satisfy all gates.
   FK violations, missing source, destination race and timeout covered.
 - Iteration 2: 11 read-only preflight tests passed; no migration/seed side effects.
 - Iteration 3: 86 auth/origin tests passed; full default backend regression **994 passed**.
+- SQLite-specific authentication, authorization and product-release regression: **162 passed**.
 - Actual command-line drill: synthetic scoped DB → snapshot → new restore →
   preflight PASS → production-mode localhost startup → health 200 → unauthenticated
   Manager 401 → disabled public docs 404. Restored records present. Server stopped
