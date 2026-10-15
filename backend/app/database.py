@@ -123,6 +123,10 @@ MIGRATIONS = (
             PRIMARY KEY(kind, id))""",
         "CREATE INDEX product_operations_scope ON product_operations(scope_id, kind)",
     )),
+    (9, (
+        "CREATE INDEX product_activity_page ON product_operations "
+        "(scope_id, kind, json_extract(data, '$.at') DESC, id DESC)",
+    )),
 )
 
 

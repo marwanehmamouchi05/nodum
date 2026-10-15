@@ -95,7 +95,8 @@ class ContactIngestor:
             entry = {'id':identifier, 'scope_id':device.scope_id, 'at':now.isoformat(),
                      'action':'sensor.contact.'+event.state, 'resource_id':device.id,
                      'location_id':location.id, 'actor_id':auth.principal.person_id,
-                     'source':'MQTT contact observation', 'observed_at':event.observed_at.isoformat(),
+                     'source':'MQTT contact observation', 'source_event_id':event.event_id,
+                     'observed_at':event.observed_at.isoformat(),
                      'observation_digest':digest, 'simulated':device.demo or device.connection_path.value == 'simulation'}
             repo.save_operational_record('operation_activity', entry)
             bind_created(repo, 'operation_activity', identifier, device.scope_id)

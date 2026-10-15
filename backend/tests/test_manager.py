@@ -225,7 +225,7 @@ def test_migration_8_upgrade_restart_and_scope_fk(tmp_path):
     repo.initialize(seed_demo=False)
     repo.initialize(seed_demo=False)
     with repo.database.transaction() as connection:
-        assert [r[0] for r in connection.execute("SELECT version FROM schema_migrations ORDER BY version")] == list(range(1, 9))
+        assert [r[0] for r in connection.execute("SELECT version FROM schema_migrations ORDER BY version")] == [v for v, _ in MIGRATIONS]
         assert connection.execute("PRAGMA foreign_key_check").fetchall() == []
         with pytest.raises(sqlite3.IntegrityError):
             connection.execute("INSERT INTO product_operations VALUES ('maintenance','x','missing','{}')")

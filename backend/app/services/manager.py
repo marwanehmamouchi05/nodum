@@ -227,7 +227,8 @@ class ManagerService:
                     labels = {"doorbell": "Visitor arrival signal", "person": "Person detected", "motion": "Motion detected", "package": "Package detected"}
                     activity.append({"id": e["id"], "at": e["at"], "what": labels.get(e["signal"], e["signal"].replace("_", " ")),
                         "who": "Ring", "where": place(binding.scope_id) if binding else "Ring device (location unverified)", "result": e["status"], "simulated": e["simulated"]})
-            for e in self.records("operation_activity", P.ACTIVITY_READ):
+            from app.services.activity import ActivityService
+            for e in ActivityService(auth, ai_context=self.ai_context).page()["items"]:
                 activity.append({"id": e["id"], "at": e["at"], "what": e["action"].replace(".", " ").replace("_", " "),
                     "who": who(e["actor_id"]), "where": place(e["location_id"]), "result": "Recorded", "simulated": bool(e.get("simulated", False))})
             for e in scoped.list_actuator_events():

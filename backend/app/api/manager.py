@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from app.api.structure import service as structure_service
 from app.models.manager import AnnouncementInput, MaintenanceInput, MaintenanceUpdate, VisitorInput
 from app.services.manager import ManagerService
@@ -20,6 +20,14 @@ def service(structure=Depends(structure_service)):
 @router.get("/snapshot")
 def snapshot(manager=Depends(service)):
     return manager.snapshot()
+
+
+@router.get("/activity")
+def activity(manager=Depends(service), cursor: str | None = Query(default=None, max_length=768),
+             limit: int = Query(default=100, ge=1, le=100),
+             scope_id: str | None = Query(default=None, min_length=1, max_length=256)):
+    from app.services.activity import ActivityService
+    return ActivityService(manager.auth).public_page(cursor=cursor, limit=limit, scope_id=scope_id)
 
 
 @router.post("/announcements")

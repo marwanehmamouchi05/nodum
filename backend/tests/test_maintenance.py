@@ -8,6 +8,7 @@ import pytest
 
 from app.maintenance import copy_database, inspect_database, main, MaintenanceError
 from app.sqlite_repository import SQLiteRepository
+from app.database import MIGRATIONS
 
 
 @pytest.fixture
@@ -51,7 +52,7 @@ def test_invalid_snapshot_never_published(source, tmp_path, damage):
     else:
         with closing(sqlite3.connect(source)) as conn:
             if damage == 'future':
-                conn.execute("INSERT INTO schema_migrations VALUES (9, 'synthetic')")
+                conn.execute("INSERT INTO schema_migrations VALUES (?, 'synthetic')", (MIGRATIONS[-1][0] + 1,))
             elif damage == 'gap':
                 conn.execute('DELETE FROM schema_migrations WHERE version=2')
             else:
@@ -99,7 +100,8 @@ def test_cli_failure_redacts_paths_and_does_not_create_missing_source(tmp_path, 
 def test_cli_verify_is_read_only(source, capsys):
     before = source.read_bytes()
     assert main(['verify', '--source', str(source)]) == 0
-    assert json.loads(capsys.readouterr().out)['schema_version'] == 8
+    from app.database import MIGRATIONS
+    assert json.loads(capsys.readouterr().out)['schema_version'] == MIGRATIONS[-1][0]
     assert source.read_bytes() == before
 
 
