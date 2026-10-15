@@ -177,3 +177,43 @@ An authorized/misconfigured publisher can increase disk/cleanup cost over time.
 No disk exhaustion was attempted. Track with ARCH-005: measure indexed paging and
 scope-safe retention before selecting policy; do not delete records ad hoc. Broker
 packet/rate limits and telemetry storage budgets are still required for a real pilot.
+
+
+## Engineering-foundation delta — 2026-10-15
+
+Separate managed worktree `engineering-foundation/nodum`, branch
+`codex/engineering-foundation`, based on 6e350af. Security/demo refs remain intact.
+
+- Indexed activity pages authorize scopes before bounded selection, join matching
+  bindings, recheck record authority and omit internal digests/actor identifiers.
+  Cursor tampering, ties and revocation are covered. Manager operational activity
+  avoids bulk journal loads; other timeline/projection collections remain unchanged.
+- SEC-STORAGE-003 is PARTIALLY MITIGATED: default 100,000 contact observations per
+  device, configurable 1–1,000,000 in private collector settings. Check/insert is
+  atomic; duplicates work at capacity, restart preserves counts and status surfaces
+  capacity failure. No audit deletion. General/fleet history retention remains open;
+  see ASTRA-STORAGE-003 and ADR 0002.
+- Independent HTTPS/MQTT client provisions ordinary resources through authenticated
+  APIs. External oracle checks persisted values/cardinality, not a success label;
+  mutation tests and Python -O rejection test passed. No client SQLite/Nodum import.
+- Python correctness lint exposed a captured-name deletion pattern in the body
+  guard. Clearing the buffer preserves behavior and satisfies static checks;
+  hostile body regressions passed. No runtime exploit is claimed from the lint finding.
+- Fresh backend install/pip check, frontend npm install/lint/build and npm audit
+  passed. npm reported zero advisories; OSV returned none for new dev-only Ruff
+  0.17.1. Prior core dependency scan remains separate evidence. No full secret/history
+  certification or independent professional penetration-test claim.
+
+Initial broad run exposed two tests hard-coded to schema 8, not a failed upgrade.
+Their assumptions were repaired: preflight compares migration state before/after;
+clean/upgrade/restart tests verify contiguous current history. Final run and exact
+counts are in development-state.json and the engineering checkpoint log.
+
+
+Final engineering evidence: 1,059 backend passed / 3 SQLite-only skips, 67-case
+SQLite batch passed, plus populated v8 journal upgrade preservation/index plan.
+Current secure broker wire drill and independent external client passed on committed
+source; recorded redacted report is in verification/external-contact-20261015.json.
+Session-change pattern scan checked 46 files with no findings before final doc
+checkpoint. All 411 original source hashes, private configuration bytes, original
+Git status and protected security/demo refs were verified unchanged.

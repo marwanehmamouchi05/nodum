@@ -64,3 +64,35 @@ Manager arrival and maintenance mutations now use indexed get_operational_record
 
 ## 2026-10-15 — Resume-session validation checkpoint
 1013 backend tests passed, 1 SQLite-only case skipped (separately passed with 16 SQLite MQTT tests). 32 frontend unit tests passed; app/broker pip checks clean. TLS acceptance repeated with explicit wrong-host certificate rejection; MQTT fixture startup now stops its child if readiness fails, wire drill repeated. Original source/private-config/Git-state hashes verified unchanged. Updated hardware evidence, architecture audit, readiness and exact resume queue. No merge, deploy, real provider/device contact or physical command. Next: broker TLS/ACL fixture or scope-safe activity paging; proxy/browser acceptance still partial.
+
+
+## 2026-10-15 — Engineering foundation from security checkpoint 6e350af
+
+Created a separate managed worktree/branch, preserving pilot-readiness and frozen
+c8db547 demo. Implemented indexed, authorized operational-journal pages (ADR 0001),
+source-event correlation and durable non-destructive per-device contact capacity
+(ADR 0002). Tested tied timestamps, cursor validation, scope/binding consistency,
+revocation, SQLite plans, concurrent reservations and restart. No UI redesign,
+physical adapter, dynamic plugin API or destructive migration.
+
+Standalone external participant now creates two buildings/devices/accounts/roles via
+HTTPS, sends real MQTT messages and checks durable API observations. Actual broker
+restart/reconnect and revocation passed; external deterministic oracle has mutation
+and Python optimization regressions. Server fixture only bootstraps trusted recovery
+and runs actual resources. No client internal imports/direct DB writes.
+
+Measured activity benchmark at 10,000 rows / 100 scopes: legacy p50 3445.015ms versus
+91.131ms indexed page, one authorized scope; not a fleet SLA. Fresh backend install
+and pip check, frontend npm ci/32 tests/lint/type-build, Python correctness lint and
+scoped formatting passed. Added pinned, read-only CI workflow; hosted execution not
+observed. Full final counts and checkpoint IDs follow in resume state.
+
+Documented actual architecture, hardware/protocol evidence, onboarding, external
+contract and implementation-ready Phase 2 handoff. Official Ring docs/rules reviewed;
+no official playground/account evidence or portal change. Updated Astra handoffs for
+linking-mode uncertainty and archive/fleet policy. No merge, deployment or hardware
+commands. Phase 2 can start with the supported contact boundary; broad/physical
+acceptance is not asserted.
+
+
+Final engineering verification: **1,059 backend passed / 3 SQLite-only skipped**, **67 SQLite checks passed**, plus populated schema-8 upgrade preservation/index plan. Fresh backend pip check, 32 frontend tests, lint/type-build, external HTTPS/MQTT proof, current broker security and schema-10 recovery passed. Hosted CI/official Ring/physical equipment remain unverified. Protected source/private configuration/Git status and both old checkpoint refs verified unchanged. Exact resume state and Phase 2 handoff are stored in this checkout.

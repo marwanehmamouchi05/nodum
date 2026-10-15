@@ -37,6 +37,11 @@ A scoped first installation remains empty. Secure Admin provisioning requires a 
 
 ## Review and demonstrate
 
+- [Developer onboarding and quality checks](docs/DEVELOPER_ONBOARDING.md)
+- [Architecture and integration boundaries](docs/ARCHITECTURE_OVERVIEW.md)
+- [Independent lab connection contract](docs/DIGITAL_TWIN_INTEGRATION_CONTRACT.md) and [Phase 2 handoff](docs/DIGITAL_TWIN_PHASE2_HANDOFF.md)
+- [Measured scalability](docs/SCALABILITY_ASSESSMENT.md) and [security readiness](docs/SECURITY_READINESS.md)
+
 - [Architecture, startup, security, tests and limitations](docs/product-release.md)
 - [Amazon clicks and investor walkthrough](docs/demo-playbook.md)
 - [Final Phase F review report](docs/phase-f-release.md)

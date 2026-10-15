@@ -1,0 +1,29 @@
+{
+  "recorded_from": "Actual external_contract_drill.py stdout on the committed engineering source",
+  "application_code_checkpoint": "8e6adab",
+  "verdict": "PASS",
+  "scenario": "external-contact-v1",
+  "seed": 1729,
+  "buildings_provisioned_via_https": 2,
+  "persisted_source_events": 3,
+  "checks": [
+    "authenticated onboarding",
+    "event correlation and normalized values",
+    "duplicate and malformed rejection",
+    "foreign timeline and guessed-device denial",
+    "broker restart and new delivery",
+    "application grant revocation"
+  ],
+  "negative_observation_seconds": 0.75,
+  "physical_execution": "NOT TESTED",
+  "official_ring": "NOT TESTED",
+  "elapsed_seconds": 9.79,
+  "supplemental_collector_counts": {
+    "recorded": 3,
+    "duplicate": 1,
+    "rejected": 2,
+    "failed": 0
+  },
+  "bootstrap": "trusted organization/recovery only",
+  "client_process": "standalone; no database path, Nodum imports or shared repository objects"
+}

@@ -214,3 +214,26 @@ SQLite cannot atomically commit with Ring. Persistent linkage failure outside th
 nonce window needs operator recovery/reconnection. Separate signed flood events
 create separate incidents, even for the same physical leak; incident correlation
 is a future workflow. This integration does not turn sensor data into access authority.
+
+
+## Current official documentation / submission review — 2026-10-15
+
+The [official API guide](https://developer.amazon.com/docs/ring/api-documentation.html)
+now also documents partner-initiated OAuth using PKCE/state, with one configured
+linking method per app. Nodum's existing implementation remains Ring-driven; no
+portal configuration or live code-delivery contract was confirmed in this session.
+The inbound adapter remains gated. See the precise ASTRA-RING-002 update rather
+than switching flows or guessing a transport.
+
+Official APIs, an official developer simulator, Nodum custom scenarios and the
+external MQTT lab are separate evidence classes. This mission did not use an
+account-bound official playground or a physical Ring device. Existing Ring clients,
+signed processing and custom simulation tests are retained, not presented as live proof.
+
+The [organizer rules](https://amazonappdev2026.devpost.com/rules) and
+[FAQ](https://amazonappdev2026.devpost.com/details/faqs) allow documented Ring tools
+and an official simulator/device demonstration. They require functional runtime
+use, code/setup access, a short demonstration video and product feedback. Submission
+is listed for Oct 23, 2026 at noon Pacific. Confirm the final rules and account
+eligibility before submission; current repository tests alone do not establish it.
+No submission, reviewer invitation, publishing or portal change was performed.

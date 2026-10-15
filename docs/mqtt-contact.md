@@ -104,3 +104,18 @@ was checked independently with still-valid broker credentials. See `SECURITY_AUD
 This supersedes the local broker TLS gap only: no deployed broker, client-certificate
 identity, packet-size/rate policy or physical sensor has been verified. Test broker
 must not be treated as deployment configuration.
+
+
+## Engineering contract update — 2026-10-15
+
+New observations persist optional `source_event_id` for independent correlation.
+Authenticated operational-journal pages are available at `GET /manager/activity`;
+see DIGITAL_TWIN_INTEGRATION_CONTRACT.md. Manager operational journal no longer
+loads the full collection; this does not paginate every other timeline source.
+
+Private collector config now accepts `max_observations` (default 100000, range
+1–1000000) per device. SQLite count/reservation/insertion is atomic and survives
+restart. New observations at capacity are rejected; exact duplicates still dedupe.
+Status `capacity_reached` makes the collector CLI fail. No existing audit data is
+deleted; configure consistent budgets between collectors. Fleet disk quotas,
+archiving/retention and durable offline delivery still require separate work.

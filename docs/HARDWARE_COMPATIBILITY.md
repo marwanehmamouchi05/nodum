@@ -54,3 +54,15 @@ building access, alarm, elevator or emergency systems during automated developme
 
 ## 2026-10-15 contact-collector evidence update
 The read-only contact adapter now exists in `backend/app/integrations/mqtt_sensor.py`. Actual loopback broker messages, retained rejection, duplicate/conflicting IDs, broker restart and resubscription, operator grant revocation, SQLite rollback/restart and scoped Manager activity are tested. Bounded burst: 250 samples in 3.678 seconds; 251 observations persisted including the reconnect sample, latest 100 visible by design. This measures the local fixture, not a production SLA. Hardware remains unverified. Existing device-health labels remain unchanged. See [contract and reproduction](mqtt-contact.md).
+
+
+## Engineering-foundation evidence update — 2026-10-15
+
+Local verified-TLS broker authentication/topic ACL and independent application
+revocation passed at the security checkpoint. A separate external client now
+provisions two buildings/devices/accounts through authenticated HTTPS, sends real
+MQTT contact messages and verifies durable correlation, isolation, malformed/duplicate
+handling and post-broker-restart delivery. No client database access or internal
+Nodum imports. Other simulated categories remain component-tested only. Universal
+protocol/category research and risk classification are consolidated in
+UNIVERSAL_HARDWARE_ARCHITECTURE.md. No physical compatibility label is upgraded.

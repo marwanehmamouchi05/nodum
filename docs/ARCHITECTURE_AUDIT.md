@@ -9,7 +9,7 @@ and automated tests. This is not a whole-codebase security certification.
 | ARCH-002 | IMPORTANT | Single visitor arrival and maintenance update loaded `list_operational_records` before selecting one ID | FIXED: explicit `Repository.get_operational_record` for memory and SQLite; indexed primary-key lookup. Authorization still precedes lookup, location authorization still follows. Regression forbids bulk history loads during both mutations; existing Manager suite covers denial paths. |
 | ARCH-003 | IMPORTANT | MQTT protocol depends on topic/payload semantics and tenant binding, not a universal device API | IMPLEMENTED narrowly: fixed contact payload, exact server-derived topic and sensor/building binding, per-event revocable grants, transactional activity + binding, replay digest; real local broker reconnect and malformed/retained rejection tests. No core startup dependency on Paho. |
 | ARCH-004 | IMPORTANT | aMQTT test broker brings a Click requirement inconsistent with backend pins | ISOLATED: separate test-broker venv and requirement file. App pins restored; core `pip check` passed. No test broker imported into application runtime. |
-| ARCH-005 | IMPORTANT | `ManagerService.snapshot` loads operational history and then truncates returned activity to 100. Permission checks are repeated per record | OPEN: retain scope filtering; introduce indexed authorized paging and retention before sustained telemetry. Burst test proves persistence, not long-term capacity. Do not paginate before authorization or mix tenant histories. |
+| ARCH-005 | IMPORTANT | `ManagerService.snapshot` loads operational history and then truncates returned activity to 100. Permission checks are repeated per record | PARTIALLY FIXED: indexed, scope-safe operational-journal pages and contact per-device capacity implemented on the engineering branch. Other histories and approved retention/global budgets remain open. Burst test proves persistence, not long-term capacity. Do not paginate before authorization or mix tenant histories. |
 | ARCH-006 | HIGH | Real actuation cannot safely be inserted into the simulator's DB transaction | ESCALATED as ASTRA-HW-001. Keep physical execution disabled until durable delivery/reconciliation and bench evidence. |
 | ARCH-007 | IMPORTANT | Memory repository `transaction()` is a lock, not rollback; SQLite provides real rollback | DOCUMENTED: production collector requires SQLite. New rollback acceptance uses SQLite, not memory claims. Broader memory rollback rewrite deferred; keep test evidence classified. |
 | ARCH-008 | IMPORTANT | `StructureNode` deliberately carries no verified capabilities; UI device state remains unverified | PRESERVED: MQTT observation is activity, not a general device-health/capability upgrade. Future health view needs explicit freshness/availability model and UI review. |
@@ -28,6 +28,23 @@ and automated tests. This is not a whole-codebase security certification.
 - Verification scripts remain engineering tools, not customer installers or proof
   of deployed TLS termination, browser topology or safety commissioning.
 
-Next structural task: measure authorized Manager snapshot behavior against larger
-histories, then add scope-safe repository pagination with explicit API/UX acceptance.
-Do not rewrite all workspace projections as part of that change.
+The operational-journal paging task is now implemented and measured on the engineering branch.
+Next structural work is profiling remaining histories/full snapshots and broad-scope contention;
+retain all ownership filters and avoid rewriting unrelated workspace projections.
+
+
+## Engineering-foundation update — 2026-10-15
+
+Based on protected security checkpoint 6e350af in a separate managed worktree.
+Migration 9 adds activity ordering index; migration 10 adds contact capacity index.
+No destructive migration, architecture rewrite or frontend change. Operational
+journal paging preserves live authority/binding checks. The new independent client
+uses authenticated HTTPS and MQTT only; no internal imports or database mutation.
+Existing pure simulator ports already represent access/reader/elevator/wayfinding;
+configured product inventory remains a separate, unverified-capability layer.
+An unsafe automatic bridge between those inventories was deliberately not added.
+
+New team gates: pinned correctness lint, scoped formatting, root pytest configuration,
+frontend lint/type/build and read-only, commit-pinned CI workflow. Hosted execution
+and broad Python static typing are not verified. Detailed setup and extension evidence
+are in DEVELOPER_ONBOARDING.md; measured limits in SCALABILITY_ASSESSMENT.md.

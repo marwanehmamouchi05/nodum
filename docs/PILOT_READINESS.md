@@ -68,3 +68,18 @@ revocation passed. Direct HTTPS abuse and session checks passed. See
 `SECURITY_AUDIT.md` and `SECURITY_READINESS.md` for exact scope and remaining gaps.
 These results supersede the older backend counts above. Original project untouched;
 no merge, deployment or real pilot approval. Frontend test evidence remains historical.
+
+
+## Engineering branch gate update — 2026-10-15
+
+New isolated engineering branch provides external simulator connection readiness
+for the explicit read-only contact contract, bounded operational activity reads,
+persistent contact capacity, fresh onboarding/quality verification and Phase 2
+handoff. Schema 9/10 are additive indexes; actual recovery/startup passed at schema 10.
+Measured scope-query benchmark and all evidence limitations are documented separately.
+Universal hardware support, official Ring runtime demonstration, hosted CI, selected
+proxy/browser commissioning, global retention and physical safety gates are not
+established. Do not promote the branch or approve a pilot from this software checkpoint.
+
+
+Final engineering verification: **1,059 backend passed / 3 SQLite-only skipped**, **67 SQLite checks passed**, plus populated schema-8 upgrade preservation/index plan. Fresh backend pip check, 32 frontend tests, lint/type-build, external HTTPS/MQTT proof, current broker security and schema-10 recovery passed. Hosted CI/official Ring/physical equipment remain unverified. Protected source/private configuration/Git status and both old checkpoint refs verified unchanged. Exact resume state and Phase 2 handoff are stored in this checkout.
