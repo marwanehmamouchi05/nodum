@@ -101,3 +101,14 @@ def test_cli_verify_is_read_only(source, capsys):
     assert main(['verify', '--source', str(source)]) == 0
     assert json.loads(capsys.readouterr().out)['schema_version'] == 8
     assert source.read_bytes() == before
+
+
+@pytest.mark.parametrize('version', [1000000000, 'invalid'])
+def test_untrusted_schema_versions_are_bounded_and_redacted(tmp_path, version, capsys):
+    source = tmp_path / 'untrusted.db'
+    with closing(sqlite3.connect(source)) as conn:
+        conn.execute('CREATE TABLE schema_migrations (version)')
+        conn.execute('INSERT INTO schema_migrations VALUES (?)', (version,))
+        conn.commit()
+    assert main(['verify', '--source', str(source)]) == 2
+    assert json.loads(capsys.readouterr().out)['status'] == 'failed'

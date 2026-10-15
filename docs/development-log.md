@@ -40,3 +40,7 @@ Added read-only pilot preflight, isolated production-mode template and actionabl
 
 ## 2026-10-15 — PILOT-004 COMPLETED; regression checkpoint
 Authentication origin validation now rejects malformed/out-of-range/empty ports, wildcards, ambiguous characters and whitespace. Fixed error messages redact values. 86 auth/origin tests and all 994 default backend tests passed. Reproducible disposable backup/restore/preflight/startup drill passed: health200, Manager401, docs404, restored records present. No broken requirements. Two high hardware/live-linking handoffs documented, not sent. See PILOT_READINESS.md for partial/blocked gates; no pilot-ready claim.
+
+
+## 2026-10-15 — Recovery hardening COMPLETED
+Post-review bounded malformed/huge schema-version input before constructing a version range; snapshot deadline also covers hashing/publication. All 12 maintenance tests passed. Full 994-test run preceded this narrow hardening; no full-suite rerun claimed. Original source/private configuration and Git-state hashes rechecked unchanged.

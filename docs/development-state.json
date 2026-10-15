@@ -4,7 +4,7 @@
   "original_branch": "product-platform",
   "worktree": "C:/Users/marwa/.codex/worktrees/pilot-readiness/nodum",
   "branch": "codex/pilot-readiness",
-  "last_verified_checkpoint": "e58b99b",
+  "last_verified_checkpoint": "4b2f1d6",
   "baseline": {
     "backend_targeted_passed": 222,
     "frontend_unit_passed": 32,
@@ -12,18 +12,13 @@
     "databases_backed_up_and_checked": 1
   },
   "active_task": {
-    "id": "PILOT-004",
+    "id": "PILOT-001-hardening",
     "status": "COMPLETED",
-    "approach": "Reject malformed/wildcard/ambiguous configured origins without printing values",
-    "impact": "high: fail-closed authentication configuration",
-    "complexity": "small",
-    "uncertainty": "low",
-    "review_minutes": 30,
-    "failed_approaches": 0,
+    "approach": "Bound untrusted migration version validation and enforce deadline through digest publication",
     "tests": {
-      "auth_and_origin_passed": 86,
-      "full_backend_passed": 994
-    }
+      "maintenance_final_passed": 12
+    },
+    "failed_approaches": 0
   },
   "queue": [
     {
@@ -65,10 +60,9 @@
   ],
   "promotion": "Owner approval required; no merge or deployment authorized",
   "modified_files": [
-    "backend/app/preflight.py",
-    "backend/tests/test_preflight.py",
-    "docs/pilot.env.example",
-    "docs/pilot-preflight.md"
+    "backend/app/maintenance.py",
+    "backend/tests/test_maintenance.py",
+    "docs/development-state.json"
   ],
   "next_recommended_task": "PILOT-005 clean-machine install and TLS/proxy session acceptance, or PILOT-003 read-only MQTT fixture",
   "tests": {
@@ -76,6 +70,14 @@
     "frontend_unit_passed": 32,
     "dependency_consistency": "passed",
     "disposable_cli_recovery_startup": "passed",
-    "sqlite_security_regression": "running"
-  }
+    "sqlite_security_regression": "running",
+    "full_backend_default_note": "994 passed before final maintenance hardening; all 12 maintenance tests passed after it"
+  },
+  "completed_iterations": [
+    "PILOT-001",
+    "PILOT-002",
+    "PILOT-004",
+    "PILOT-001-hardening"
+  ],
+  "original_preservation_verified": true
 }

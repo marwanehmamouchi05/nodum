@@ -31,6 +31,7 @@ prerequisites only and cannot satisfy all gates.
   preflight PASS → production-mode localhost startup → health 200 → unauthenticated
   Manager 401 → disabled public docs 404. Restored records present. Server stopped
   and temporary databases removed. No provider or hardware calls.
+- Final recovery hardening: 12 maintenance tests passed after the full regression run; untrusted schema-version bounds and digest deadline covered.
 - Frontend source is unchanged relative to the imported Phase G baseline; no new
   frontend browser/layout approval claimed by this session.
 

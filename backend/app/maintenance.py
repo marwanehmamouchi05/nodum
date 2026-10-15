@@ -34,7 +34,8 @@ def inspect_database(path, *, timeout=30):
         if conn.execute('PRAGMA foreign_key_check').fetchone():
             raise MaintenanceError('Database has foreign key violations')
         versions = [r[0] for r in conn.execute('SELECT version FROM schema_migrations ORDER BY version')]
-        if not versions or versions != list(range(1, versions[-1] + 1)) or versions[-1] > MIGRATIONS[-1][0]:
+        if (not versions or any(type(v) is not int or not 1 <= v <= MIGRATIONS[-1][0] for v in versions)
+                or versions != list(range(1, versions[-1] + 1))):
             raise MaintenanceError('Unsupported or incomplete schema history')
     return {'schema_version': versions[-1], 'integrity': 'ok', 'foreign_keys': 'ok'}
 
@@ -74,7 +75,11 @@ def copy_database(source, destination, *, timeout=30):
             digest = sha256()
             for chunk in iter(lambda: stream.read(1024 * 1024), b''):
                 digest.update(chunk)
+                if monotonic() > deadline:
+                    raise MaintenanceError('Snapshot deadline exceeded; destination was not published')
             os.fsync(stream.fileno())
+        if monotonic() > deadline:
+            raise MaintenanceError('Snapshot deadline exceeded; destination was not published')
         # Unlike replace/rename, linking cannot overwrite a competing destination.
         # Fail safely on filesystems without hard-link support.
         os.link(temporary, destination)
