@@ -165,7 +165,7 @@ def run(broker_python):
             # A PUBACK alone is NOT proof of ACL acceptance/rejection; verify receivers.
             publish(publisher_a, other.topic, b"forbidden-cross-building")
             publish(publisher_b, own.topic, sample("spoofed-device"))
-            publish(observer, own.topic, sample("read-only-command"))
+            publish(observer, other.topic, b"forbidden-read-only-publication")
             publish(publisher_b, other.topic, b"positive-building-b")
             publish(publisher_a, own.topic, first)
             wait_for(lambda: observed == [b"positive-building-b"] and subscriber.counts["duplicate"] == 1)

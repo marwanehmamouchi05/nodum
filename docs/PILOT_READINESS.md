@@ -6,7 +6,7 @@ Checkpoint: 2026-10-15, isolated `codex/pilot-readiness` worktree. The existing
 | Gate | State | Evidence / remaining work |
 |---|---|---|
 | A — Functional | PARTIAL | Existing Admin/Manager/Resident/Business and signed simulated Ring workflows covered by regression tests. No newly verified package-delivery workflow or outbound notification delivery. Pilot user acceptance still required. |
-| B — Security | PARTIAL | 1013 backend tests passed in default repository mode (one SQLite-only case separately verified), including tenant/resource boundaries and malformed-origin regression tests. No professional security certification, ingress abuse test or penetration test. |
+| B — Security | PARTIAL | 1,038 backend tests passed (one SQLite-only case separately verified in final 41-test SQLite subset). Bounded hostile HTTP, anonymous session growth, three-building isolation and local MQTT TLS/auth/ACL checks passed. Activity retention and selected deployment testing remain open. No professional security certification. |
 | C — Integrations | BLOCKED FOR PHYSICAL PILOT | Ring/software simulators and explicit MQTT contact wire fixture tested; no real hardware verified. Exact pilot models, account/license access and adapter acceptance required. See HARDWARE_COMPATIBILITY.md. |
 | D — Deployment/recovery | PARTIAL, IMPROVED | New backup/verify/restore and preflight CLI tested. Actual disposable restored production-mode backend returned health 200, anonymous Manager 401 and docs 404. Fresh-venv install and direct HTTPS session checks now passed (see update below). Clean target OS, deployed TLS/proxy/browser configuration, encrypted backup storage, scheduled recovery and update acceptance remain. |
 | E — Operations | PARTIAL | Existing provider/network failure tests; bounded recovery tooling and actionable prerequisite report. Operator ownership, monitoring/alerting, retention and operational runbooks still needed for selected building. |
@@ -56,3 +56,15 @@ Original-environment promotion, merging and deployment require owner approval.
 
 
 Final resume-session regression: **1013 backend tests passed, 1 skipped** (SQLite-only rollback/restart; separately passed in the 16-case SQLite MQTT run). Current frontend unit tests: 32 passed. Application and separate broker pip checks passed. Final TLS drill additionally rejected a trusted certificate with the wrong hostname. Small MQTT wire drill repeated after fixture cleanup hardening. Source, Git-state and private configuration hashes for the original workspace remained unchanged. These results supersede historical session counts for the tested code; no release-candidate or physical pilot declaration.
+
+
+## Security hardening checkpoint — 2026-10-15
+
+Meeting demo frozen at `codex/meeting-demo-20261020` (`c8db547`). Experimental
+branch adds global 1 MiB / 10-second HTTP body guard and persisted anonymous
+session issuance budgets. Final backend: 1,038 passed / one skipped; final SQLite
+subset: 41 passed. Actual loopback MQTT TLS/auth/topic ACLs and independent Nodum
+revocation passed. Direct HTTPS abuse and session checks passed. See
+`SECURITY_AUDIT.md` and `SECURITY_READINESS.md` for exact scope and remaining gaps.
+These results supersede the older backend counts above. Original project untouched;
+no merge, deployment or real pilot approval. Frontend test evidence remains historical.

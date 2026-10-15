@@ -15,6 +15,8 @@ from app.services.errors import DomainError
 
 
 ITERATIONS = 600_000
+MAX_ANONYMOUS_SESSIONS = 1000
+ANONYMOUS_SESSION_IP_LIMIT = 30
 
 
 def digest(value):
@@ -83,15 +85,33 @@ class AuthService:
             return None
         return user
 
-    def issue(self, now, user_id=None, old_cookie=None):
+    def issue(self, now, user_id=None, old_cookie=None, *, client_ip=None):
         cookie = secrets.token_urlsafe(32)
         lifetime = timedelta(hours=self.settings.session_hours) if user_id else timedelta(minutes=15)
         with self.repository.transaction():
-            if old_cookie:
-                self.repository.delete_auth_session(digest(old_cookie))
-            for session in self.repository.list_auth_sessions():
+            sessions = self.repository.list_auth_sessions()
+            for session in sessions:
                 if session.expires_at <= now:
                     self.repository.delete_auth_session(session.id)
+            if user_id is None:
+                # This global live-row ceiling also bounds anonymous growth across
+                # many source IPs. Valid existing sessions and sign-in rotation do
+                # not consume this budget. SQLite serializes check + reservation.
+                if sum(s.user_id is None and s.expires_at > now for s in sessions) >= MAX_ANONYMOUS_SESSIONS:
+                    raise DomainError(429, "Sign-in session capacity reached; try again later")
+                if client_ip is not None:
+                    for record in self.repository.list_auth_throttles():
+                        if record.expires_at <= now:
+                            self.repository.delete_auth_throttle(record.id)
+                    key = digest("session-ip:" + client_ip)
+                    record = self.repository.get_auth_throttle(key) or AuthThrottle(
+                        id=key, attempts=0, expires_at=now + timedelta(minutes=15))
+                    if record.attempts >= ANONYMOUS_SESSION_IP_LIMIT:
+                        raise DomainError(429, "Too many sign-in sessions; try again in 15 minutes")
+                    record.attempts += 1
+                    self.repository.save_auth_throttle(record)
+            if old_cookie:
+                self.repository.delete_auth_session(digest(old_cookie))
             self.repository.save_auth_session(AuthSession(id=digest(cookie), user_id=user_id,
                                                           created_at=now, expires_at=now + lifetime))
         return cookie, int(lifetime.total_seconds())

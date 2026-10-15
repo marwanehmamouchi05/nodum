@@ -92,3 +92,15 @@ capacity/SLA certification or proof of long-term retention behavior.
 Sources: [Paho client](https://github.com/eclipse-paho/paho.mqtt.python),
 [aMQTT broker configuration](https://amqtt.readthedocs.io/en/latest/references/broker_config/),
 [MQTT specification](https://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html).
+
+
+### Local TLS and ACL acceptance — 2026-10-15
+
+`backend/scripts/mqtt_security_drill.py` now verifies a disposable aMQTT 0.11.3
+TLS/password/ACL broker with two synthetic building topic namespaces. Trust/name
+failures, bad/anonymous credentials, foreign/wildcard subscriptions and forbidden
+publications were rejected; both legitimate streams delivered. Nodum grant revocation
+was checked independently with still-valid broker credentials. See `SECURITY_AUDIT.md`.
+This supersedes the local broker TLS gap only: no deployed broker, client-certificate
+identity, packet-size/rate policy or physical sensor has been verified. Test broker
+must not be treated as deployment configuration.

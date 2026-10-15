@@ -81,7 +81,8 @@ def browser_script():
 def session_context(request: Request, response: Response, service: Service, now: Now):
     cookie = cookie_value(request, service)
     if not service.session(cookie, now):
-        cookie, age = service.issue(now, old_cookie=cookie)
+        cookie, age = service.issue(now, old_cookie=cookie,
+                                    client_ip=request.client.host if request.client else "unknown")
         set_cookie(response, service, cookie, age)
     user = service.user(cookie, now)
     response.headers.update(PRIVATE_HEADERS)
