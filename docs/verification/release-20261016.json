@@ -1,0 +1,26 @@
+{
+  "tested_source": "e1110dc602730ba2e69fc5540bb0058ab618c086",
+  "results": {
+    "backend_passed": 1085,
+    "backend_skipped": 4,
+    "backend_seconds": 106.37,
+    "sqlite_passed": 272,
+    "sqlite_seconds": 45.8,
+    "frontend_passed": 34,
+    "lint_build": "PASS",
+    "fresh_app_broker_frontend_install": "PASS",
+    "external_https_mqtt": "PASS 18.28s; 3 events, full-stop restore/revocation",
+    "mqtt_tls_auth_acl": "PASS",
+    "backup_restore_startup": "PASS schema10 integrity/FKs",
+    "proxy_browser": "PASS existing callback; fixture stopped",
+    "official_ring": "BLOCKED",
+    "physical_pilot": "NOT APPROVED"
+  },
+  "hygiene": {
+    "outgoing_commits": 27,
+    "blobs_scanned": 537,
+    "pattern_hits": [],
+    "preservation": "PASS",
+    "ancestry": "all requested checkpoints included"
+  }
+}

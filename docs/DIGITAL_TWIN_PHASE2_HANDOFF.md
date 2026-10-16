@@ -5,12 +5,19 @@ Read `ARCHITECTURE_OVERVIEW.md`, `DIGITAL_TWIN_INTEGRATION_CONTRACT.md`,
 `development-state.json`. This is implementation guidance, not permission for live
 hardware or merging the engineering branch. Preserve the c8db547 meeting demo.
 
-## Verified review checkpoint
+## Official release starting point
+
+Use official GitHub `main` at tag `nodum-foundation-20261016`. See
+[NODUM_RELEASE_BASELINE.md](NODUM_RELEASE_BASELINE.md) for publication and combined
+verification. The review checkout below is historical. No lab or deployment starts
+as part of this release.
+
+## Verified review checkpoint (historical)
 
 Implementation and acceptance evidence are committed at
 `bcf5f9da1964cb462b1f44d307b5defc41776113`, based on
 `af7a3e1d75d526d754c016f8bc12f77f5c2327ee`.
-Use branch `codex/astra-final-review` in
+Historical review branch: `codex/astra-final-review` in
 `C:/Users/marwa/.codex/worktrees/astra-final-review/nodum`; the final documentation
 commit is its HEAD. The source checkpoint above remains the tested implementation.
 Do not work in the original repository or change the frozen demo.
@@ -20,7 +27,7 @@ contact-v1 MQTT contracts. **Official Ring/hackathon: BLOCKED** pending authoriz
 runtime evidence. **Physical pilot: BLOCKED** pending hardware safety and deployment
 acceptance. See `ASTRA_INDEPENDENT_REVIEW.md`, `ASTRA_RESOLUTION_LOG.md` and
 `PHASE2_READINESS_DECISION.md`. Phase 2 has not started: a new user instruction is
-required before creating the separate lab. Do not merge or deploy this checkpoint.
+required before creating the separate lab. Subsequent release authorization permits GitHub integration, but no live deployment.
 
 ## Starting proof and commands
 

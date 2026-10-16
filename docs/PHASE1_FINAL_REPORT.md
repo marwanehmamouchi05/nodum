@@ -1,5 +1,7 @@
 # Nodum Phase 1 final report
 
+Historical checkpoint report. Current authority: [NODUM_RELEASE_BASELINE.md](NODUM_RELEASE_BASELINE.md).
+
 Finalized 2026-10-16; engineering evidence collected during the Oct 15–16 closure.
 Validated source checkpoint: **254eee5**, branch `codex/engineering-foundation`,
 isolated `C:/Users/marwa/.codex/worktrees/engineering-foundation/nodum`. The later

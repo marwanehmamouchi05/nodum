@@ -1,5 +1,7 @@
 # Security readiness — 2026-10-15
 
+Historical checkpoint report. Current authority: [NODUM_RELEASE_BASELINE.md](NODUM_RELEASE_BASELINE.md).
+
 Current closure authority: [PHASE1_FINAL_REPORT.md](PHASE1_FINAL_REPORT.md) (2026-10-16). Earlier results below are historical. Consolidated review: [ASTRA_FINAL_REVIEW_HANDOFF.md](ASTRA_FINAL_REVIEW_HANDOFF.md).
 
 PASS means the stated, bounded property was verified. FAIL means a confirmed issue

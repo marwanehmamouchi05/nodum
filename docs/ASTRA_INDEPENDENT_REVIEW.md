@@ -1,5 +1,7 @@
 # Independent engineering review — 2026-10-16
 
+Historical checkpoint report. Current authority: [NODUM_RELEASE_BASELINE.md](NODUM_RELEASE_BASELINE.md).
+
 Verified review base: `af7a3e1d75d526d754c016f8bc12f77f5c2327ee`.
 Branch: `codex/astra-final-review`, isolated worktree
 `C:/Users/marwa/.codex/worktrees/astra-final-review/nodum`.

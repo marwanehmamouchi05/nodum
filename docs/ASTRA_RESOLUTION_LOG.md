@@ -1,5 +1,7 @@
 # Review resolution log — 2026-10-16
 
+Historical checkpoint report. Current authority: [NODUM_RELEASE_BASELINE.md](NODUM_RELEASE_BASELINE.md).
+
 Base af7a3e1; isolated codex/astra-final-review. No edits to protected branches.
 Tests/results below are actual local runs; no official Ring or physical testing.
 

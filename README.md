@@ -1,3 +1,8 @@
+# Official release baseline
+
+[Current release baseline](docs/NODUM_RELEASE_BASELINE.md): authoritative GitHub branch,
+verification, setup and separate Ring/pilot gates. Earlier reports are historical.
+
 # Nodum
 
 Nodum brings building configuration, daily operations, resident services and business tenants into one permission-controlled product. Building teams manage visitors, maintenance and notices; occupants see only information relevant to them.
@@ -51,7 +56,7 @@ A scoped first installation remains empty. Secure Admin provisioning requires a 
 Historical connector examples describe legacy software-simulated journeys, not a physical bridge for configured units/businesses. These instructions perform no deployment.
 
 
-Current engineering milestone: [Phase 1 final report](docs/PHASE1_FINAL_REPORT.md),
+Historical engineering milestones: [Phase 1 final report](docs/PHASE1_FINAL_REPORT.md),
 [classified closure backlog](docs/PHASE1_CLOSURE_BACKLOG.md) and
 [bounded Astra handoff](docs/ASTRA_FINAL_REVIEW_HANDOFF.md). Foundation complete with
 external blockers; pilot not approved. [Local proxy/browser procedure](docs/DEPLOYMENT_VERIFICATION.md),

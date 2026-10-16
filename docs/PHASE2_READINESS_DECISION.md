@@ -1,5 +1,7 @@
 # Phase 2 readiness decision — 2026-10-16
 
+Historical checkpoint report. Current authority: [NODUM_RELEASE_BASELINE.md](NODUM_RELEASE_BASELINE.md).
+
 Based on independent source inspection, reproduced defects, corrections and actual
 review acceptance. See ASTRA_INDEPENDENT_REVIEW.md and ASTRA_RESOLUTION_LOG.md.
 
