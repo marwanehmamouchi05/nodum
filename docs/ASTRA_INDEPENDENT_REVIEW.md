@@ -35,7 +35,7 @@ PILOT READY: BLOCKED.** These decisions are independent. No simulator was built.
 | Fresh backend install | Core + optional MQTT + development pins installed into new venv; pip check passed |
 | Fresh frontend install | npm ci installed 160 packages; 34 tests, ESLint and TypeScript/Vite build passed |
 | Caddy/browser | Actual HTTPS proxy + built frontend + private API: login, visitor/pass, role/page refresh, deep path, cookies, CSRF/Origin, error codes, logout and forged Admin hash passed; zero page errors |
-| Independent HTTPS/MQTT client | PASS, 20.97 seconds; two buildings, three persisted source events, duplicate/conflict boundaries, broker restart, revocation and complete stop/restore |
+| Independent HTTPS/MQTT client | PASS, 20.97 seconds; two buildings, three persisted source events, duplicate/malformed boundaries, broker restart, revocation and complete stop/restore |
 | Broker wire security | Wrong CA/hostname/credentials, four foreign/wildcard subscriptions and three forbidden publications rejected; positive controls and Nodum revocation passed |
 | Recovery/startup | Fresh schema-10 snapshot/new-path restore, integrity/FKs, preflight, health 200, anonymous Manager 401 and docs 404 passed |
 | Correctness lint / whitespace | Ruff E9/F63/F7/F82 and git diff --check passed |
@@ -170,3 +170,10 @@ Next agent must read [DIGITAL_TWIN_PHASE2_HANDOFF.md](DIGITAL_TWIN_PHASE2_HANDOF
 and stay inside contact-v1/HTTPS. Official Ring, physical delivery and destructive
 retention remain separately gated. Final local commit and clean-state evidence are
 reported at delivery; the foundation branch remains at af7a3e1.
+
+## Finalization checkpoint
+
+Tested implementation: `bcf5f9da1964cb462b1f44d307b5defc41776113`.
+Final documentation is at HEAD of `codex/astra-final-review`; see
+`DIGITAL_TWIN_PHASE2_HANDOFF.md` for the exact integration boundary.
+No Phase 2 development, merge or deployment is part of this review.

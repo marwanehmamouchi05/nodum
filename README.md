@@ -56,5 +56,8 @@ Current engineering milestone: [Phase 1 final report](docs/PHASE1_FINAL_REPORT.m
 [bounded Astra handoff](docs/ASTRA_FINAL_REVIEW_HANDOFF.md). Foundation complete with
 external blockers; pilot not approved. [Local proxy/browser procedure](docs/DEPLOYMENT_VERIFICATION.md),
 [Ring demo evidence](docs/RING_DEMO_PROCEDURE.md) and [data lifecycle boundary](docs/DATA_LIFECYCLE.md)
-record exact tested scope. Independent Astra review precedes a separate simulator
-assignment; no Phase 2 work or automatic deployment is part of this milestone.
+record exact tested scope. The [independent review](docs/ASTRA_INDEPENDENT_REVIEW.md) and
+[resolution log](docs/ASTRA_RESOLUTION_LOG.md) are complete. The
+[readiness decision](docs/PHASE2_READINESS_DECISION.md) permits separately authorized
+simulator development on the verified HTTPS/contact boundary; official Ring and
+physical pilot readiness remain blocked. No Phase 2 work, merge or deployment occurred.

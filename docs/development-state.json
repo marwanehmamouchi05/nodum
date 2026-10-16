@@ -2,9 +2,9 @@
   "updated": "2026-10-16",
   "original_workspace": "C:/dev/nodum",
   "original_branch": "product-platform",
-  "worktree": "C:/Users/marwa/.codex/worktrees/engineering-foundation/nodum",
-  "branch": "codex/engineering-foundation",
-  "last_verified_checkpoint": "254eee5",
+  "worktree": "C:/Users/marwa/.codex/worktrees/astra-final-review/nodum",
+  "branch": "codex/astra-final-review",
+  "last_verified_checkpoint": "bcf5f9da1964cb462b1f44d307b5defc41776113",
   "baseline": {
     "backend_targeted_passed": 222,
     "frontend_unit_passed": 32,
@@ -15,7 +15,7 @@
   "queue": [
     {
       "id": "ASTRA-RING-002",
-      "status": "REQUIRES_EXTERNAL_ACCESS_AND_ASTRA",
+      "status": "REQUIRES_EXTERNAL_ACCESS",
       "task": "Confirm authorized portal mode and exact inbound contract, then official staging/tool evidence"
     },
     {
@@ -25,12 +25,12 @@
     },
     {
       "id": "ASTRA-STORAGE-003",
-      "status": "REQUIRES_OWNER_DECISION_THEN_ASTRA",
-      "task": "Approve separate retention/archive/fleet policy; no automatic deletion"
+      "status": "REQUIRES_OWNER_DECISION",
+      "task": "Approve retention/archive/fleet policy; scoped dry-run preview implemented, deletion disabled"
     },
     {
       "id": "ASTRA-HW-001",
-      "status": "REQUIRES_ASTRA_AND_AUTHORIZED_BENCH",
+      "status": "REQUIRES_PHYSICAL_DELIVERY_DESIGN_AND_AUTHORIZED_BENCH",
       "task": "Review durable command delivery and reconciliation; keep real commands disabled"
     },
     {
@@ -45,7 +45,7 @@
     "No approved lifecycle/archive/fleet budget policy"
   ],
   "deferred": [
-    "Full independent simulator until Astra accepts supported contract",
+    "Separate independent simulator until new user instruction; verified backend contact boundary accepted with limitations",
     "New physical adapters and commands until reviewed vendor/bench acceptance",
     "Broad-scope/full-snapshot sustained performance study and durable offline delivery",
     "New visual redesign and AI intensive scenario testing"
@@ -72,7 +72,7 @@
   ],
   "promotion": "Owner approval required; no merge or deployment authorized",
   "modified_files": [],
-  "next_recommended_task": "Independent bounded review in docs/ASTRA_FINAL_REVIEW_HANDOFF.md. Do not automatically invoke Astra or start the simulator. Resolve findings affecting the supported HTTPS/contact boundary before Phase 2.",
+  "next_recommended_task": "Use DIGITAL_TWIN_PHASE2_HANDOFF.md only after separate authorization; obtain official Ring runtime evidence and physical safety/deployment acceptance separately.",
   "completed_iterations": [
     "PILOT-001",
     "PILOT-002",
@@ -95,33 +95,117 @@
     "PHASE1-FULL-RESTORE-CLIENT",
     "PHASE1-CONCURRENT-THREE-BUILDING",
     "PHASE1-FRESH-ONBOARDING-RING-CUSTOM",
-    "PHASE1-CONSOLIDATED-HANDOFF"
+    "PHASE1-CONSOLIDATED-HANDOFF",
+    "REV-RING-001",
+    "REV-RING-002",
+    "REV-COMMAND-001",
+    "REV-STORAGE-001",
+    "INDEPENDENT-REVIEW-FINALIZATION"
   ],
   "original_preservation_verified": true,
-  "session_status": "CHECKPOINTED_PHASE1_CLOSED_READY_FOR_ASTRA_REVIEW",
-  "checkpoint_recovery": "Resume branch HEAD in the isolated engineering-foundation worktree. Source checkpoint 254eee5; later finalization commit contains docs/state only. Original, security and meeting-demo checkpoints preserved. Fresh environments and Caddy binary are ignored local artifacts; no service remains installed/running from the drills.",
+  "session_status": "CHECKPOINTED_INDEPENDENT_REVIEW_COMPLETE",
+  "checkpoint_recovery": "Resume HEAD of codex/astra-final-review in its existing isolated worktree. Tested implementation bcf5f9d; finalization changes documentation only. Do not restart completed investigations.",
   "tests_current_session": {
-    "full_backend_default_passed": 1060,
-    "full_backend_default_skipped": 3,
-    "full_backend_seconds": 75.92,
-    "skip_reason": "SQLite activity plan, contact persistence/index and MQTT rollback/restart; exercised in SQLite subset",
-    "sqlite_final_passed": 139,
-    "sqlite_final_seconds": 30.97,
-    "frontend_unit_passed": 34,
-    "fresh_backend_install_and_pip_check": "PASS new artifacts/phase1-onboarding core + optional MQTT + dev",
-    "fresh_frontend_npm_ci": "PASS 160 packages",
-    "frontend_lint": "PASS",
-    "frontend_typecheck_build": "PASS",
+    "date": "2026-10-16",
+    "base": "af7a3e1d75d526d754c016f8bc12f77f5c2327ee",
+    "branch": "codex/astra-final-review",
+    "baseline_targeted_passed": 190,
+    "reproduced_defects": {
+      "expected_failed_cases": 7,
+      "positive_cases": 3
+    },
+    "full_backend": {
+      "passed": 1085,
+      "skipped": 4,
+      "seconds": 144.48
+    },
+    "sqlite_targeted": {
+      "passed": 272,
+      "seconds": 52.84,
+      "covers_default_sqlite_skips": true
+    },
+    "frontend": {
+      "fresh_install_packages": 160,
+      "tests_passed": 34,
+      "lint": "PASS",
+      "typecheck_build": "PASS"
+    },
+    "fresh_backend_install": "PASS core + optional MQTT + dev pins; pip check passed",
     "python_correctness_lint": "PASS",
-    "scoped_formatting_files": 9,
-    "proxy_browser": "PASS actual Caddy 2.11.7 + built frontend + private HTTP backend, browser workflow/refresh/cookie/CSRF/Origin/errors/logout",
-    "practical_vite_onboarding": "PASS browser login and three persisted custom simulation signals",
-    "external_https_mqtt_full_stop_restore": "PASS 14.69s; 3 events, isolation/reconnect/duplicates/malformed/revocation; revoked event denied after restore",
-    "mqtt_tls_auth_acl": "PASS actual local broker wire checks",
-    "concurrency": "PASS 3 buildings/users/devices, 24 events, 36 page reads, 6 threads, revocation after load",
-    "hosted_ci_execution": "NOT TESTED",
+    "proxy_browser": {
+      "verdict": "PASS",
+      "proxy": "Caddy 2.11.7 temporary HTTPS, built frontend, private API",
+      "checks": [
+        "login/redirect",
+        "Resident invitation/pass",
+        "role/page refresh",
+        "deep SPA URL",
+        "secure HttpOnly SameSite cookie",
+        "missing CSRF 403",
+        "wrong Origin 403",
+        "invalid body 422",
+        "unknown API 404",
+        "logout 401",
+        "forged Admin hash denied",
+        "zero page errors"
+      ],
+      "certificate": "isolated browser context ignores fixture certificate only",
+      "fixture_stopped": true
+    },
+    "external_contact": {
+      "verdict": "PASS",
+      "seconds": 20.97,
+      "buildings": 2,
+      "source_events": 3,
+      "before_restore": {
+        "recorded": 3,
+        "duplicate": 1,
+        "rejected": 2,
+        "failed": 0
+      },
+      "after_restore": {
+        "recorded": 0,
+        "duplicate": 0,
+        "rejected": 1,
+        "failed": 0
+      },
+      "schema": 10,
+      "integrity": "ok",
+      "foreign_keys": "ok",
+      "negative_observation_seconds": 0.75
+    },
+    "mqtt_wire_security": {
+      "verdict": "PASS",
+      "wrong_ca_hostname_credentials": "rejected",
+      "forbidden_subscriptions": 4,
+      "blocked_publications": 3,
+      "positive_controls": "both topics delivered",
+      "nodum_revocation": "PASS"
+    },
+    "recovery_startup": {
+      "schema": 10,
+      "integrity": "ok",
+      "foreign_keys": "ok",
+      "preflight": "PASS",
+      "health": 200,
+      "anonymous_manager": 401,
+      "docs": 404
+    },
+    "preservation": {
+      "source_files": 411,
+      "private_configs": 3,
+      "original_git_status": "unchanged",
+      "backup_integrity": "ok",
+      "foundation": "af7a3e1",
+      "security": "6e350af",
+      "meeting_demo": "c8db547"
+    },
+    "benchmark": "../benchmarks/review-activity-20261016.json",
+    "hosted_ci": "NOT RUN",
     "official_ring_runtime": "BLOCKED",
-    "physical_devices": "NOT TESTED"
+    "physical_hardware": "NOT TESTED",
+    "simulator_implementation": "NOT STARTED",
+    "separate_model_invocation": false
   },
   "tests_previous_session": {
     "full_backend_default_passed": 994,
@@ -174,9 +258,9 @@
     "open_medium": "SEC-STORAGE-003",
     "physical_safety": "BLOCKED; existing Astra handoff; no live actuators"
   },
-  "mission": "Phase 1 finalization and professional engineering handoff",
+  "mission": "Independent engineering review and final technical resolution",
   "base_security_checkpoint": "6e350af",
-  "mission_status": "FOUNDATION COMPLETE WITH EXTERNAL BLOCKERS; PILOT NOT APPROVED",
+  "mission_status": "REVIEW COMPLETE; SIMULATOR BACKEND READY WITH LIMITATIONS; RING AND PHYSICAL PILOT BLOCKED",
   "tests_security_checkpoint": {
     "full_backend_default_passed": 1038,
     "full_backend_default_skipped": 1,
@@ -212,24 +296,22 @@
     "J": "PASS final committed documentation milestone; source 254eee5"
   },
   "benchmark": {
-    "artifact": "docs/benchmarks/activity-20261015.json",
+    "artifact": "docs/benchmarks/review-activity-20261016.json",
     "max_rows": 10000,
-    "building_scopes": [
-      1,
-      10,
-      100
-    ],
+    "building_scopes": 100,
     "authorized_scopes": 1,
     "samples": 3,
-    "largest_legacy_p50_ms": 3445.015,
-    "largest_paged_p50_ms": 91.131,
-    "scope": "operational query only; developer host with background targeted tests; not full-building capacity"
+    "legacy_p50_ms": 3662.044,
+    "paged_p50_ms": 86.947,
+    "paged_sample_p95_ms": 104.356,
+    "scope": "bounded operational query; not fleet capacity or production percentile assurance"
   },
-  "external_proof_artifact": "docs/verification/external-contact-final-20261015.json",
+  "external_proof_artifact": "docs/verification/review-20261016.json",
   "phase2_handoff": "docs/DIGITAL_TWIN_PHASE2_HANDOFF.md",
   "protected_refs": {
-    "codex/pilot-readiness": "6e350af",
-    "codex/meeting-demo-20261020": "c8db547"
+    "codex/engineering-foundation": "af7a3e1d75d526d754c016f8bc12f77f5c2327ee",
+    "codex/pilot-readiness": "6e350af2ba2ff8750818cb8ea15bdd2d30abe2fe",
+    "codex/meeting-demo-20261020": "c8db54789ce0d45a22653c2b70103ea59f5f3f20"
   },
   "tests_previous_engineering_checkpoint": {
     "full_backend_default_passed": 1059,
@@ -255,8 +337,48 @@
     "workflow_yaml_syntax_permissions": "PASS",
     "hosted_ci_execution": "NOT TESTED"
   },
-  "final_report": "docs/PHASE1_FINAL_REPORT.md",
+  "final_report": "docs/ASTRA_INDEPENDENT_REVIEW.md",
   "astra_final_handoff": "docs/ASTRA_FINAL_REVIEW_HANDOFF.md",
   "closure_backlog": "docs/PHASE1_CLOSURE_BACKLOG.md",
-  "phase2_status": "NOT STARTED; independent Astra acceptance first"
+  "phase2_status": "NOT STARTED; await separate user instruction",
+  "tests_phase1_finalization": {
+    "full_backend_default_passed": 1060,
+    "full_backend_default_skipped": 3,
+    "full_backend_seconds": 75.92,
+    "skip_reason": "SQLite activity plan, contact persistence/index and MQTT rollback/restart; exercised in SQLite subset",
+    "sqlite_final_passed": 139,
+    "sqlite_final_seconds": 30.97,
+    "frontend_unit_passed": 34,
+    "fresh_backend_install_and_pip_check": "PASS new artifacts/phase1-onboarding core + optional MQTT + dev",
+    "fresh_frontend_npm_ci": "PASS 160 packages",
+    "frontend_lint": "PASS",
+    "frontend_typecheck_build": "PASS",
+    "python_correctness_lint": "PASS",
+    "scoped_formatting_files": 9,
+    "proxy_browser": "PASS actual Caddy 2.11.7 + built frontend + private HTTP backend, browser workflow/refresh/cookie/CSRF/Origin/errors/logout",
+    "practical_vite_onboarding": "PASS browser login and three persisted custom simulation signals",
+    "external_https_mqtt_full_stop_restore": "PASS 14.69s; 3 events, isolation/reconnect/duplicates/malformed/revocation; revoked event denied after restore",
+    "mqtt_tls_auth_acl": "PASS actual local broker wire checks",
+    "concurrency": "PASS 3 buildings/users/devices, 24 events, 36 page reads, 6 threads, revocation after load",
+    "hosted_ci_execution": "NOT TESTED",
+    "official_ring_runtime": "BLOCKED",
+    "physical_devices": "NOT TESTED"
+  },
+  "readiness_decision": "docs/PHASE2_READINESS_DECISION.md",
+  "resolution_log": "docs/ASTRA_RESOLUTION_LOG.md",
+  "historical_phase1_benchmark": {
+    "artifact": "docs/benchmarks/activity-20261015.json",
+    "max_rows": 10000,
+    "building_scopes": [
+      1,
+      10,
+      100
+    ],
+    "authorized_scopes": 1,
+    "samples": 3,
+    "largest_legacy_p50_ms": 3445.015,
+    "largest_paged_p50_ms": 91.131,
+    "scope": "operational query only; developer host with background targeted tests; not full-building capacity"
+  },
+  "finalization_evidence": "docs/verification/review-finalization-20261016.json"
 }

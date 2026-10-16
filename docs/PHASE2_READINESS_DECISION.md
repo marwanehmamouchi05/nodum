@@ -44,3 +44,10 @@ approved lifecycle/fleet policy. No software test count removes these requiremen
 The review closes locally solvable work in this bounded milestone. Future physical
 outbox, broad fleet performance and archive/pruning remain explicit later work,
 not hidden approved capabilities.
+
+## Finalization checkpoint
+
+Tested implementation: `bcf5f9da1964cb462b1f44d307b5defc41776113`.
+Final documentation is at HEAD of `codex/astra-final-review`; see
+`DIGITAL_TWIN_PHASE2_HANDOFF.md` for the exact integration boundary.
+No Phase 2 development, merge or deployment is part of this review.

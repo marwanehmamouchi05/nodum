@@ -74,3 +74,10 @@ DIGITAL_TWIN_PHASE2_HANDOFF.md. Original/foundation/security/demo preserved.
 Remaining external dependencies are explicit; no unresolved defect is reclassified
 as physical readiness. Hosted CI, official Ring, encrypted operational backup
 commissioning, fleet capacity and physical safety remain unverified.
+
+## Finalization checkpoint
+
+Tested implementation: `bcf5f9da1964cb462b1f44d307b5defc41776113`.
+Final documentation is at HEAD of `codex/astra-final-review`; see
+`DIGITAL_TWIN_PHASE2_HANDOFF.md` for the exact integration boundary.
+No Phase 2 development, merge or deployment is part of this review.
