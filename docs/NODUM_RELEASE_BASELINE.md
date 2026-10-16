@@ -124,4 +124,19 @@ claims in those earlier reports.
 
 ## Publication receipt
 
-Pending remote verification during this release operation.
+Release branch `codex/release-20261016` was pushed and its candidate
+`017c4f83415028961817cbab89f3270c3372dfe0` passed both hosted Ubuntu jobs:
+[GitHub Actions run 38975412602](https://github.com/marwanehmamouchi05/nodum/actions/runs/38975412602).
+Backend regression, SQLite checks, installation, lint/format, external HTTPS/MQTT
+recovery and startup all passed; frontend installation/tests/lint/build passed.
+This final receipt changes documentation only. The release tag identifies the final
+commit promoted to main; final remote reachability and tree equality are checked
+at delivery. No source fix or merge conflict was required.
+
+**SOFTWARE FOUNDATION FINALIZED** on successful remote promotion of that tag.
+**SIMULATOR INTEGRATION READY WITH LIMITATIONS.** **HACKATHON RING BLOCKED.**
+**PHYSICAL PILOT NOT APPROVED.** The original user checkout is intentionally preserved.
+
+Final diff review found one pre-existing extra EOF blank line in
+`backend/app/services/authorization_operations.py`; it has no runtime effect and
+was preserved with the tested source. Changed release documents pass diff checks.

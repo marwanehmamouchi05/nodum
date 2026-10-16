@@ -22,5 +22,14 @@
     "pattern_hits": [],
     "preservation": "PASS",
     "ancestry": "all requested checkpoints included"
+  },
+  "hosted_ci": {
+    "status": "PASS",
+    "run_id": 38975412602,
+    "candidate": "017c4f83415028961817cbab89f3270c3372dfe0",
+    "jobs": [
+      "backend",
+      "frontend"
+    ]
   }
 }

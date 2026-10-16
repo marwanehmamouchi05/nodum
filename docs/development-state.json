@@ -32,11 +32,6 @@
       "id": "ASTRA-HW-001",
       "status": "REQUIRES_PHYSICAL_DELIVERY_DESIGN_AND_AUTHORIZED_BENCH",
       "task": "Review durable command delivery and reconciliation; keep real commands disabled"
-    },
-    {
-      "id": "CI-hosted",
-      "status": "REQUIRES_AUTHORIZED_REPOSITORY_ACCESS",
-      "task": "Run existing pinned workflow after authorized publication; local checks pass"
     }
   ],
   "blockers": [
@@ -72,7 +67,7 @@
   ],
   "promotion": "Owner authorized GitHub integration/push; no live deployment",
   "modified_files": [],
-  "next_recommended_task": "Use DIGITAL_TWIN_PHASE2_HANDOFF.md only after separate authorization; obtain official Ring runtime evidence and physical safety/deployment acceptance separately.",
+  "next_recommended_task": "Start separately authorized lab work from official main at nodum-foundation-20261016; external Ring and physical pilot gates remain separate.",
   "completed_iterations": [
     "PILOT-001",
     "PILOT-002",
@@ -103,7 +98,7 @@
     "INDEPENDENT-REVIEW-FINALIZATION"
   ],
   "original_preservation_verified": true,
-  "session_status": "RELEASE_VALIDATED_PUBLICATION_IN_PROGRESS",
+  "session_status": "RELEASE_VALIDATED_HOSTED_CI_PASSED",
   "checkpoint_recovery": "Use official main release tag; preserve original dirty checkout and historical refs.",
   "tests_current_session": {
     "backend_passed": 1085,
@@ -119,7 +114,12 @@
     "backup_restore_startup": "PASS schema10 integrity/FKs",
     "proxy_browser": "PASS existing callback; fixture stopped",
     "official_ring": "BLOCKED",
-    "physical_pilot": "NOT APPROVED"
+    "physical_pilot": "NOT APPROVED",
+    "hosted_ci": {
+      "status": "PASS",
+      "run_id": 38975412602,
+      "candidate": "017c4f83415028961817cbab89f3270c3372dfe0"
+    }
   },
   "tests_previous_session": {
     "full_backend_default_passed": 994,
@@ -174,7 +174,7 @@
   },
   "mission": "Final integration and GitHub release",
   "base_security_checkpoint": "6e350af",
-  "mission_status": "REVIEW COMPLETE; SIMULATOR BACKEND READY WITH LIMITATIONS; RING AND PHYSICAL PILOT BLOCKED",
+  "mission_status": "SOFTWARE FOUNDATION VERIFIED FOR MAIN; RING AND PHYSICAL PILOT BLOCKED",
   "tests_security_checkpoint": {
     "full_backend_default_passed": 1038,
     "full_backend_default_skipped": 1,
@@ -254,7 +254,7 @@
   "final_report": "docs/NODUM_RELEASE_BASELINE.md",
   "astra_final_handoff": "docs/ASTRA_FINAL_REVIEW_HANDOFF.md",
   "closure_backlog": "docs/PHASE1_CLOSURE_BACKLOG.md",
-  "phase2_status": "NOT STARTED; await separate user instruction",
+  "phase2_status": "NOT STARTED BY THIS RELEASE ASSIGNMENT",
   "tests_phase1_finalization": {
     "full_backend_default_passed": 1060,
     "full_backend_default_skipped": 3,
