@@ -100,3 +100,15 @@ bridge configured product devices. They are not a public physical-command interf
 for the future lab. Pure simulator contracts remain testable separately. No durable
 physical acknowledgment/reconciliation channel exists; ASTRA-HW-001 blocks one.
 Official Ring linking/playground evidence is separate from MQTT and custom scenarios.
+
+## Final Phase 1 recovery acceptance
+
+The final external drill also stops API, broker and collector, snapshots and restores
+to a new SQLite path, restarts the environment and independently compares the same
+three durable source events through HTTPS. Foreign reads remain denied/empty and
+revoked ingestion stays rejected after restore. See verification/external-contact-final-20261015.json.
+This snapshot already contains the revocation: restoring older authority still needs
+operator reconciliation, not an assumption that backups preserve later revocations.
+The client still receives no database path or internal objects. No contract version
+or payload shape changed. Phase 2 requires the independent review described in
+ASTRA_FINAL_REVIEW_HANDOFF.md; no simulator has been started.

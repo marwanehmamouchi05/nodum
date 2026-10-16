@@ -1,0 +1,12 @@
+{
+  "source_files": 411,
+  "source_preserved": true,
+  "private_configs_preserved": true,
+  "original_git_status_preserved": true,
+  "backup_integrity": "ok",
+  "backup_foreign_keys": 0,
+  "protected_refs": {
+    "codex/pilot-readiness": "6e350af2ba2ff8750818cb8ea15bdd2d30abe2fe",
+    "codex/meeting-demo-20261020": "c8db54789ce0d45a22653c2b70103ea59f5f3f20"
+  }
+}

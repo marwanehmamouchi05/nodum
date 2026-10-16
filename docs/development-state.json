@@ -1,10 +1,10 @@
 {
-  "updated": "2026-10-15",
+  "updated": "2026-10-16",
   "original_workspace": "C:/dev/nodum",
   "original_branch": "product-platform",
   "worktree": "C:/Users/marwa/.codex/worktrees/engineering-foundation/nodum",
   "branch": "codex/engineering-foundation",
-  "last_verified_checkpoint": "6cbfc23",
+  "last_verified_checkpoint": "254eee5",
   "baseline": {
     "backend_targeted_passed": 222,
     "frontend_unit_passed": 32,
@@ -15,42 +15,40 @@
   "queue": [
     {
       "id": "ASTRA-RING-002",
-      "status": "BLOCKED",
-      "task": "Confirm authorized portal linking mode, exact inbound/callback contract and official Ring simulator/staging evidence"
+      "status": "REQUIRES_EXTERNAL_ACCESS_AND_ASTRA",
+      "task": "Confirm authorized portal mode and exact inbound contract, then official staging/tool evidence"
     },
     {
-      "id": "PILOT-005-proxy",
-      "status": "BLOCKED",
-      "task": "Selected deployment TLS/proxy/frontend browser acceptance; no deployment selected or promoted"
+      "id": "PILOT-005-production",
+      "status": "REQUIRES_OWNER_DECISION_AND_EXTERNAL_ENVIRONMENT",
+      "task": "Local Caddy/browser PASS; select and commission actual host/domain/proxy/broker/backup operations"
     },
     {
       "id": "ASTRA-STORAGE-003",
-      "status": "POLICY_DEPENDENCY",
-      "task": "Fleet/global storage and archive/retention decision; per-device contact cap implemented, no deletion"
-    },
-    {
-      "id": "ARCH-005-remaining",
-      "status": "DEFERRED_UNMEASURED",
-      "task": "Profile other histories/full snapshots and broad-scope concurrency before further refactoring"
+      "status": "REQUIRES_OWNER_DECISION_THEN_ASTRA",
+      "task": "Approve separate retention/archive/fleet policy; no automatic deletion"
     },
     {
       "id": "ASTRA-HW-001",
-      "status": "BLOCKED",
-      "task": "Durable real command delivery/reconciliation and authorized device-specific safety bench"
+      "status": "REQUIRES_ASTRA_AND_AUTHORIZED_BENCH",
+      "task": "Review durable command delivery and reconciliation; keep real commands disabled"
     },
     {
-      "id": "ENG-SECOND-EXTERNAL-CONTRACT",
-      "status": "BLOCKED",
-      "task": "Select a genuine supported second external device/protocol interface; current other categories are pure component simulators"
+      "id": "CI-hosted",
+      "status": "REQUIRES_AUTHORIZED_REPOSITORY_ACCESS",
+      "task": "Run existing pinned workflow after authorized publication; local checks pass"
     }
   ],
   "blockers": [
-    "No selected authorized pilot hardware/bench",
-    "No confirmed live Ring linking transport evidence"
+    "No authorized official Ring portal/account/tool evidence and confirmed inbound delivery contract",
+    "No selected commissioned production target or pilot hardware/safety bench",
+    "No approved lifecycle/archive/fleet budget policy"
   ],
   "deferred": [
-    "Real actuation until durable delivery design and bench acceptance",
-    "Outbound notifications until transport and recipient approval"
+    "Full independent simulator until Astra accepts supported contract",
+    "New physical adapters and commands until reviewed vendor/bench acceptance",
+    "Broad-scope/full-snapshot sustained performance study and durable offline delivery",
+    "New visual redesign and AI intensive scenario testing"
   ],
   "astra_escalations": [
     {
@@ -74,7 +72,7 @@
   ],
   "promotion": "Owner approval required; no merge or deployment authorized",
   "modified_files": [],
-  "next_recommended_task": "Resolve remaining Phase 1 external acceptance prerequisites (authorized official Ring evidence, selected deployment, archive/fleet policy). Keep the supported contact proof and handoff ready; do not execute the full Phase 2 simulator prematurely.",
+  "next_recommended_task": "Independent bounded review in docs/ASTRA_FINAL_REVIEW_HANDOFF.md. Do not automatically invoke Astra or start the simulator. Resolve findings affecting the supported HTTPS/contact boundary before Phase 2.",
   "completed_iterations": [
     "PILOT-001",
     "PILOT-002",
@@ -91,34 +89,39 @@
     "ENG-EXTERNAL-CONTRACT",
     "ENG-CONTACT-CAPACITY",
     "ENG-QUALITY-ONBOARDING",
-    "ENG-BOUNDED-BENCHMARK"
+    "ENG-BOUNDED-BENCHMARK",
+    "PHASE1-PROXY-BROWSER",
+    "PHASE1-REFRESH-FIX",
+    "PHASE1-FULL-RESTORE-CLIENT",
+    "PHASE1-CONCURRENT-THREE-BUILDING",
+    "PHASE1-FRESH-ONBOARDING-RING-CUSTOM",
+    "PHASE1-CONSOLIDATED-HANDOFF"
   ],
   "original_preservation_verified": true,
-  "session_status": "CHECKPOINTED",
-  "checkpoint_recovery": "Resume codex/engineering-foundation at HEAD in the managed engineering-foundation worktree. Source checkpoint 6cbfc23; later commit records docs/state only. Fresh app backend/.venv and frontend/node_modules are ignored local artifacts. Separate broker environment reused at pilot-readiness/nodum/artifacts/mqtt-broker. Original workspace and protected demo/security refs unchanged.",
+  "session_status": "CHECKPOINTED_PHASE1_CLOSED_READY_FOR_ASTRA_REVIEW",
+  "checkpoint_recovery": "Resume branch HEAD in the isolated engineering-foundation worktree. Source checkpoint 254eee5; later finalization commit contains docs/state only. Original, security and meeting-demo checkpoints preserved. Fresh environments and Caddy binary are ignored local artifacts; no service remains installed/running from the drills.",
   "tests_current_session": {
-    "full_backend_default_passed": 1059,
+    "full_backend_default_passed": 1060,
     "full_backend_default_skipped": 3,
-    "skip_reason": "SQLite activity plan, contact capacity restart/plan and MQTT rollback/restart; all passed in SQLite batch",
-    "sqlite_security_capacity_recovery_passed": 67,
-    "additional_populated_v8_upgrade_and_index_plan_passed": 1,
-    "earlier_targeted_activity_manager_mqtt_maintenance_sqlite_passed": 69,
-    "migration_preflight_product_release_sqlite_passed": 22,
-    "external_oracle_and_request_guard_passed": 27,
-    "external_https_mqtt_client": "PASS; two HTTPS-provisioned buildings, 3 persisted / 1 duplicate / 2 rejected, reconnect and revocation",
-    "current_mqtt_tls_auth_acl_wire": "PASS; wrong CA/hostname, invalid credentials and cross-topic/read-only publication checks",
-    "schema10_backup_restore_preflight_startup": "PASS",
-    "fresh_windows_backend_install_and_pip_check": "PASS; core + optional Paho + dev tool in new backend/.venv",
-    "fresh_frontend_npm_ci": "PASS",
-    "frontend_unit_passed": 32,
+    "full_backend_seconds": 75.92,
+    "skip_reason": "SQLite activity plan, contact persistence/index and MQTT rollback/restart; exercised in SQLite subset",
+    "sqlite_final_passed": 139,
+    "sqlite_final_seconds": 30.97,
+    "frontend_unit_passed": 34,
+    "fresh_backend_install_and_pip_check": "PASS new artifacts/phase1-onboarding core + optional MQTT + dev",
+    "fresh_frontend_npm_ci": "PASS 160 packages",
     "frontend_lint": "PASS",
     "frontend_typecheck_build": "PASS",
     "python_correctness_lint": "PASS",
-    "scoped_formatting": "PASS",
-    "frontend_npm_audit": "zero reported vulnerabilities",
-    "new_ruff_osv": "no returned advisories for 0.17.1",
-    "workflow_yaml_syntax_permissions": "PASS",
-    "hosted_ci_execution": "NOT TESTED"
+    "scoped_formatting_files": 9,
+    "proxy_browser": "PASS actual Caddy 2.11.7 + built frontend + private HTTP backend, browser workflow/refresh/cookie/CSRF/Origin/errors/logout",
+    "practical_vite_onboarding": "PASS browser login and three persisted custom simulation signals",
+    "external_https_mqtt_full_stop_restore": "PASS 14.69s; 3 events, isolation/reconnect/duplicates/malformed/revocation; revoked event denied after restore",
+    "mqtt_tls_auth_acl": "PASS actual local broker wire checks",
+    "concurrency": "PASS 3 buildings/users/devices, 24 events, 36 page reads, 6 threads, revocation after load",
+    "hosted_ci_execution": "NOT TESTED",
+    "official_ring_runtime": "BLOCKED",
+    "physical_devices": "NOT TESTED"
   },
   "tests_previous_session": {
     "full_backend_default_passed": 994,
@@ -171,9 +174,9 @@
     "open_medium": "SEC-STORAGE-003",
     "physical_safety": "BLOCKED; existing Astra handoff; no live actuators"
   },
-  "mission": "Phase 1 engineering foundation and independent lab integration readiness",
+  "mission": "Phase 1 finalization and professional engineering handoff",
   "base_security_checkpoint": "6e350af",
-  "mission_status": "PARTIAL: verified contact-lab foundation; broader external acceptance remains blocked/unverified",
+  "mission_status": "FOUNDATION COMPLETE WITH EXTERNAL BLOCKERS; PILOT NOT APPROVED",
   "tests_security_checkpoint": {
     "full_backend_default_passed": 1038,
     "full_backend_default_skipped": 1,
@@ -195,13 +198,18 @@
     "frontend": "unchanged; prior 32-pass evidence historical, not rerun"
   },
   "phase1_acceptance": {
-    "architecture": "VERIFIED incremental modular boundary/paging improvement; no rewrite",
-    "hardware": "PARTIAL: contact wire + existing distinct simulator categories tested; no universal compatibility",
-    "external_integration": "PASS for explicit contact-v1 contract; official Ring/second external interface not tested",
-    "scalability": "PASS bounded query baseline; full fleet/concurrency/RSS not tested",
-    "developer_experience": "PASS fresh Windows setup, quality gates and documented extension; hosted CI pending",
-    "security": "PASS tested regression scope; not security certification or pilot approval",
-    "delivery": "Phase 2 contact handoff prepared; broader mission not declared complete"
+    "outcome": "FOUNDATION COMPLETE WITH EXTERNAL BLOCKERS",
+    "pilot": "PILOT NOT APPROVED",
+    "A": "PASS bounded functional software",
+    "B": "PASS contact-v1; official Ring BLOCKED",
+    "C": "PASS representative contact and pure simulator interfaces; physical compatibility unverified",
+    "D": "PASS tested usable scope; no known unresolved critical accepted",
+    "E": "PASS bounded installation/recovery/concurrency",
+    "F": "PASS local onboarding/quality; hosted CI not tested",
+    "G": "PASS local proxy/browser and non-destructive guardrails; operational target/lifecycle BLOCKED",
+    "H": "PASS precise final Astra handoff",
+    "I": "PASS original source/private config/status and refs preserved",
+    "J": "PASS final committed documentation milestone; source 254eee5"
   },
   "benchmark": {
     "artifact": "docs/benchmarks/activity-20261015.json",
@@ -217,10 +225,38 @@
     "largest_paged_p50_ms": 91.131,
     "scope": "operational query only; developer host with background targeted tests; not full-building capacity"
   },
-  "external_proof_artifact": "docs/verification/external-contact-20261015.json",
+  "external_proof_artifact": "docs/verification/external-contact-final-20261015.json",
   "phase2_handoff": "docs/DIGITAL_TWIN_PHASE2_HANDOFF.md",
   "protected_refs": {
     "codex/pilot-readiness": "6e350af",
     "codex/meeting-demo-20261020": "c8db547"
-  }
+  },
+  "tests_previous_engineering_checkpoint": {
+    "full_backend_default_passed": 1059,
+    "full_backend_default_skipped": 3,
+    "skip_reason": "SQLite activity plan, contact capacity restart/plan and MQTT rollback/restart; all passed in SQLite batch",
+    "sqlite_security_capacity_recovery_passed": 67,
+    "additional_populated_v8_upgrade_and_index_plan_passed": 1,
+    "earlier_targeted_activity_manager_mqtt_maintenance_sqlite_passed": 69,
+    "migration_preflight_product_release_sqlite_passed": 22,
+    "external_oracle_and_request_guard_passed": 27,
+    "external_https_mqtt_client": "PASS; two HTTPS-provisioned buildings, 3 persisted / 1 duplicate / 2 rejected, reconnect and revocation",
+    "current_mqtt_tls_auth_acl_wire": "PASS; wrong CA/hostname, invalid credentials and cross-topic/read-only publication checks",
+    "schema10_backup_restore_preflight_startup": "PASS",
+    "fresh_windows_backend_install_and_pip_check": "PASS; core + optional Paho + dev tool in new backend/.venv",
+    "fresh_frontend_npm_ci": "PASS",
+    "frontend_unit_passed": 32,
+    "frontend_lint": "PASS",
+    "frontend_typecheck_build": "PASS",
+    "python_correctness_lint": "PASS",
+    "scoped_formatting": "PASS",
+    "frontend_npm_audit": "zero reported vulnerabilities",
+    "new_ruff_osv": "no returned advisories for 0.17.1",
+    "workflow_yaml_syntax_permissions": "PASS",
+    "hosted_ci_execution": "NOT TESTED"
+  },
+  "final_report": "docs/PHASE1_FINAL_REPORT.md",
+  "astra_final_handoff": "docs/ASTRA_FINAL_REVIEW_HANDOFF.md",
+  "closure_backlog": "docs/PHASE1_CLOSURE_BACKLOG.md",
+  "phase2_status": "NOT STARTED; independent Astra acceptance first"
 }

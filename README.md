@@ -49,3 +49,12 @@ A scoped first installation remains empty. Secure Admin provisioning requires a 
 - Details: [Ring](docs/ring-integration.md), [AI](docs/agent-layer.md), [connectors](docs/building-integrations.md), [auth](docs/authentication.md), [persistence](docs/persistence.md), [deployment preparation](docs/deployment.md)
 
 Historical connector examples describe legacy software-simulated journeys, not a physical bridge for configured units/businesses. These instructions perform no deployment.
+
+
+Current engineering milestone: [Phase 1 final report](docs/PHASE1_FINAL_REPORT.md),
+[classified closure backlog](docs/PHASE1_CLOSURE_BACKLOG.md) and
+[bounded Astra handoff](docs/ASTRA_FINAL_REVIEW_HANDOFF.md). Foundation complete with
+external blockers; pilot not approved. [Local proxy/browser procedure](docs/DEPLOYMENT_VERIFICATION.md),
+[Ring demo evidence](docs/RING_DEMO_PROCEDURE.md) and [data lifecycle boundary](docs/DATA_LIFECYCLE.md)
+record exact tested scope. Independent Astra review precedes a separate simulator
+assignment; no Phase 2 work or automatic deployment is part of this milestone.

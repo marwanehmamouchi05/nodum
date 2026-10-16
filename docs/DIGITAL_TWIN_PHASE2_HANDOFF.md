@@ -5,9 +5,10 @@ Read `ARCHITECTURE_OVERVIEW.md`, `DIGITAL_TWIN_INTEGRATION_CONTRACT.md`,
 `development-state.json`. This is implementation guidance, not permission for live
 hardware or merging the engineering branch. Preserve the c8db547 meeting demo.
 
-The contact foundation is verified; broader Phase 1 acceptance is still partial.
-Resolve the external prerequisites recorded below before treating the full mission
-as complete or expanding into later simulation/visualization phases.
+Phase 1 is now FOUNDATION COMPLETE WITH EXTERNAL BLOCKERS; PILOT NOT APPROVED.
+See PHASE1_FINAL_REPORT.md and ASTRA_FINAL_REVIEW_HANDOFF.md. Independent Astra
+acceptance of the supported contact boundary must precede this separate simulator
+assignment. This document does not authorize starting it automatically.
 
 ## Starting proof and commands
 
@@ -91,7 +92,9 @@ There is no anonymous onboarding, universal discovery, generic sensor payload,
 production broker deployment, live actuator delivery state machine, physical
 readback, complete history export, automatic retention, global fleet disk quota or
 durable offline capture. Some non-contact projections still scan whole collections.
-Large-scope concurrency/RSS and installed-OS/proxy/browser acceptance remain untested.
+Large-scope concurrency/RSS and installed-OS commissioning remain untested. Local
+Caddy/browser acceptance and bounded three-building read/write concurrency now pass;
+see the final report.
 
 Configured hardware inventory and historical simulator inventory are separate.
 Scoped legacy actuator mutations are not exposed; do not bypass that boundary or

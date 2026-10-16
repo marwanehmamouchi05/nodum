@@ -25,3 +25,13 @@ Resolved test-only broker Click pin conflict by separating broker and app enviro
   substitute for actual API/protocol events.
 - Official Ring evidence and physical command semantics remain concrete external
   dependencies; no fabricated success or repeated protocol guessing.
+
+
+Phase 1 closure fixes: browser refresh lost a multi-role workspace and non-Admin
+section; URL restoration now validates known screens and retains server authority.
+The Windows shared pytest temp root denies access, so onboarding selects a fresh
+unique --basetemp without deleting or changing its ACLs. Caddy published checksums
+are SHA-512. SQLite online backup changes file-header bookkeeping: compare logical
+API outcomes plus structural integrity, not identical hashes between two valid
+backup copies. An empty authorized collection may correctly return 200; use an
+explicit denied resource for a 403 browser oracle. All final acceptance runs pass.

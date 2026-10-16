@@ -1,5 +1,7 @@
 # Security readiness — 2026-10-15
 
+Current closure authority: [PHASE1_FINAL_REPORT.md](PHASE1_FINAL_REPORT.md) (2026-10-16). Earlier results below are historical. Consolidated review: [ASTRA_FINAL_REVIEW_HANDOFF.md](ASTRA_FINAL_REVIEW_HANDOFF.md).
+
 PASS means the stated, bounded property was verified. FAIL means a confirmed issue
 remains. BLOCKED requires unavailable external evidence. NOT TESTED means no valid
 current evidence. None of these statuses constitutes whole-product certification.

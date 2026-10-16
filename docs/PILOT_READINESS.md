@@ -1,5 +1,7 @@
 # Pilot readiness evidence
 
+Current closure authority: [PHASE1_FINAL_REPORT.md](PHASE1_FINAL_REPORT.md) (2026-10-16). Earlier results below are historical. Consolidated review: [ASTRA_FINAL_REVIEW_HANDOFF.md](ASTRA_FINAL_REVIEW_HANDOFF.md).
+
 Checkpoint: 2026-10-15, isolated `codex/pilot-readiness` worktree. The existing
 `C:/dev/nodum` environment has not been promoted or modified by development changes.
 

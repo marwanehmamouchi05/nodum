@@ -1,5 +1,7 @@
 # Astra handoff
 
+Current closure authority: [PHASE1_FINAL_REPORT.md](PHASE1_FINAL_REPORT.md) (2026-10-16). Earlier results below are historical. Consolidated review: [ASTRA_FINAL_REVIEW_HANDOFF.md](ASTRA_FINAL_REVIEW_HANDOFF.md).
+
 2026-10-15. Two issues documented for reasoning review. No external message or live
 Astra execution has been performed. Independent maintenance/security work continues.
 

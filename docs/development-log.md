@@ -96,3 +96,19 @@ acceptance is not asserted.
 
 
 Final engineering verification: **1,059 backend passed / 3 SQLite-only skipped**, **67 SQLite checks passed**, plus populated schema-8 upgrade preservation/index plan. Fresh backend pip check, 32 frontend tests, lint/type-build, external HTTPS/MQTT proof, current broker security and schema-10 recovery passed. Hosted CI/official Ring/physical equipment remain unverified. Protected source/private configuration/Git status and both old checkpoint refs verified unchanged. Exact resume state and Phase 2 handoff are stored in this checkout.
+
+## Phase 1 finalization — 2026-10-16
+
+Source checkpoint 254eee5: real Caddy HTTPS/static frontend/private HTTP API fixture,
+actual browser workflow/security checks, refresh restoration fix for multi-role
+workspaces and Resident/Manager/Business sections, three-building read/write and
+revocation acceptance, full external HTTPS/MQTT environment stop/new-path restore.
+Fresh backend pins/pip check and frontend npm ci repeated; real Vite browser login
+and custom Ring visitor-arrival yielded three persisted simulated signals.
+Final backend 1060 passed/3 SQLite-only skips, targeted SQLite 139 passed, frontend
+34 passed with lint/type-build, Python correctness/scoped format passed. MQTT
+TLS/auth/ACL/revocation wire proof passed. Hosted CI and official Ring remain
+unverified. No architecture/style rewrite, actuator activation or simulator work.
+Final report and consolidated Astra handoff close the bounded foundation with
+external blockers; pilot not approved. Original hashes/config/status and protected
+refs verified unchanged. Final documentation commit contains closure/resume evidence.

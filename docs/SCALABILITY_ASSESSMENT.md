@@ -56,3 +56,14 @@ Next bounded work: representative multi-building snapshot/HTTP concurrency with
 explicit duration/memory/connection limits, read-transaction contention, indexed
 scope/grant lookup if measured dominant, then an approved archive/retention policy.
 Do not introduce distributed infrastructure from this one query benchmark.
+
+## Phase 1 closure reliability supplement
+
+The new test_foundation_concurrency.py passed in SQLite and the full regression:
+three buildings/users/devices, six concurrent tasks, 24 contact ingestions and 36
+scoped page reads, then grant revocation rejection for each device. Final targeted
+SQLite batch including this test and simulator categories: 139 passed in 30.97 s.
+This bounds the earlier read/write uncertainty for this tiny fixture only. Sustained
+HTTP contention, broad-scope/full-snapshot capacity, reconnect storms and process
+RSS remain unmeasured. The original large-history benchmark above was retained,
+not needlessly repeated. See PHASE1_FINAL_REPORT.md for the final acceptance scope.

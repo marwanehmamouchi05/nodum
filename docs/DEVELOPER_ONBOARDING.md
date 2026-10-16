@@ -74,8 +74,10 @@ Preflight is read-only and must never create/migrate storage.
 
 ```powershell
 backend/.venv/Scripts/python.exe -m ruff check backend tools/contract_client
-backend/.venv/Scripts/python.exe -m pytest -q
-backend/.venv/Scripts/python.exe -m pytest -q --repository-backend sqlite backend/tests/test_activity_pages.py backend/tests/test_contact_budget.py backend/tests/test_mqtt_sensor.py backend/tests/test_request_limits.py backend/tests/test_session_budget.py backend/tests/test_security_tenants.py backend/tests/test_maintenance.py
+$testTemp = Join-Path $env:TEMP ('nodum-tests-' + [guid]::NewGuid().ToString('N'))
+backend/.venv/Scripts/python.exe -m pytest -q --basetemp $testTemp
+$sqliteTemp = Join-Path $env:TEMP ('nodum-sqlite-' + [guid]::NewGuid().ToString('N'))
+backend/.venv/Scripts/python.exe -m pytest -q --basetemp $sqliteTemp --repository-backend sqlite backend/tests/test_activity_pages.py backend/tests/test_contact_budget.py backend/tests/test_mqtt_sensor.py backend/tests/test_request_limits.py backend/tests/test_session_budget.py backend/tests/test_security_tenants.py backend/tests/test_maintenance.py backend/tests/test_foundation_concurrency.py backend/tests/test_building_integrations.py
 backend/.venv/Scripts/python.exe backend/scripts/external_contract_drill.py --broker-python .broker/Scripts/python.exe
 backend/.venv/Scripts/python.exe backend/scripts/pilot_drill.py
 ```
@@ -129,3 +131,24 @@ contract/persistence decisions. Changes remain local until owner-authorized prom
   and the private configured budget; no automatic audit deletion is available.
 - External drill failure: keep the redacted verdict and identify the failed layer;
   never bypass TLS, CSRF, permission checks or mutate the database from the client.
+
+## Phase 1 final practical acceptance
+
+Final report: [PHASE1_FINAL_REPORT.md](PHASE1_FINAL_REPORT.md). A second fresh backend
+venv (core + optional MQTT + dev pins, pip check) and fresh npm ci passed. A new
+synthetic database, backend and Vite development server were started; real browser
+sign-in and Manager Demo Mode generated three signed custom simulation signals,
+then the authenticated API confirmed motion/doorbell/person records. This is not
+an official Ring tool run. The same fresh backend also passed the complete external
+HTTPS/MQTT stop/restore drill and Caddy/browser acceptance. No clean-OS or hosted CI
+claim is implied.
+
+Use [DEPLOYMENT_VERIFICATION.md](DEPLOYMENT_VERIFICATION.md) and
+`frontend/tests/proxy.browser.js` for reproducible proxy/browser acceptance;
+[RING_DEMO_PROCEDURE.md](RING_DEMO_PROCEDURE.md) distinguishes custom and official
+steps. Source/extension locations are above. Preserve the current working frontend
+and dependencies; no UI library installation is required for these procedures.
+
+On this host the shared default pytest temporary root was inaccessible. The sample
+commands now choose fresh unique directories explicitly; do not loosen ACLs on or
+recursively remove the existing shared temporary tree as a workaround.

@@ -1,5 +1,7 @@
 # Architecture audit — targeted engineering findings
 
+Current closure authority: [PHASE1_FINAL_REPORT.md](PHASE1_FINAL_REPORT.md) (2026-10-16). Earlier results below are historical. Consolidated review: [ASTRA_FINAL_REVIEW_HANDOFF.md](ASTRA_FINAL_REVIEW_HANDOFF.md).
+
 2026-10-15, isolated branch. Evidence from source inspection, real protocol drills
 and automated tests. This is not a whole-codebase security certification.
 
