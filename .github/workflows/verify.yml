@@ -27,7 +27,7 @@ jobs:
       - run: ruff format --check backend/app/services/activity.py backend/scripts/external_contract_drill.py backend/scripts/benchmark_activity.py backend/tests/test_activity_pages.py backend/tests/test_contact_budget.py backend/tests/test_external_contract_oracle.py tools/contract_client/client.py
       - run: python -m pytest -q
         working-directory: backend
-      - run: python -m pytest -q --repository-backend sqlite tests/test_activity_pages.py tests/test_contact_budget.py tests/test_session_budget.py tests/test_security_tenants.py tests/test_mqtt_sensor.py tests/test_request_limits.py tests/test_maintenance.py tests/test_foundation_concurrency.py
+      - run: python -m pytest -q --repository-backend sqlite tests/test_activity_pages.py tests/test_contact_budget.py tests/test_session_budget.py tests/test_security_tenants.py tests/test_mqtt_sensor.py tests/test_request_limits.py tests/test_maintenance.py tests/test_foundation_concurrency.py tests/test_review_boundaries.py tests/test_retention_plan.py tests/test_building_integrations.py tests/test_ring.py
         working-directory: backend
       - run: python -m venv .broker
       - run: .broker/bin/python -m pip install -r backend/requirements-mqtt-broker-test.txt

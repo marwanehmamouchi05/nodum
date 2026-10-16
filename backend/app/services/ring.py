@@ -70,12 +70,20 @@ def normalize_event(raw, environment, now):
                 raise ValueError()
             if expected_source == "users" and attrs["source"] != meta["account_id"]:
                 raise ValueError()
+        signal = SIGNALS.get(kind, "unknown")
+        if kind == "motion_detected":
+            # Official Smart Alerts classifications are nested, open-ended values.
+            # Preserve unknown classifications in raw_payload as generic motion.
+            subtype = attrs.get("sub_type")
+            if subtype is not None and not isinstance(subtype, str):
+                raise ValueError()
+            signal = {"human": "person", "package_delivery": "package"}.get(subtype, "motion")
         return RingEvent(
             id=identity(environment, meta["account_id"], data["id"]),
             environment=environment, account_id=meta["account_id"], request_id=meta["request_id"],
             event_id=data["id"], event_type=kind, source=attrs["source"], source_type=source_type,
             occurred_at=datetime.fromtimestamp(timestamp / 1000, timezone.utc), received_at=now,
-            signal=SIGNALS.get(kind, "unknown"), raw_payload=raw.decode("utf-8"),
+            signal=signal, raw_payload=raw.decode("utf-8"),
         )
     except (ValueError, TypeError, KeyError, OverflowError, OSError):
         raise DomainError(400, "Malformed Ring v1.1 event") from None
@@ -275,7 +283,8 @@ class RingService:
                                                   event.request_id, event.event_id)
             if old:
                 if (old.event_id != event.event_id or old.event_type != event.event_type
-                        or old.source != event.source or old.occurred_at != event.occurred_at):
+                        or old.source != event.source or old.occurred_at != event.occurred_at
+                        or json.loads(old.raw_payload)["data"] != json.loads(event.raw_payload)["data"]):
                     raise DomainError(409, "Conflicting Ring event identity")
                 return {"status": "duplicate", "id": old.id}
             # Preserve even unknown/unclaimed account events for audit; they cannot

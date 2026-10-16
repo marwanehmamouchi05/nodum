@@ -1,5 +1,28 @@
 # Ring demonstration: evidence and remaining dependency
 
+Independent review update, 2026-10-16: official motion `attributes.sub_type` values
+human and package_delivery now normalize to existing person/package signals.
+Unknown classifications remain generic motion with raw evidence preserved.
+Changed event data under a replayed event identity now returns 409. Tests use
+signed local fixtures, not vendor-origin captures. Legacy custom event kinds remain
+compatible. No webhook grants visitor identity or operates a door.
+
+The [current hackathon rules](https://amazonappdev2026.devpost.com/rules) accept
+Ring APIs/tools/simulators/devices listed in Ring documentation and require a
+working demonstration plus runtime technology use in the repository. The target
+deadline is October 23, 2026 at 12:00 PDT (20:00 Africa/Casablanca). A custom
+Ring-like generator does not establish that evidence. Prepare a working official
+tool/device capture, a video under three minutes, repository access and run
+instructions; verify all submission requirements with the owner. Nothing has been
+submitted or published by this review.
+
+Owner evidence needed: the app's actual portal linking mode and approved scopes,
+registered staging URLs, privately provisioned credentials, and the authenticated
+inbound code-delivery encoding/authentication contract. Public docs describe POST
+delivery but did not resolve that adapter detail. Use official Playground if
+available to the authorized account; physical hardware is not intrinsically
+required for the hackathon. Do not change linking mode or expose callbacks by guess.
+
 Reviewed 2026-10-15. No authorized Ring portal/account, official simulator run or
 physical Ring device was available. Do not describe custom scenarios as official
 Ring Playground evidence or infer hackathon eligibility from unit tests.

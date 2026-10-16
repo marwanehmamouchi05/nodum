@@ -20,6 +20,7 @@ from app.repository import Repository
 from app.services.access_engine import evaluate_access
 from app.services.emergencies import validate_operator
 from app.services.errors import DomainError
+from app.services.simulated_commands import validate_simulated_result
 
 
 KINDS = {
@@ -254,10 +255,8 @@ class BuildingService:
                 destination_label=self.repo.get_zone(journey.destination_zone_id).name if journey else zone.name)
             state = self.status(device_id, now)["state"]
             try:
-                new_state = adapter.execute(payload.command, state, context)
-                new_state = DeviceState.model_validate(new_state.model_dump())
-                if new_state.id != device_id:
-                    raise ValueError("Adapter returned another device")
+                new_state = adapter.execute(payload.command, state.model_copy(deep=True), context)
+                new_state = validate_simulated_result(payload.command, state, new_state, context)
             except Exception:
                 audit = ActuatorEvent(id=payload.id, request_fingerprint=digest, device_id=device_id,
                     integration_id=integration.id, provider=integration.provider, command=payload.command,

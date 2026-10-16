@@ -156,7 +156,7 @@ def process_event(event_id: str, payload: ProcessEventInput, principal: Principa
         mode="json", exclude={"raw_payload"})
 
 
-# ----- Ring Playground simulation endpoints -----------------------------
+# ----- Nodum custom simulation endpoints (not official Ring Playground) --
 # These endpoints exist ONLY when RING_MODE=simulation. They use the real
 # RingService.receive_event() path; nothing is faked inside the API layer.
 

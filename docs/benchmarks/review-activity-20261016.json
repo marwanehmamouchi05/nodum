@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "scenario": "activity-pages-v1",
+  "environment": {
+    "os": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.9",
+    "sqlite": "3.51.0",
+    "processor": "AMD64 Family 25 Model 116 Stepping 1, AuthenticAMD",
+    "logical_cpus": 16
+  },
+  "limits": {
+    "maximum_events": 10000,
+    "samples_per_query": 3,
+    "concurrency": 1,
+    "memory_metric": "Python traced allocations only, not process RSS"
+  },
+  "results": [
+    {
+      "building_scopes": 1,
+      "events_per_scope": 100,
+      "total_events": 100,
+      "authorized_scopes": 1,
+      "seed_elapsed_seconds": 0.017,
+      "fixture_writes_per_second": 5842.59,
+      "database_and_wal_bytes": 421888,
+      "legacy_full_history": {
+        "samples": 3,
+        "p50_ms": 45.219,
+        "p95_ms": 48.159,
+        "mean_cpu_ms": 36.458,
+        "python_peak_bytes": 297869,
+        "sequential_queries_per_second": 22.87,
+        "errors": 0
+      },
+      "indexed_page": {
+        "samples": 3,
+        "p50_ms": 37.004,
+        "p95_ms": 38.013,
+        "mean_cpu_ms": 36.458,
+        "python_peak_bytes": 249310,
+        "sequential_queries_per_second": 27.08,
+        "errors": 0
+      },
+      "scope": "operational activity only; no full dashboard, HTTP, concurrent load or physical devices"
+    },
+    {
+      "building_scopes": 10,
+      "events_per_scope": 100,
+      "total_events": 1000,
+      "authorized_scopes": 1,
+      "seed_elapsed_seconds": 0.073,
+      "fixture_writes_per_second": 13724.2,
+      "database_and_wal_bytes": 1146880,
+      "legacy_full_history": {
+        "samples": 3,
+        "p50_ms": 207.511,
+        "p95_ms": 216.017,
+        "mean_cpu_ms": 197.917,
+        "python_peak_bytes": 1277272,
+        "sequential_queries_per_second": 4.91,
+        "errors": 0
+      },
+      "indexed_page": {
+        "samples": 3,
+        "p50_ms": 43.49,
+        "p95_ms": 48.009,
+        "mean_cpu_ms": 41.667,
+        "python_peak_bytes": 240618,
+        "sequential_queries_per_second": 22.4,
+        "errors": 0
+      },
+      "scope": "operational activity only; no full dashboard, HTTP, concurrent load or physical devices"
+    },
+    {
+      "building_scopes": 100,
+      "events_per_scope": 100,
+      "total_events": 10000,
+      "authorized_scopes": 1,
+      "seed_elapsed_seconds": 2.435,
+      "fixture_writes_per_second": 4105.95,
+      "database_and_wal_bytes": 8396800,
+      "legacy_full_history": {
+        "samples": 3,
+        "p50_ms": 3662.044,
+        "p95_ms": 4216.554,
+        "mean_cpu_ms": 3578.125,
+        "python_peak_bytes": 11330624,
+        "sequential_queries_per_second": 0.27,
+        "errors": 0
+      },
+      "indexed_page": {
+        "samples": 3,
+        "p50_ms": 86.947,
+        "p95_ms": 104.356,
+        "mean_cpu_ms": 88.542,
+        "python_peak_bytes": 255081,
+        "sequential_queries_per_second": 11.06,
+        "errors": 0
+      },
+      "scope": "operational activity only; no full dashboard, HTTP, concurrent load or physical devices"
+    }
+  ]
+}

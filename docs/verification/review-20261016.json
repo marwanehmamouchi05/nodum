@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-16",
+  "base": "af7a3e1d75d526d754c016f8bc12f77f5c2327ee",
+  "branch": "codex/astra-final-review",
+  "baseline_targeted_passed": 190,
+  "reproduced_defects": {"expected_failed_cases": 7, "positive_cases": 3},
+  "full_backend": {"passed": 1085, "skipped": 4, "seconds": 144.48},
+  "sqlite_targeted": {"passed": 272, "seconds": 52.84, "covers_default_sqlite_skips": true},
+  "frontend": {"fresh_install_packages": 160, "tests_passed": 34, "lint": "PASS", "typecheck_build": "PASS"},
+  "fresh_backend_install": "PASS core + optional MQTT + dev pins; pip check passed",
+  "python_correctness_lint": "PASS",
+  "proxy_browser": {
+    "verdict": "PASS",
+    "proxy": "Caddy 2.11.7 temporary HTTPS, built frontend, private API",
+    "checks": ["login/redirect", "Resident invitation/pass", "role/page refresh", "deep SPA URL", "secure HttpOnly SameSite cookie", "missing CSRF 403", "wrong Origin 403", "invalid body 422", "unknown API 404", "logout 401", "forged Admin hash denied", "zero page errors"],
+    "certificate": "isolated browser context ignores fixture certificate only",
+    "fixture_stopped": true
+  },
+  "external_contact": {
+    "verdict": "PASS", "seconds": 20.97, "buildings": 2, "source_events": 3,
+    "before_restore": {"recorded": 3, "duplicate": 1, "rejected": 2, "failed": 0},
+    "after_restore": {"recorded": 0, "duplicate": 0, "rejected": 1, "failed": 0},
+    "schema": 10, "integrity": "ok", "foreign_keys": "ok", "negative_observation_seconds": 0.75
+  },
+  "mqtt_wire_security": {"verdict": "PASS", "wrong_ca_hostname_credentials": "rejected", "forbidden_subscriptions": 4, "blocked_publications": 3, "positive_controls": "both topics delivered", "nodum_revocation": "PASS"},
+  "recovery_startup": {"schema": 10, "integrity": "ok", "foreign_keys": "ok", "preflight": "PASS", "health": 200, "anonymous_manager": 401, "docs": 404},
+  "preservation": {"source_files": 411, "private_configs": 3, "original_git_status": "unchanged", "backup_integrity": "ok", "foundation": "af7a3e1", "security": "6e350af", "meeting_demo": "c8db547"},
+  "benchmark": "../benchmarks/review-activity-20261016.json",
+  "hosted_ci": "NOT RUN",
+  "official_ring_runtime": "BLOCKED",
+  "physical_hardware": "NOT TESTED",
+  "simulator_implementation": "NOT STARTED",
+  "separate_model_invocation": false
+}

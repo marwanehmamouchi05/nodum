@@ -1,5 +1,34 @@
 # Data lifecycle boundary
 
+Review supplement, 2026-10-16: `app/services/retention.py` now supplies
+`plan_contact_retention(authorization, scope_id=..., before=..., now=...,
+max_scan=500, held_ids=())`. This is a trusted service-level engineering preview,
+not a public API, scheduler, archive or deletion command. It requires fresh
+hardware.configure and activity.read for the explicit scope, uses authorized
+pages, scans at most 1,000 candidate positions, excludes other journal classes,
+honors supplied holds, and reports truncation. Counts are only for the scanned
+visible sample, not a fleet estimate. The cutoff uses server receipt time. Holds
+are hypothetical inputs, not an authoritative legal-hold registry.
+
+`test_retention_plan.py` verifies boundary cutoff, bounded scans, protected records,
+holds, foreign scope, revocation and unchanged history/replay after planning.
+No apply path exists; `apply_enabled` is always false.
+
+| Owner decision | Proposed configuration to approve | Tradeoff |
+|---|---|---|
+| Lab only (recommended now) | Existing per-device max_observations; approved device count and stop-at-capacity response | No deletion; ingestion eventually stops |
+| Sustained telemetry | Per-class receipt-time horizon, fleet byte ceiling, archive URI/key custodian, replay horizon and protected holds | Requires archive verification and separately implemented bounded apply |
+| Visitor/account information | Purpose, closure trigger, approved horizon, exceptions and responsible operator | Separate from telemetry; dependencies and privacy review required |
+| Security audit and video metadata | Explicit protected class/hold policy, access roles, approved horizon | Do not inherit observation cleanup; no media capture pipeline is implied |
+| Backups | Encryption/access owner, schedule, horizon, recovery objectives and authority reconciliation | Old snapshots can restore revoked sessions/grants |
+
+No duration is preselected or claimed legally compliant. An eventual apply must
+consume an approved versioned policy, recheck current scope/holds, verify a scoped
+archive and preserve replay tombstones, then atomically delete a bounded batch with
+its bindings and append a protected audit result. Restart resumes by durable batch
+ID. Concurrent new records and policy changes must force revalidation. These are
+acceptance requirements, not implemented deletion capabilities.
+
 Phase 1 does not delete or archive application data automatically. No owner-approved
 retention period, archive destination or legal-hold policy has been supplied.
 
