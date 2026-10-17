@@ -3,8 +3,8 @@
   "original_workspace": "C:/dev/nodum",
   "original_branch": "product-platform",
   "worktree": "C:/Users/marwa/.codex/worktrees/release-20261016/nodum",
-  "branch": "codex/release-20261016",
-  "last_verified_checkpoint": "bcf5f9da1964cb462b1f44d307b5defc41776113",
+  "branch": "codex/timestamp-release",
+  "last_verified_checkpoint": "dd262acf41dfef8f5c8d446e743d3db431742f8d",
   "baseline": {
     "backend_targeted_passed": 222,
     "frontend_unit_passed": 32,
@@ -67,7 +67,7 @@
   ],
   "promotion": "Owner authorized GitHub integration/push; no live deployment",
   "modified_files": [],
-  "next_recommended_task": "Start separately authorized lab work from official main at nodum-foundation-20261016; external Ring and physical pilot gates remain separate.",
+  "next_recommended_task": "Use official main at nodum-contact-timestamp-20261017 for separately authorized Building Lab Phase 4; preserve Ring and physical pilot blockers.",
   "completed_iterations": [
     "PILOT-001",
     "PILOT-002",
@@ -98,28 +98,61 @@
     "INDEPENDENT-REVIEW-FINALIZATION"
   ],
   "original_preservation_verified": true,
-  "session_status": "RELEASE_VALIDATED_HOSTED_CI_PASSED",
-  "checkpoint_recovery": "Use official main release tag; preserve original dirty checkout and historical refs.",
+  "session_status": "TIMESTAMP_RELEASE_LOCAL_VALIDATION_COMPLETE",
+  "checkpoint_recovery": "Resume codex/timestamp-release until promotion; after publication use official main at nodum-contact-timestamp-20261017. Original dirty checkout and all historical refs remain protected.",
   "tests_current_session": {
-    "backend_passed": 1085,
-    "backend_skipped": 4,
-    "backend_seconds": 106.37,
-    "sqlite_passed": 272,
-    "sqlite_seconds": 45.8,
-    "frontend_passed": 34,
-    "lint_build": "PASS",
-    "fresh_app_broker_frontend_install": "PASS",
-    "external_https_mqtt": "PASS 18.28s; 3 events, full-stop restore/revocation",
-    "mqtt_tls_auth_acl": "PASS",
-    "backup_restore_startup": "PASS schema10 integrity/FKs",
-    "proxy_browser": "PASS existing callback; fixture stopped",
-    "official_ring": "BLOCKED",
-    "physical_pilot": "NOT APPROVED",
-    "hosted_ci": {
-      "status": "PASS",
-      "run_id": 38975412602,
-      "candidate": "017c4f83415028961817cbab89f3270c3372dfe0"
-    }
+    "date": "2026-10-17",
+    "previous_main": "961e437eec954bbb0347a8cfe75bd67a42a1c5ea",
+    "original_fix": "dd262acf41dfef8f5c8d446e743d3db431742f8d",
+    "lab_checkpoint": "a1f3c3c5c432b437d0708ee5205545842ea687bf",
+    "independent_before_after": "PASS both range boundaries",
+    "lab_evidence_checksums_verified": 7,
+    "targeted_sqlite": {
+      "passed": 26,
+      "failed": 0,
+      "seconds": 2.67
+    },
+    "full_backend": {
+      "passed": 1095,
+      "skipped": 4,
+      "failed": 0,
+      "seconds": 76.03
+    },
+    "full_sqlite": {
+      "passed": 1099,
+      "skipped": 0,
+      "failed": 0,
+      "seconds": 212.9
+    },
+    "frontend": {
+      "passed": 34,
+      "failed": 0,
+      "lint": "PASS",
+      "typecheck_build": "PASS"
+    },
+    "python_correctness_lint": "PASS",
+    "external_https_mqtt": {
+      "verdict": "PASS",
+      "seconds": 14.61,
+      "persisted_events": 3,
+      "before_restore": {
+        "recorded": 3,
+        "duplicate": 1,
+        "rejected": 2,
+        "failed": 0
+      },
+      "after_restore": {
+        "recorded": 0,
+        "duplicate": 0,
+        "rejected": 1,
+        "failed": 0
+      },
+      "negative_observation_seconds": 0.75
+    },
+    "backup_restore_startup": "PASS schema10 integrity/FKs; preflight; health200, anonymous401, docs404",
+    "preservation": "PASS original 411 files, 3 configs/status, backup, protected refs; Lab unchanged",
+    "hosted_ci": "PENDING PUBLICATION",
+    "scope": "UTC validation correction, subscriber tests, CI coverage and release documentation; no Lab changes or deployment"
   },
   "tests_previous_session": {
     "full_backend_default_passed": 994,
@@ -172,7 +205,7 @@
     "open_medium": "SEC-STORAGE-003",
     "physical_safety": "BLOCKED; existing Astra handoff; no live actuators"
   },
-  "mission": "Final integration and GitHub release",
+  "mission": "Phase 3.5 timestamp correction review and release",
   "base_security_checkpoint": "6e350af",
   "mission_status": "SOFTWARE FOUNDATION VERIFIED FOR MAIN; RING AND PHYSICAL PILOT BLOCKED",
   "tests_security_checkpoint": {
@@ -251,10 +284,10 @@
     "workflow_yaml_syntax_permissions": "PASS",
     "hosted_ci_execution": "NOT TESTED"
   },
-  "final_report": "docs/NODUM_RELEASE_BASELINE.md",
+  "final_report": "docs/TIMESTAMP_RELEASE_REVIEW.md",
   "astra_final_handoff": "docs/ASTRA_FINAL_REVIEW_HANDOFF.md",
   "closure_backlog": "docs/PHASE1_CLOSURE_BACKLOG.md",
-  "phase2_status": "NOT STARTED BY THIS RELEASE ASSIGNMENT",
+  "phase2_status": "Building Lab Phase 3.5 a1f3c3c independently completed; no Lab work in this release",
   "tests_phase1_finalization": {
     "full_backend_default_passed": 1060,
     "full_backend_default_skipped": 3,
@@ -297,7 +330,7 @@
   "finalization_evidence": "docs/verification/review-finalization-20261016.json",
   "official_repository": "https://github.com/marwanehmamouchi05/nodum",
   "official_branch": "main",
-  "release_tag": "nodum-foundation-20261016",
+  "release_tag": "nodum-contact-timestamp-20261017",
   "tests_review": {
     "date": "2026-10-16",
     "base": "af7a3e1d75d526d754c016f8bc12f77f5c2327ee",
@@ -399,5 +432,26 @@
     "physical_hardware": "NOT TESTED",
     "simulator_implementation": "NOT STARTED",
     "separate_model_invocation": false
+  },
+  "tests_foundation_release": {
+    "backend_passed": 1085,
+    "backend_skipped": 4,
+    "backend_seconds": 106.37,
+    "sqlite_passed": 272,
+    "sqlite_seconds": 45.8,
+    "frontend_passed": 34,
+    "lint_build": "PASS",
+    "fresh_app_broker_frontend_install": "PASS",
+    "external_https_mqtt": "PASS 18.28s; 3 events, full-stop restore/revocation",
+    "mqtt_tls_auth_acl": "PASS",
+    "backup_restore_startup": "PASS schema10 integrity/FKs",
+    "proxy_browser": "PASS existing callback; fixture stopped",
+    "official_ring": "BLOCKED",
+    "physical_pilot": "NOT APPROVED",
+    "hosted_ci": {
+      "status": "PASS",
+      "run_id": 38975412602,
+      "candidate": "017c4f83415028961817cbab89f3270c3372dfe0"
+    }
   }
 }

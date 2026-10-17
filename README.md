@@ -1,5 +1,8 @@
 # Official release baseline
 
+Current maintenance release: [contact timestamp containment](docs/TIMESTAMP_RELEASE_REVIEW.md),
+tag `nodum-contact-timestamp-20261017`. Prior foundation checkpoints remain preserved.
+
 [Current release baseline](docs/NODUM_RELEASE_BASELINE.md): authoritative GitHub branch,
 verification, setup and separate Ring/pilot gates. Earlier reports are historical.
 

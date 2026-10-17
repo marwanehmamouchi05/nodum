@@ -7,7 +7,9 @@ hardware or merging the engineering branch. Preserve the c8db547 meeting demo.
 
 ## Official release starting point
 
-Use official GitHub `main` at tag `nodum-foundation-20261016`. See
+Use official GitHub `main` at tag `nodum-contact-timestamp-20261017`.
+This includes the reviewed Phase 3.5 timestamp containment correction; see
+[TIMESTAMP_RELEASE_REVIEW.md](TIMESTAMP_RELEASE_REVIEW.md). See
 [NODUM_RELEASE_BASELINE.md](NODUM_RELEASE_BASELINE.md) for publication and combined
 verification. The review checkout below is historical. No lab or deployment starts
 as part of this release.

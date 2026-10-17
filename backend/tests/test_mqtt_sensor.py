@@ -76,6 +76,52 @@ def test_wrong_topic_retained_cross_building_and_revocation(sensor):
     with pytest.raises(DomainError):ingest.receive(ingest.binding.topic,payload())
 
 
+@pytest.mark.parametrize('stamp', ['0001-01-01T00:00:00+14:00', '9999-12-31T23:59:59-12:00'])
+def test_subscriber_contains_timestamp_error_and_rechecks_authority(sensor, stamp):
+    from types import SimpleNamespace
+    from unittest.mock import Mock
+
+    ingest, repo, _ = sensor
+    subscriber = ContactSubscriber(ingest, host='127.0.0.1', loopback_fixture=True)
+    subscriber.status = 'subscribed'
+    client = Mock()
+    def deliver(body):
+        subscriber._message(client, None, SimpleNamespace(
+            topic=ingest.binding.topic, payload=body, retain=False))
+
+    deliver(payload(observed_at=stamp))
+    assert subscriber.counts == {'recorded': 0, 'duplicate': 0, 'rejected': 1, 'failed': 0}
+    assert not repo.list_operational_records('operation_activity')
+    deliver(payload())
+    rows = repo.list_operational_records('operation_activity')
+    assert len(rows) == 1 and rows[0]['observed_at'] == NOW.isoformat()
+    grant = repo.get_role_assignment('sensor-operator')
+    repo.save_role_assignment(grant.model_copy(update={'active': False}))
+    deliver(payload(event_id='after-revocation'))
+    assert subscriber.counts == {'recorded': 1, 'duplicate': 0, 'rejected': 2, 'failed': 0}
+    assert len(repo.list_operational_records('operation_activity')) == 1
+    assert subscriber.status == 'subscribed'
+    client.disconnect.assert_not_called()
+
+
+def test_subscriber_still_stops_on_storage_failure(sensor, monkeypatch):
+    from types import SimpleNamespace
+    from unittest.mock import Mock
+
+    ingest, repo, _ = sensor
+    subscriber = ContactSubscriber(ingest, host='127.0.0.1', loopback_fixture=True)
+    client = Mock()
+    def unavailable(*args, **kwargs):
+        raise RuntimeError('Synthetic storage outage')
+    monkeypatch.setattr(repo, 'save_operational_record', unavailable)
+    subscriber._message(client, None, SimpleNamespace(
+        topic=ingest.binding.topic, payload=payload(), retain=False))
+    assert subscriber.counts == {'recorded': 0, 'duplicate': 0, 'rejected': 0, 'failed': 1}
+    assert subscriber.status == 'storage_failed'
+    client.disconnect.assert_called_once()
+    assert not repo.list_operational_records('operation_activity')
+
+
 def test_restricted_viewer_cannot_read_sensor_activity(sensor):
     ingest,repo,_=sensor
     ingest.receive(ingest.binding.topic,payload())

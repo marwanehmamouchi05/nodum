@@ -1,5 +1,15 @@
 # Nodum official release baseline â€” 2026-10-16
 
+## Current maintenance release — 2026-10-17
+
+The contact timestamp containment correction supersedes the original foundation
+baseline for new Building Lab work. See [independent review](TIMESTAMP_RELEASE_REVIEW.md)
+and [measured results](verification/timestamp-release-20261017.json).
+Use official `main` at tag `nodum-contact-timestamp-20261017`; the original
+`nodum-foundation-20261016` tag below remains an unchanged recovery checkpoint.
+This is a focused reliability correction, not a new architecture or hardware capability.
+The following sections preserve the original foundation's dated release evidence.
+
 ## Repository and authoritative checkpoint
 
 Official repository: https://github.com/marwanehmamouchi05/nodum (private).

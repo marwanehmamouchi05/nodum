@@ -1,0 +1,54 @@
+{
+  "date": "2026-10-17",
+  "previous_main": "961e437eec954bbb0347a8cfe75bd67a42a1c5ea",
+  "original_fix": "dd262acf41dfef8f5c8d446e743d3db431742f8d",
+  "lab_checkpoint": "a1f3c3c5c432b437d0708ee5205545842ea687bf",
+  "independent_before_after": "PASS both range boundaries",
+  "lab_evidence_checksums_verified": 7,
+  "targeted_sqlite": {
+    "passed": 26,
+    "failed": 0,
+    "seconds": 2.67
+  },
+  "full_backend": {
+    "passed": 1095,
+    "skipped": 4,
+    "failed": 0,
+    "seconds": 76.03
+  },
+  "full_sqlite": {
+    "passed": 1099,
+    "skipped": 0,
+    "failed": 0,
+    "seconds": 212.9
+  },
+  "frontend": {
+    "passed": 34,
+    "failed": 0,
+    "lint": "PASS",
+    "typecheck_build": "PASS"
+  },
+  "python_correctness_lint": "PASS",
+  "external_https_mqtt": {
+    "verdict": "PASS",
+    "seconds": 14.61,
+    "persisted_events": 3,
+    "before_restore": {
+      "recorded": 3,
+      "duplicate": 1,
+      "rejected": 2,
+      "failed": 0
+    },
+    "after_restore": {
+      "recorded": 0,
+      "duplicate": 0,
+      "rejected": 1,
+      "failed": 0
+    },
+    "negative_observation_seconds": 0.75
+  },
+  "backup_restore_startup": "PASS schema10 integrity/FKs; preflight; health200, anonymous401, docs404",
+  "preservation": "PASS original 411 files, 3 configs/status, backup, protected refs; Lab unchanged",
+  "hosted_ci": "PENDING PUBLICATION",
+  "scope": "UTC validation correction, subscriber tests, CI coverage and release documentation; no Lab changes or deployment"
+}
