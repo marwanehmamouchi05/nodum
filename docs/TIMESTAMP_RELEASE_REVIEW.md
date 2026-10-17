@@ -81,3 +81,12 @@ verified. Physical hardware, deployment commissioning and safety gates remain op
 Phase 4 may use official main at the new release tag as its Nodum baseline under a
 separate assignment. Lab service authentication, task ownership, cancellation,
 concurrency budgets and evidence distinctions remain separate Phase 4 requirements.
+
+## Hosted release evidence
+
+[GitHub Actions run 39058670603](https://github.com/marwanehmamouchi05/nodum/actions/runs/39058670603)
+passed on `35d2d94f8438fecfbaa4fe9910e730a36f76018e`: backend/full regression,
+expanded SQLite batch, dependency/lint/format checks, external HTTPS/MQTT recovery,
+backup/startup and frontend tests/lint/build. This receipt adds documentation only.
+The final documentation commit must also pass hosted checks before promotion;
+its status is attached to the release tag's exact commit on GitHub and at delivery.

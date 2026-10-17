@@ -49,6 +49,23 @@
   },
   "backup_restore_startup": "PASS schema10 integrity/FKs; preflight; health200, anonymous401, docs404",
   "preservation": "PASS original 411 files, 3 configs/status, backup, protected refs; Lab unchanged",
-  "hosted_ci": "PENDING PUBLICATION",
+  "hosted_ci": {
+    "verdict": "PASS",
+    "run_id": 39058670603,
+    "commit": "35d2d94f8438fecfbaa4fe9910e730a36f76018e",
+    "url": "https://github.com/marwanehmamouchi05/nodum/actions/runs/39058670603",
+    "jobs": [
+      "backend",
+      "frontend"
+    ],
+    "includes": [
+      "full backend",
+      "expanded SQLite batch including timestamp boundaries",
+      "lint/format",
+      "external HTTPS/MQTT recovery",
+      "backup/startup",
+      "frontend tests/lint/build"
+    ]
+  },
   "scope": "UTC validation correction, subscriber tests, CI coverage and release documentation; no Lab changes or deployment"
 }

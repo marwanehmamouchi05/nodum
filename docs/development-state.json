@@ -98,8 +98,8 @@
     "INDEPENDENT-REVIEW-FINALIZATION"
   ],
   "original_preservation_verified": true,
-  "session_status": "TIMESTAMP_RELEASE_LOCAL_VALIDATION_COMPLETE",
-  "checkpoint_recovery": "Resume codex/timestamp-release until promotion; after publication use official main at nodum-contact-timestamp-20261017. Original dirty checkout and all historical refs remain protected.",
+  "session_status": "TIMESTAMP_CORRECTION_VERIFIED_FOR_RELEASE",
+  "checkpoint_recovery": "Official main release identity nodum-contact-timestamp-20261017; preserve original dirty checkout and historical refs.",
   "tests_current_session": {
     "date": "2026-10-17",
     "previous_main": "961e437eec954bbb0347a8cfe75bd67a42a1c5ea",
@@ -151,7 +151,24 @@
     },
     "backup_restore_startup": "PASS schema10 integrity/FKs; preflight; health200, anonymous401, docs404",
     "preservation": "PASS original 411 files, 3 configs/status, backup, protected refs; Lab unchanged",
-    "hosted_ci": "PENDING PUBLICATION",
+    "hosted_ci": {
+      "verdict": "PASS",
+      "run_id": 39058670603,
+      "commit": "35d2d94f8438fecfbaa4fe9910e730a36f76018e",
+      "url": "https://github.com/marwanehmamouchi05/nodum/actions/runs/39058670603",
+      "jobs": [
+        "backend",
+        "frontend"
+      ],
+      "includes": [
+        "full backend",
+        "expanded SQLite batch including timestamp boundaries",
+        "lint/format",
+        "external HTTPS/MQTT recovery",
+        "backup/startup",
+        "frontend tests/lint/build"
+      ]
+    },
     "scope": "UTC validation correction, subscriber tests, CI coverage and release documentation; no Lab changes or deployment"
   },
   "tests_previous_session": {
@@ -207,7 +224,7 @@
   },
   "mission": "Phase 3.5 timestamp correction review and release",
   "base_security_checkpoint": "6e350af",
-  "mission_status": "SOFTWARE FOUNDATION VERIFIED FOR MAIN; RING AND PHYSICAL PILOT BLOCKED",
+  "mission_status": "TIMESTAMP_DEFECT_RESOLVED; SOFTWARE FOUNDATION VERIFIED; RING AND PHYSICAL PILOT GATES UNCHANGED",
   "tests_security_checkpoint": {
     "full_backend_default_passed": 1038,
     "full_backend_default_skipped": 1,
