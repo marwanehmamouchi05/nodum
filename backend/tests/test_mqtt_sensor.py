@@ -54,6 +54,16 @@ def test_malformed_stale_and_unsupported_messages_rejected(sensor, body):
     assert not repo.list_operational_records('operation_activity')
 
 
+@pytest.mark.parametrize('stamp', ['0001-01-01T00:00:00+14:00', '9999-12-31T23:59:59-12:00'])
+def test_timestamp_normalization_range_is_validation_failure_and_collection_continues(sensor, stamp):
+    ingest, repo, _ = sensor
+    with pytest.raises(DomainError) as error:
+        ingest.receive(ingest.binding.topic, payload(observed_at=stamp))
+    assert error.value.status_code == 422
+    assert not repo.list_operational_records('operation_activity')
+    assert ingest.receive(ingest.binding.topic, payload()) == 'recorded'
+
+
 def test_wrong_topic_retained_cross_building_and_revocation(sensor):
     ingest,repo,_=sensor
     for topic,retained in [('nodum/other',False),(ingest.binding.topic,True)]:

@@ -4,9 +4,16 @@ from typing import Annotated
 from pydantic import AfterValidator, AwareDatetime, BaseModel, Field, model_validator
 
 
-UTCTimestamp = Annotated[
-    AwareDatetime, AfterValidator(lambda value: value.astimezone(timezone.utc))
-]
+def normalize_utc(value):
+    try:
+        return value.astimezone(timezone.utc)
+    except OverflowError:
+        # An offset can place a valid local date outside datetime's UTC range.
+        # Keep this an input validation failure, not an unexpected service fault.
+        raise ValueError("Timestamp is outside the representable UTC range") from None
+
+
+UTCTimestamp = Annotated[AwareDatetime, AfterValidator(normalize_utc)]
 NonEmptyString = Annotated[str, Field(min_length=1, pattern=r"\S")]
 
 
