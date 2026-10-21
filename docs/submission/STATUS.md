@@ -12,8 +12,8 @@
 - Configured the existing Nodum IAM user's credentials privately in Railway. This is staged configuration, not a claim that the running hosted process has activated it.
 - Fresh local UI sign-in, Manager role, official discovery button, custom offline/online scenario and immediate Security signal refresh were exercised. Official discovery and custom signals are visibly separate.
 - Prepared a secret-free upload package and activation helper that preserves the existing Railway database and stores reviewer credentials only in ignored local secrets.
-- Wrote project story, five feedback answers, AWS description, factual friction log, video script and owner instructions. Filled factual Additional info fields in the existing Devpost form; personal fields are not fabricated. Browser form values are pending the owner's completion/save.
-- Main repository was independently confirmed private using the existing authorized Git credential helper; current branch is main and repository permissions permit pushing. No repository visibility change was made.
+- Wrote project story, five feedback answers, AWS description, factual friction log, video script and owner instructions. Filled factual Additional info fields in the existing Devpost form; personal fields are not fabricated. The factual fields, solo entrant selection, repository URL and friction log have been saved in Devpost. Personal declarations and the video remain pending.
+- The owner authorized public judging access. The existing repository is now public with a detected MIT license; anonymous GitHub API access returned 200. A scan of 729 historical text blobs found no credential-pattern matches or tracked private material paths.
 
 ## Test evidence
 
@@ -22,16 +22,16 @@
 - Final Playground memory tests: **3 passed**.
 - Frontend: **34 passed**, lint, typecheck and packaged production build passed.
 - Python correctness lint and changed-file credential-pattern scan passed with no findings. This is a bounded scan, not a complete history/security audit.
-- Hosted CI on the published candidate must be checked separately; local tests do not stand in for its outcome.
+- GitHub CI passed on final application candidate `5c9a70d`; merged main `c278854` has the same tested tree. Run: https://github.com/marwanehmamouchi05/nodum/actions/runs/39621673735 .
 
 ## Still open
 
 1. Railway rejected two activation attempts with “Deploys have been paused temporarily.” Current live API still uses legacy_demo, so the new hosted UI, scoped synthetic accounts and hosted AWS answer are not yet accepted.
 2. Owner reports a trial expiring in nine days or at credit exhaustion. Paid hosting coverage is needed through November 20; no purchase was made.
 3. Official Ring production linking, inbound code-delivery transport and vendor-origin signed webhook delivery remain unverified. Playground discovery is a genuine official runtime call, with a temporary token and limited scope. Do not call it full live Ring integration or guaranteed hackathon eligibility.
-4. Final animation, recording and public video link are not produced. The 2:50 script is ready; planned animated intro is 25 seconds.
+4. A silent 25-second illustrated intro is prepared locally; final recording, narration and public video link remain pending. The 2:50 script is ready.
 5. Owner must complete factual personal/team declarations and final review in Devpost. The entry remains a draft until saved and submitted.
-6. Final private repository reviewer access/invitations need checking against current rules. No third party was granted access by this preparation.
+6. Public repository access is complete; judges need no invitations. Keep the repository accessible through judging and preserve the submitted release.
 7. No additional public Open Source contribution was created. AWS Builder is the recommended mini-challenge based on verified real inference; winning odds cannot be established.
 
 Use [OWNER_STEPS.md](OWNER_STEPS.md) for the exact remaining actions. Do not record or advertise hosted success until the final deployment passes.
