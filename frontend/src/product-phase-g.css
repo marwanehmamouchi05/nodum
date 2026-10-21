@@ -19,3 +19,5 @@
  .product-bar[data-multi-workspace=false][data-demo-controls=false] .product-account>span:first-child{font-size:12px;width:auto;min-width:0;flex:1;white-space:normal}
  .product-bar[data-multi-workspace=false][data-demo-controls=false] .product-account>button{margin:0}
 }
+
+.product-demo-panel button{min-height:44px}
