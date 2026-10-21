@@ -44,7 +44,9 @@ Use [OWNER_STEPS.md](OWNER_STEPS.md) for the exact remaining actions. Do not rec
 - Reopened saved Devpost fields: confirmed solo declarations, Ring/AWS selections, Open Source No, five feedback answers, 11 tags and two captioned screenshots. Testing URL and final video are blank. Saved and reopened a story correction explicitly identifying the package as locally verified and hosted activation as blocked; preview confirms it. No hosted credentials were added.
 - Railway deployment inventory still identifies `ad9e38c` (October 17) as the running release, with `backend` root, Dockerfile builder and `/data` volume. October 21 18:45 UTC status update still reports paused builds/deployments. API health is 200 but `/app/` and `/ring/playground/devices` are 404.
 - Private configuration snapshot saved in ignored secrets. Database backup attempt did not execute because CLI SSH has no configured key. Resolve this and verify a database backup before first deployment; preserve the old database and volume.
-- No application defect was established by this bounded review. Corrected stale upload/video/setup/repository notes. Hosted authentication, provider inference, restart persistence and responsive verification remain pending platform recovery.
+- Found and fixed a deployment configuration risk: automatic GitHub deploys were enabled although the repo backend build does not include the generated frontend. Disabled auto deploys and verified the UI state; future judge releases use the prepared package explicitly. The current service was not restarted.
+- Managed volume backups show none and require Pro on the current trial; no upgrade was made. The existing browser console remained at Connecting.
+- No application-code defect was established by this bounded review. Corrected stale upload/video/setup/repository notes. Hosted authentication, provider inference, restart persistence and responsive verification remain pending platform recovery.
 
 ## Current compliance checkpoints
 
