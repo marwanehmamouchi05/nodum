@@ -12,7 +12,8 @@ The following sections preserve the original foundation's dated release evidence
 
 ## Repository and authoritative checkpoint
 
-Official repository: https://github.com/marwanehmamouchi05/nodum (private).
+Official repository: https://github.com/marwanehmamouchi05/nodum (public with MIT license as of October 21).
+For the later hackathon candidate and external blockers, see [submission status](submission/STATUS.md). The history below is preserved as dated evidence.
 Default branch: `main`. Original local repository: `C:/dev/nodum`.
 Release checkout: `C:/Users/marwa/.codex/worktrees/release-20261016/nodum`.
 Final release commit: immutable tag `nodum-foundation-20261016^{commit}`.

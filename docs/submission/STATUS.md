@@ -30,8 +30,31 @@
 2. Owner reports a trial expiring in nine days or at credit exhaustion. Paid hosting coverage is needed through November 20; no purchase was made.
 3. Official Ring production linking, inbound code-delivery transport and vendor-origin signed webhook delivery remain unverified. Playground discovery is a genuine official runtime call, with a temporary token and limited scope. Do not call it full live Ring integration or guaranteed hackathon eligibility.
 4. A silent 25-second illustrated intro is prepared locally; final recording, narration and public video link remain pending. The 2:50 script is ready.
-5. Owner-confirmed personal and solo entrant fields are saved. The entry remains DRAFT, 3/5 steps done, pending the video and final review/submission. Image upload also requires enabling Chrome extension access to local file URLs.
+5. Owner-confirmed personal and solo entrant fields are saved. The entry remains DRAFT, 3/5 steps done, pending the video and final review/submission. Chrome local upload permission is enabled; two captioned screenshots and a thumbnail are saved.
 6. Public repository access is complete; judges need no invitations. Keep the repository accessible through judging and preserve the submitted release.
 7. No additional public Open Source contribution was created. AWS Builder is the recommended mini-challenge based on verified real inference; winning odds cannot be established.
 
 Use [OWNER_STEPS.md](OWNER_STEPS.md) for the exact remaining actions. Do not record or advertise hosted success until the final deployment passes.
+
+## Independent follow-up review — October 21
+
+- Fetched GitHub: main was `d002e98`; anonymous API confirms public visibility and MIT license. Application source in `artifacts/judge-package-final` matches the reviewed checkout; no dotenv/database/key paths were found in the package.
+- Ran focused SQLite checks for judge installation, official Playground permissions, product hosting and authentication origins: **44 passed**. The initial run had 32 passes and 12 fixture errors because the default Windows temporary folder was inaccessible; rerunning with a fresh unique temporary directory passed all 44.
+- Local packaged browser on port 8891: custom offline/online scenario saved two events and refreshed Manager Security automatically. At 390 × 844, demo controls and the Resident invitation form are readable and fit the viewport. A new synthetic Review Visitor was scheduled from mobile and remained visible after reload. A fresh local assistant question completed and correctly included that newly saved visitor. This is local evidence, not hosted acceptance.
+- Reopened saved Devpost fields: confirmed solo declarations, Ring/AWS selections, Open Source No, five feedback answers, 11 tags and two captioned screenshots. Testing URL and final video are blank. Saved and reopened a story correction explicitly identifying the package as locally verified and hosted activation as blocked; preview confirms it. No hosted credentials were added.
+- Railway deployment inventory still identifies `ad9e38c` (October 17) as the running release, with `backend` root, Dockerfile builder and `/data` volume. October 21 18:45 UTC status update still reports paused builds/deployments. API health is 200 but `/app/` and `/ring/playground/devices` are 404.
+- Private configuration snapshot saved in ignored secrets. Database backup attempt did not execute because CLI SSH has no configured key. Resolve this and verify a database backup before first deployment; preserve the old database and volume.
+- No application defect was established by this bounded review. Corrected stale upload/video/setup/repository notes. Hosted authentication, provider inference, restart persistence and responsive verification remain pending platform recovery.
+
+## Current compliance checkpoints
+
+[Official rules](https://amazonappdev2026.devpost.com/rules), rechecked October 21:
+submission deadline October 23 at 12:00 PDT (20:00 Africa/Casablanca); judging
+November 9–20 at 12:00 PST (21:00 Africa/Casablanca). Keep judging access through
+November 20 and preserve the submitted version. Final materials require an English
+public YouTube/Vimeo demo under three minutes, runnable source, track runtime use
+and product feedback. The Ring segment must show the app with an official simulator
+or device; retain official Playground discovery alongside the distinctly labeled
+custom event demonstration. AWS Builder needs its service-use description; a public
+main repository alone does not qualify as the additional Open Source contribution.
+Final submission and legal acceptance remain with the owner.

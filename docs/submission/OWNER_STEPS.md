@@ -25,12 +25,12 @@ The assistant can execute and verify deployment once the external block clears; 
 The source branch is `codex/hackathon-submission-20261021`. The isolated checkout is `C:/Users/marwa/.codex/worktrees/hackathon-submission/nodum`.
 
 1. Verify its checks and selected commit. In `frontend`, run `npm ci`, then return to the checkout root.
-2. Run `python tools/package_submission.py`. Use `--output artifacts/judge-package-new` if the default package already exists. The script copies only source/runtime files and the compiled interface, without dotenv files or databases.
-3. Back up the existing Railway configuration/database before switching modes. Keep the old database path available for recovery.
+2. The reviewed existing package is `artifacts/judge-package-final`; its backend source matches the application candidate and it contains the compiled interface. Reuse it if application source is unchanged. To rebuild, run `python tools/package_submission.py`. Use `--output artifacts/judge-package-new` if the default package already exists. The script copies only source/runtime files and the compiled interface, without dotenv files or databases.
+3. Back up the existing Railway configuration/database before the first code deployment, which may apply migrations even before judge activation. Keep the old database path available for recovery. A private configuration snapshot was saved during review; a database backup has NOT been completed. The current CLI requires an SSH key and its backup attempt stopped before execution. Establish an authorized SSH connection or use Railway volume backup, then verify the backup. With SSH available, the existing application supports `python -m app.maintenance backup --source /data/nodum.db --destination /data/nodum-before-judge-<unique-date>.db`; choose a new filename and retain the verified result. A configuration snapshot alone is not a database backup.
 4. Deploy the prepared package to the existing Railway service. It preserves the service's `backend` root. An example with explicit identifiers is:
 
 ```powershell
-railway up artifacts/judge-package --path-as-root --no-gitignore --project 72ebaa4a-9247-4771-8a75-ab46fd3e1113 --service nodum --environment production --detach
+railway up artifacts/judge-package-final --path-as-root --no-gitignore --project 72ebaa4a-9247-4771-8a75-ab46fd3e1113 --service nodum --environment production --detach
 ```
 
 5. After the code deployment succeeds, run `python tools/activate_judge_demo.py` from the checkout root. It checks that the new authenticated endpoint exists, saves a private recovery configuration, generates a private judge password and stages the required settings. The credentials stay in ignored `secrets/judge-reviewer-access.json`. Alternatively, configure these variables privately for the synthetic judge installation. Keep existing Ring signing/encryption keys stable. Generate a private random judge password of at least 24 characters and store it in private testing instructions, never source control.
@@ -64,9 +64,9 @@ An official token was generated with the owner's explicit approval and tested su
 5. Expect a sandbox device response. If expired or unavailable, report that honestly and renew it. Do not claim this verifies vendor-origin webhooks, physical control or durable live linking.
 6. Do not put the token into public source, videos, Devpost fields or frontend variables. The stored preparation token is in ignored local secret storage.
 
-## 5. Devpost personal declarations — owner action
+## 5. Devpost saved declarations and final owner review
 
-The existing [Nodum draft](https://devpost.com/submit-to/30992-build-ship-shape-amazon-developer-hackathon/manage/submissions/1203526-nodum/additional-info/edit) now reports DRAFT, 3/5 steps done. Solo entrant details, owner-confirmed personal answers/declarations, feedback, repository/friction-log URLs, story and technology tags have been saved. The following is the final review checklist; completed personal fields do not need re-entry. Image uploads currently need the owner to enable the Chrome extension’s “Allow access to file URLs” setting.
+The existing [Nodum draft](https://devpost.com/submit-to/30992-build-ship-shape-amazon-developer-hackathon/manage/submissions/1203526-nodum/additional-info/edit) now reports DRAFT, 3/5 steps done. Solo entrant details, owner-confirmed personal answers/declarations, feedback, repository/friction-log URLs, story and technology tags have been saved. The following is the final review checklist; completed personal fields do not need re-entry. Chrome local file upload permission is enabled. Two product screenshots with captions and the Nodum thumbnail are already saved; do not repeat the upload-permission setup.
 
 1. Choose Individual/Team/Organization accurately; confirm team members and organization details. Use N/A where appropriate.
 2. Confirm residence and any Canada-province field accurately.
@@ -78,7 +78,7 @@ The existing [Nodum draft](https://devpost.com/submit-to/30992-build-ship-shape-
 
 ## 6. Recording and video publication
 
-Follow `VIDEO_SCRIPT.md`. Produce the short illustrative animation after the actual walkthrough is stable. Final YouTube/Vimeo upload requires a signed-in channel and verification of public playback. A script/storyboard is not a final video.
+Follow `VIDEO_SCRIPT.md`. The silent 25-second illustrated intro already exists at `artifacts/video/nodum-intro-25s.webm`; the narrated walkthrough and final video remain pending. Final YouTube/Vimeo upload requires a signed-in channel and verification of public playback. A script/storyboard is not a final video.
 
 ## 7. Repository access and optional Open Source
 

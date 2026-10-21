@@ -55,4 +55,4 @@ Narration: “Nodum turns disconnected building tasks into a clear, reviewable w
 7. Review the exported video with sound and captions. Confirm no credentials, unsupported hardware claims or unreadable screens.
 8. Upload publicly to YouTube/Vimeo, verify signed-out playback, then place the link in Devpost.
 
-The animation is a planned asset; this document is not a claim that a final animation or video has been produced.
+The silent 25-second illustrated intro exists at `artifacts/video/nodum-intro-25s.webm`. Narration, recorded application footage and the final public video remain unfinished.

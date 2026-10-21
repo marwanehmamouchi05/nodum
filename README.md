@@ -1,15 +1,15 @@
 # Official release baseline
 
-Current maintenance release: [contact timestamp containment](docs/TIMESTAMP_RELEASE_REVIEW.md),
+Historical foundation maintenance release: [contact timestamp containment](docs/TIMESTAMP_RELEASE_REVIEW.md),
 tag `nodum-contact-timestamp-20261017`. Prior foundation checkpoints remain preserved.
 
-[Current release baseline](docs/NODUM_RELEASE_BASELINE.md): authoritative GitHub branch,
+[Dated foundation release baseline](docs/NODUM_RELEASE_BASELINE.md): authoritative GitHub branch,
 verification, setup and separate Ring/pilot gates. Earlier reports are historical.
 
 # Nodum
 
 Hackathon preparation: [current submission work and owner actions](docs/submission/OWNER_STEPS.md),
-[video script](docs/submission/VIDEO_SCRIPT.md), and [project story draft](docs/submission/DEVPOST_STORY.md).
+[current verification status](docs/submission/STATUS.md), [video script](docs/submission/VIDEO_SCRIPT.md), and [project story draft](docs/submission/DEVPOST_STORY.md).
 The optional judge package serves the product at `/app/` on the API origin; see
 `tools/package_submission.py` and the documented explicit synthetic installation.
 Official Playground discovery is distinct from the custom signed event demonstration.
@@ -20,7 +20,17 @@ Nodum brings building configuration, daily operations, resident services and bus
 
 ## Run the scoped product demo
 
-With backend dependencies installed in backend/.venv and frontend dependencies installed with npm ci, open two PowerShell terminals:
+Prerequisites: Python 3.13 and Node.js 24. From the repository root, create a new environment and install the pinned dependencies:
+
+```powershell
+python -m venv backend/.venv
+backend/.venv/Scripts/python.exe -m pip install -r backend/requirements.txt
+cd frontend
+npm ci
+cd ..
+```
+
+Then open two PowerShell terminals:
 
 ```powershell
 cd backend
