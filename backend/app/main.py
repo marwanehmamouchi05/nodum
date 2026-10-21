@@ -11,6 +11,10 @@ from app.api.resident import router as resident_router
 from app.api.business_workspace import router as business_workspace_router
 from app.api.demo import router as demo_router
 from app.services.auth import bootstrap_user
+from app.config import boolean
+from pathlib import Path
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import RedirectResponse
 from contextlib import asynccontextmanager
 from fastapi import Depends, FastAPI
 from fastapi.responses import JSONResponse
@@ -39,7 +43,11 @@ async def lifespan(app: FastAPI):
         repository.initialize(seed_demo=authorization_mode() == "legacy_demo")
     except (ValueError, OSError, RuntimeError, sqlite3.Error):
         raise ConfigurationError("Database startup failed; check DATABASE_URL, storage permissions and schema version") from None
-    bootstrap_user(repository, datetime.now(timezone.utc))
+    if boolean("NODUM_JUDGE_DEMO"):
+        from app.judge_demo import prepare_judge_demo
+        prepare_judge_demo(repository, datetime.now(timezone.utc))
+    else:
+        bootstrap_user(repository, datetime.now(timezone.utc))
     app.state.repository = repository
     app.state.agent_actions = PendingActionStore(repository)
     yield
@@ -95,8 +103,15 @@ def create_app():
         return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail},
                             headers={"Cache-Control": "no-store", "Referrer-Policy": "no-referrer"})
 
+    frontend = Path(__file__).resolve().parent / "web" / "product"
+    has_frontend = (frontend / "index.html").is_file()
+    if has_frontend:
+        application.mount("/app", StaticFiles(directory=frontend, html=True), name="product")
+
     @application.get("/")
     def root():
+        if has_frontend:
+            return RedirectResponse("/app/", status_code=307)
         return {"name": "Nodum API", "status": "running"}
 
     @application.get("/health")

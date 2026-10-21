@@ -18,6 +18,7 @@ RUN python -m pip install --no-cache-dir -r requirements.txt \
     && chown nodum:nodum /data
 
 COPY app ./app
+COPY demo_product.py ./demo_product.py
 USER 10001:10001
 EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \

@@ -38,8 +38,10 @@ export function ManagerWorkspace({ session }: { session: Session }) {
     const initial = window.setTimeout(() => void refresh(), 0)
     const clear = () => { generation.current++; setData(undefined); setDecision(undefined); setAnswer('') }
     const timer = window.setInterval(() => void refresh(), 60000)
+    const updateRing = () => { void refresh() }
+    window.addEventListener('nodum:ring-updated', updateRing)
     window.addEventListener('nodum:signed-out', clear)
-    return () => { clear(); clearTimeout(initial); clearInterval(timer); window.removeEventListener('nodum:signed-out', clear) }
+    return () => { clear(); clearTimeout(initial); clearInterval(timer); window.removeEventListener('nodum:ring-updated', updateRing); window.removeEventListener('nodum:signed-out', clear) }
   }, [refresh])
   function navigate(next: ManagerPage) { if (pages.includes(next)) { setPage(next); history.replaceState(null, '', '#Manager/' + encodeURIComponent(next)); setHelp(false); document.getElementById('manager-content')?.focus(); window.scrollTo(0, 0) } }
   const options = (action: keyof Snapshot['actions']) => data?.nodes.filter(n => data.actions[action].includes(n.id)).map(n => ({ value: n.id, label: n.name })) || []
