@@ -12,7 +12,7 @@
 - Configured the existing Nodum IAM user's credentials privately in Railway. This is staged configuration, not a claim that the running hosted process has activated it.
 - Fresh local UI sign-in, Manager role, official discovery button, custom offline/online scenario and immediate Security signal refresh were exercised. Official discovery and custom signals are visibly separate.
 - Prepared a secret-free upload package and activation helper that preserves the existing Railway database and stores reviewer credentials only in ignored local secrets.
-- Wrote project story, five feedback answers, AWS description, factual friction log, video script and owner instructions. Filled factual Additional info fields in the existing Devpost form; personal fields are not fabricated. The factual fields, solo entrant selection, repository URL and friction log have been saved in Devpost. Personal declarations and the video remain pending.
+- Wrote project story, five feedback answers, AWS description, factual friction log, video script and owner instructions. Filled factual Additional info fields in the existing Devpost form; personal fields are not fabricated. The factual fields, solo entrant selection, repository URL and friction log have been saved in Devpost. Owner-confirmed personal declarations are also saved; Devpost now reports DRAFT, 3/5 steps done. The video remains pending.
 - The owner authorized public judging access. The existing repository is now public with a detected MIT license; anonymous GitHub API access returned 200. A scan of 729 historical text blobs found no credential-pattern matches or tracked private material paths.
 
 ## Test evidence
@@ -30,7 +30,7 @@
 2. Owner reports a trial expiring in nine days or at credit exhaustion. Paid hosting coverage is needed through November 20; no purchase was made.
 3. Official Ring production linking, inbound code-delivery transport and vendor-origin signed webhook delivery remain unverified. Playground discovery is a genuine official runtime call, with a temporary token and limited scope. Do not call it full live Ring integration or guaranteed hackathon eligibility.
 4. A silent 25-second illustrated intro is prepared locally; final recording, narration and public video link remain pending. The 2:50 script is ready.
-5. Owner must complete factual personal/team declarations and final review in Devpost. The entry remains a draft until saved and submitted.
+5. Owner-confirmed personal and solo entrant fields are saved. The entry remains DRAFT, 3/5 steps done, pending the video and final review/submission. Image upload also requires enabling Chrome extension access to local file URLs.
 6. Public repository access is complete; judges need no invitations. Keep the repository accessible through judging and preserve the submitted release.
 7. No additional public Open Source contribution was created. AWS Builder is the recommended mini-challenge based on verified real inference; winning odds cannot be established.
 

@@ -66,7 +66,7 @@ An official token was generated with the owner's explicit approval and tested su
 
 ## 5. Devpost personal declarations — owner action
 
-The existing [Nodum draft](https://devpost.com/submit-to/30992-build-ship-shape-amazon-developer-hackathon/manage/submissions/1203526-nodum/additional-info/edit) was confirmed as DRAFT, 2/5 steps done.
+The existing [Nodum draft](https://devpost.com/submit-to/30992-build-ship-shape-amazon-developer-hackathon/manage/submissions/1203526-nodum/additional-info/edit) now reports DRAFT, 3/5 steps done. Solo entrant details, owner-confirmed personal answers/declarations, feedback, repository/friction-log URLs, story and technology tags have been saved. The following is the final review checklist; completed personal fields do not need re-entry. Image uploads currently need the owner to enable the Chrome extension’s “Allow access to file URLs” setting.
 
 1. Choose Individual/Team/Organization accurately; confirm team members and organization details. Use N/A where appropriate.
 2. Confirm residence and any Canada-province field accurately.
