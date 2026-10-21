@@ -260,11 +260,10 @@ class RingSimulationService:
         # deliveries. Without this, repeating a demo would 409.
         run_token = uuid.uuid4().hex[:10]
         delivered = []
-        step_at = now
         for index, step in enumerate(scenario["events"]):
-            # Each step advances the timestamp by one second so distinct
-            # events are visible in chronological order.
-            step_at = step_at + timedelta(seconds=index + 1)
+            # Keep the ordered burst at or before the click time. Future-dated
+            # steps could otherwise stay above a subsequently run scenario.
+            step_at = now - timedelta(milliseconds=len(scenario["events"]) - index - 1)
             delivered.append(self.deliver(step["kind"], step["device"], step_at,
                                           request_id=f"sim-{name}-{run_token}-{index}",
                                           event_id=f"evt-{name}-{run_token}-{index}"))

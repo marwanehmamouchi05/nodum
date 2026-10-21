@@ -13,7 +13,7 @@ PASSWORD = "Synthetic-demo-only-2026"
 PREFIX = "demo:reference:"
 
 
-def seed_demo(repo, now, *, presentation=False):
+def seed_demo(repo, now, *, presentation=False, password=PASSWORD):
     from app.models.authorization import Principal, Role, RoleAssignment, ResourceBinding, Permission as P
     from app.models.building import Person, PersonRole
     from app.models.structure import Affiliation
@@ -28,7 +28,7 @@ def seed_demo(repo, now, *, presentation=False):
     users = {}
     def account(name, label):
         repo.save_configured_person(Person(id=name, name=label + " (Synthetic)", role=PersonRole.EMPLOYEE))
-        users[name] = AuthService(repo, AuthSettings.from_env()).create_user(name, PASSWORD, name, now)
+        users[name] = AuthService(repo, AuthSettings.from_env()).create_user(name, password, name, now)
         return users[name]
     def grant(name, role, scope, permissions=None):
         repo.save_role_assignment(RoleAssignment(id=name+"-"+role.value, user_id=users[name].id,

@@ -67,6 +67,39 @@ def require_simulation_operator(principal: Principal, request: Request, reposito
 SimulationOperator = Annotated[RingPrincipal, Depends(require_simulation_operator)]
 
 
+@router.get("/playground/devices")
+def playground_devices(principal: SimulationOperator, service: Service, now: Now):
+    """Read official sandbox devices without importing a token as a live account."""
+    import os
+    from dataclasses import replace
+    from app.config import boolean
+    from app.integrations.ring.client import RingClient, RingRemoteError
+
+    if (service.settings.mode != "simulation" or
+            (os.getenv("APP_ENV", "development") != "development" and not boolean("NODUM_JUDGE_DEMO"))):
+        raise DomainError(403, "Official Playground checks are restricted to an explicit synthetic demo")
+    token = os.getenv("RING_PLAYGROUND_TOKEN", "").strip()
+    if not token:
+        raise DomainError(503, "Official Playground token is not configured; generate a fresh temporary token in the Ring console")
+    client = RingClient(replace(service.settings, api_base_url="https://api.amazonvision.com"))
+    result = client.api("GET", "/v1/devices", token)
+    records = result.get("data")
+    if not isinstance(records, list) or len(records) > 50:
+        raise RingRemoteError()
+    devices = []
+    for record in records:
+        if (not isinstance(record, dict) or record.get("type") != "devices"
+                or not isinstance(record.get("id"), str) or len(record["id"]) > 200
+                or not isinstance(record.get("attributes"), dict)):
+            raise RingRemoteError()
+        name = record["attributes"].get("name")
+        if not isinstance(name, str) or len(name) > 200:
+            raise RingRemoteError()
+        devices.append({"id": record["id"], "name": name})
+    return {"source": "official_ring_playground", "checked_at": now,
+            "devices": devices, "scope": "Discovery only; no webhook delivery, visitor identity or physical control verified"}
+
+
 @router.post("/token-exchange")
 def token_exchange(service: Service, now: Now,
                    code: Annotated[str, Depends(receive_verified_ring_code)]):

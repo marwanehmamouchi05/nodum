@@ -20,6 +20,7 @@ READ_ROUTES = {
     "/building/journeys/{journey_id}/transitions", "/ring/accounts",
     "/ring/accounts/{account_id}/devices", "/ring/accounts/{account_id}/events",
     "/ring/simulation", "/ring/simulation/devices", "/ring/simulation/events",
+    "/ring/playground/devices",
 }
 
 
@@ -67,7 +68,7 @@ async def authorize_application_request(request: Request, repository=Depends(get
         if route == "/building/devices/{device_id}/status":
             authorization.require(P.ACCESS_READ, "device", request.path_params["device_id"])
         if route.startswith("/ring/"):
-            if route.startswith("/ring/simulation"):
+            if route.startswith("/ring/simulation") or route == "/ring/playground/devices":
                 authorization.require(P.SIMULATION_RUN, "simulation", "ring")
             elif "account_id" in request.path_params:
                 authorization.require(P.RING_READ, "ring_account", ring_account_key(repository, request.path_params["account_id"]))

@@ -2,6 +2,7 @@
 **
 !Dockerfile
 !requirements.txt
+!demo_product.py
 !app/
 !app/**
 **/__pycache__/

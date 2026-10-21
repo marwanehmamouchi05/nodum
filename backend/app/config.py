@@ -88,6 +88,13 @@ def validate_startup(settings):
     from app.database import database_path
     from app.services.authorization import authorization_mode
 
+    if boolean("NODUM_JUDGE_DEMO"):
+        password = os.getenv("NODUM_JUDGE_PASSWORD", "")
+        if (authorization_mode() != "scoped" or os.getenv("RING_MODE") != "simulation"
+                or not 24 <= len(password) <= 128 or password == "Synthetic-demo-only-2026"
+                or not database_path().name.endswith("judge-demo.db")):
+            raise ConfigurationError("Judge demo requires scoped mode, explicit simulation, a private 24–128 character NODUM_JUDGE_PASSWORD and a separate *judge-demo.db database")
+
     if authorization_mode() == "scoped":
         from app.database import DEFAULT_DATABASE_URL
         if not os.getenv("DATABASE_URL") or database_path() == database_path(DEFAULT_DATABASE_URL):

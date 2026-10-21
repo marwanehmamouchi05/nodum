@@ -1,7 +1,7 @@
 import type { AgentResponse, Appointment, BuildingData, Credential, Decision, Device, DeviceStatus, Incident, Journey, RingDevice, RingEvent, RingSimulationDelivery, RingSimulationStatus, Scan, ToolResult, Transition } from './types'
 import { unavailableAgentResponse } from './agentResponse'
 
-export const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8000').replace(/\/$/, '')
+export const API_BASE = (import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? 'http://127.0.0.1:8000' : window.location.origin)).replace(/\/$/, '')
 export class ApiError extends Error { status: number; constructor(message: string, status: number) { super(message); this.status = status } }
 export class AgentUnavailableError extends ApiError {
   response: AgentResponse

@@ -8,6 +8,12 @@ verification, setup and separate Ring/pilot gates. Earlier reports are historica
 
 # Nodum
 
+Hackathon preparation: [current submission work and owner actions](docs/submission/OWNER_STEPS.md),
+[video script](docs/submission/VIDEO_SCRIPT.md), and [project story draft](docs/submission/DEVPOST_STORY.md).
+The optional judge package serves the product at `/app/` on the API origin; see
+`tools/package_submission.py` and the documented explicit synthetic installation.
+Official Playground discovery is distinct from the custom signed event demonstration.
+
 Nodum brings building configuration, daily operations, resident services and business tenants into one permission-controlled product. Building teams manage visitors, maintenance and notices; occupants see only information relevant to them.
 
 **Ring supplies arrival/security signals. Nodum adds building context, authorized workflows and deterministic policy.** Signed events are normalized and persisted for review. Ring does not identify a visitor, determine their destination or unlock a door. AI assists through authorized context and confirmed typed actions; it is not the security authority.

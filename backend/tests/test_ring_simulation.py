@@ -139,6 +139,7 @@ def test_each_scenario_returns_persisted_normalized_signals(simulation, scenario
     for event in delivered:
         saved = simulation.repository.get_ring_event(event["id"])
         assert saved.signal == event["signal"]
+        assert saved.occurred_at <= NOW
         assert event["is_simulation"] is True
         raw = saved.raw_payload.encode()
         signature = simulation._sign(raw, simulation.settings.signing_key)
@@ -156,6 +157,14 @@ def test_run_scenario_advances_timestamps(simulation):
     first_event = simulation.repository.get_ring_event(first["id"])
     second_event = simulation.repository.get_ring_event(second["id"])
     assert second_event.occurred_at > first_event.occurred_at
+
+
+def test_new_scenario_sorts_after_previous_burst(simulation):
+    first = simulation.run_scenario("after_hours_person", NOW)
+    second = simulation.run_scenario("device_lifecycle", NOW + timedelta(milliseconds=10))
+    earlier = [simulation.repository.get_ring_event(event["id"]).occurred_at for event in first]
+    later = [simulation.repository.get_ring_event(event["id"]).occurred_at for event in second]
+    assert max(earlier) < min(later)
 
 
 def test_unknown_scenario_rejected(simulation):

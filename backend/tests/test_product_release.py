@@ -41,6 +41,10 @@ def test_demo_controls_require_explicit_synthetic_authority(product,monkeypatch,
     assert api('GET','/demo/context',headers=headers(repo,users['demo-manager'].id))[1]['available']
     monkeypatch.setenv('APP_ENV','production')
     assert demo_context(auth('demo-manager'))=={'available':False}
+    monkeypatch.setenv('NODUM_JUDGE_DEMO','true')
+    assert demo_context(auth('demo-manager'))['available']
+    assert demo_context(auth('demo-resident'))=={'available':False}
+    monkeypatch.delenv('NODUM_JUDGE_DEMO')
     monkeypatch.setenv('APP_ENV','development')
     node=repo.get_structure_node(PREFIX+'building')
     repo.save_structure_node(node.model_copy(update={'demo':False}))

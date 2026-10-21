@@ -1,0 +1,39 @@
+# Devpost feedback drafts
+
+These answers describe observed behavior. Recheck hosted activation before final submission.
+
+## Field 5
+
+https://github.com/marwanehmamouchi05/nodum
+
+## Field 9
+
+Nodum uses Amazon Bedrock through the Boto3 Converse API with Amazon Nova (eu.amazon.nova-2-lite-v1:0, eu-north-1). The assistant asks bounded tools for authorized building context and returns explanations or typed, confirmation-required proposals. Backend authorization and deterministic policy remain the authority. During preparation we verified real model inference and a successful scoped manager_operations tool result. The local Guide and ordinary forms remain available when inference is unavailable. Hosted activation still requires deployment verification; our AWS use is not inferred from Railway hosting.
+
+## Field 19
+
+Ring REST API and Ring Developers Playground: official sandbox device discovery inside Nodum. Nodum also implements a signed Ring-envelope ingestion pipeline, demonstrated with separately labeled custom synthetic events. Amazon Bedrock / Amazon Nova and Boto3: natural-language assistance with scoped building tools. React and TypeScript: role-specific browser workspaces. FastAPI and SQLite: authenticated APIs, resource permissions and persistent records. Railway: backend hosting and persistent storage. GitHub: source and automated checks. Codex and Context7 supported implementation/documentation work; browser automation supported verification.
+
+## Field 20
+
+Ring: the official Playground provided a quick, hardware-free way to obtain a temporary token and verify the documented device-list API. The official response also worked through our server-side adapter inside Nodum. Bedrock/Boto3: a real Converse call succeeded using the existing local credential provider chain; a scoped Manager question completed with a successful manager_operations tool result. React/TypeScript and FastAPI/SQLite supported clear workspace boundaries and repeatable tests. Railway preserved a running backend and volume while the October 21 platform incident blocked new deployments. GitHub provided a reviewable source baseline and automated checks.
+
+## Field 21
+
+Ring: our temporary Playground session lasts 30 minutes and does not itself establish production account linking or signed webhook delivery. A clearer documented sandbox-to-application walkthrough covering token handling, event provenance and webhook testing would reduce ambiguity. Our inbound production code-delivery adapter remains intentionally disabled pending a verified contract. Bedrock/Boto3: local credentials did not automatically exist in the hosted environment, producing a generic unavailable response; we need clearer deployment preflight diagnostics without exposing credentials. Railway: the October 21 incident paused builds/redeployments, preventing immediate activation of the configured fix. These are distinct integration/hosting issues, not evidence of a Bedrock service outage.
+
+## Field 22
+
+Ring onboarding reached an official device-list response using the signed-in Developers Playground without hardware. Connecting that sandbox evidence to the product required keeping temporary credentials separate from live account linking and from our custom event signer. Bedrock onboarding reached real inference locally through the standard Boto3 credential chain; hosted readiness needed separate environment configuration and verification. React/TypeScript, FastAPI and SQLite were integrated into the existing application rather than reinitializing it. Railway startup was verified independently from frontend access and provider availability; a healthy backend endpoint alone was insufficient proof.
+
+## Field 23
+
+Yes. Ring is useful for building arrival context, provided we preserve the distinction between a sensor signal, visitor identity and operator authorization. Bedrock and Boto3 are useful for bounded assistance over authorized application tools, with confirmation for writes and a working provider-unavailable fallback. We would continue using React/TypeScript, FastAPI, SQLite and GitHub for this scoped product. We would use Railway with paid hosting coverage, persistent storage and a tested recovery path, while accounting for platform deployment incidents. We would continue using AI development assistance with independent tests and human review of product claims.
+
+## Field 15
+
+Important: provide a Ring sandbox walkthrough that takes an authorized Playground session through server-side discovery and signed event delivery into a sample app, clearly labeling simulated versus device-origin data. Important: provide a documented reusable test-account lifecycle or token-renewal path suitable for multi-day project review. Nice-to-have: an AWS deployment preflight example for Bedrock that checks credential presence, region/model permissions and a minimal real inference request while redacting credentials.
+
+## Field 27
+
+Codex was used for implementation, debugging, test preparation and submission preparation. Amazon Nova through Amazon Bedrock is the runtime assistant model; its real inference and scoped tool use were separately verified. Context7 supported targeted current documentation retrieval. AI-generated suggestions were checked against application permissions, tests and observed behavior. We do not claim use of other AI tools without a confirmed project record.
