@@ -52,7 +52,8 @@ class BedrockGateway:
                 self._client = boto3.client(
                     "bedrock-runtime", region_name=self.settings.region,
                     config=Config(connect_timeout=3, read_timeout=25,
-                                  retries={"mode": "standard", "total_max_attempts": 2}),
+                                  retries={"mode": "standard", "total_max_attempts":
+                                           1 if os.getenv("NODUM_ABUSE_PROTECTION", "false").lower() == "true" else 2}),
                 )
             return self._client.converse(
                 modelId=self.settings.model_id, messages=messages, system=system,

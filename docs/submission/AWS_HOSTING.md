@@ -27,6 +27,12 @@ policies. A full instance reboot passed, including fresh real Bedrock inference
 and preservation of accounts, custom Ring events and product-operation records.
 This is one server, not a highly available cluster or a promise of zero outages.
 
+The server now also enables [AI allowances and abuse controls](../abuse-protection.md):
+persistent daily/monthly provider quotas, one AI question at a time, per-IP/global
+web admission limits, proxy size/time limits, container resource caps and bounded
+logs. Ordinary forms and the local Guide remain available when AI is limited.
+The old laptop Quick Tunnel has been retired so it cannot bypass these controls.
+
 ## Backups and recovery
 
 A systemd timer creates a consistent SQLite backup every twelve hours and retains

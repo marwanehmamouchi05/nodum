@@ -2,6 +2,20 @@
 
 ## Current verified deployment and video
 
+- Live abuse controls now bound HTTP request rates, concurrent requests, request
+  size/time, container resources and log growth. Persistent AI allowances reserve
+  before each model attempt: 40 calls per UTC day and 200 per UTC month, with
+  input/output bounds and one concurrent question. Ordinary forms remain available.
+  Public size/header checks, controlled local rate rejection, actual hosted AI
+  and ledger persistence across a container restart passed.
+- Current backend verification: **1,118 passed, 4 skipped**; Python correctness
+  lint and whitespace checks passed. See [abuse protection](../abuse-protection.md)
+  for exact limits and operational constraints.
+- AWS Free plan remains active with $119.99 displayed credits on October 22.
+  The existing $20 budget alerts at $10/$16/$20 now exclude credit/refund offsets.
+  Alerts are delayed, not automatic shutdowns or an AWS-wide dollar cap.
+- PHP audit found no PHP application/runtime on the host or either running
+  container; PHP CVE-2026-109618 and CVE-2026-109619 do not apply to this deployment.
 - Active HTTPS demo: https://nodum.54-173-165-46.sslip.io/app/ . AWS EC2,
   encrypted persistent storage, fixed public address and automatic container recovery;
   the entrant computer can be switched off.

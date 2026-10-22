@@ -23,6 +23,7 @@ from app.config import AppSettings, ConfigurationError, validate_startup
 from app.sqlite_repository import SQLiteRepository
 from app.services.errors import DomainError
 from app.request_limits import RequestLimitsMiddleware
+from app.abuse_protection import UsageGuard, TrafficLimitsMiddleware
 
 from app.api.access import router as access_router
 from app.api.guests import router as guests_router
@@ -50,6 +51,16 @@ async def lifespan(app: FastAPI):
         bootstrap_user(repository, datetime.now(timezone.utc))
     app.state.repository = repository
     app.state.agent_actions = PendingActionStore(repository)
+    app.state.usage_guard = None
+    if boolean("NODUM_ABUSE_PROTECTION"):
+        import os
+        database = os.environ.get("DATABASE_URL", "")
+        if not database.startswith("sqlite:///"):
+            raise ConfigurationError("Abuse protection requires persistent SQLite storage")
+        ledger = Path(database.removeprefix("sqlite:///")).with_name("nodum-ai-usage.db")
+        if not ledger.is_absolute():
+            raise ConfigurationError("Abuse protection requires an absolute database path")
+        app.state.usage_guard = UsageGuard(ledger)
     yield
 
 
@@ -67,6 +78,7 @@ def create_app():
         allow_headers=["Authorization", "Content-Type", "X-CSRF-Token"],
     )
     application.add_middleware(RequestLimitsMiddleware)
+    application.add_middleware(TrafficLimitsMiddleware)
     for router in (access_router, guests_router, appointments_router,
                    emergencies_router, agent_router, ring_router, building_router, auth_router, authorization_router):
         guards = [] if router in (auth_router, authorization_router) else [Depends(authorize_application_request)]

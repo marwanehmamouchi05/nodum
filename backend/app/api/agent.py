@@ -9,6 +9,7 @@ from app.services.agent_actions import PendingActionStore
 from app.services.agent_tools import AgentTools, confirm_action
 from app.services.errors import DomainError
 from app.services.orchestrator import run_agent
+from app.abuse_protection import MeteredGateway
 
 
 router = APIRouter(prefix="/agent", tags=["agent"])
@@ -42,7 +43,13 @@ def chat(payload: AgentRequest, request: Request, repository: Repository = Depen
     if authorization:
         payload = payload.model_copy(update={"actor_id": authorization.principal.person_id})
     tools = AgentTools(repository, actions, payload.actor_id, clock, authorization)
-    response = run_agent(payload, gateway, tools, settings)
+    guard = getattr(request.app.state, "usage_guard", None)
+    if guard and settings.enabled:
+        identity = authorization.principal.user_id if authorization else "legacy-demo"
+        with guard.question(identity):
+            response = run_agent(payload, MeteredGateway(gateway, guard, settings), tools, settings)
+    else:
+        response = run_agent(payload, gateway, tools, settings)
     if response.status == "unavailable":
         return JSONResponse(status_code=503, content=response.model_dump(mode="json"))
     return response
