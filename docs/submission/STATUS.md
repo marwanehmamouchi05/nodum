@@ -60,3 +60,26 @@ or device; retain official Playground discovery alongside the distinctly labeled
 custom event demonstration. AWS Builder needs its service-use description; a public
 main repository alone does not qualify as the additional Open Source contribution.
 Final submission and legal acceptance remain with the owner.
+
+## Free public fallback — October 22
+
+Railway CLI login restored successfully; Trial builds still unavailable. A separate
+production-mode synthetic installation is now publicly reachable through a free
+Cloudflare Quick Tunnel. Public login, secure cookies, scoped mode, resident and
+business/staff denial of operator discovery, CSRF rejection, signed simulation,
+mobile controls, and real Bedrock/Nova Manager tool response passed. Database
+integrity/foreign-key backup verification passed; all nine accounts and both saved
+Ring events survived application restart, followed by another successful live
+assistant and role/CSRF verification.
+
+The temporary URL and private synthetic reviewer accounts are saved and reopened
+in Devpost's private testing fields. No provider secrets are in those fields.
+This is provisional availability: the entrant computer must remain powered and
+connected; Quick Tunnel URLs change on tunnel restart. It is not accepted as a
+stable month-long hosted deployment. Railway service and existing data remain intact.
+No hosting purchase was made; the owner reaffirmed free hosting only.
+
+AWS key rotation remains pending: current IAM credentials cannot list/manage keys,
+and AWS console needs owner sign-in. Railway's October 21 security disclosure
+recommends rotation of environment credentials; no Nodum-specific compromise is
+asserted. Final video and final submission remain incomplete.
