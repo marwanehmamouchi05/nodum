@@ -1,4 +1,33 @@
-# Submission preparation — October 21, 2026
+# Submission preparation — current update October 22, 2026
+
+## Current verified deployment and video
+
+- Active HTTPS demo: https://nodum.54-173-165-46.sslip.io/app/ . AWS EC2,
+  encrypted persistent storage, fixed public address and automatic container recovery;
+  the entrant computer can be switched off.
+- Scoped synthetic logins, restricted-role denials, invalid-CSRF rejection, a real
+  Bedrock/Nova Manager tool response and the custom signed visitor-arrival scenario
+  passed against the hosted installation.
+- Full EC2 reboot acceptance passed: nine accounts, eight Ring events and nineteen
+  product-operation records persisted; database integrity passed. Services restarted
+  automatically and a fresh real assistant request succeeded after reboot.
+- Consistent SQLite backups run twice daily with fourteen retained copies on the
+  persistent volume. An initial EBS recovery snapshot is separate from the instance.
+- Runtime AWS access uses a dedicated EC2 role with Nova inference permission.
+  The previous long-lived key was deactivated after replacement verification.
+- Approved English narrated video: https://youtu.be/ITCj4CzEHEg . Actual playback
+  duration 2:55, unlisted link access, copyright check clear. Video saved in Devpost;
+  draft now reports four of five steps complete. Final submission remains an owner action.
+- Existing AWS credits fund this deployment; no paid plan upgrade or subscription
+  was purchased. The current Free plan ends March 28, 2027 or at credit exhaustion.
+  Approximate base hosting consumption is $13/month before model usage and backups.
+- Official Ring discovery remains historical, temporary sandbox evidence. Production
+  linking, vendor-origin webhook delivery and physical unlocking remain unverified.
+
+See [AWS hosting and recovery](AWS_HOSTING.md). The dated sections below preserve
+earlier evidence and blockers; they do not override this current acceptance.
+
+## Historical preparation — October 21
 
 ## Completed and independently checked
 

@@ -1,5 +1,24 @@
 # Actions requiring the owner or external recovery
 
+## Current state — October 22
+
+The active judge deployment is [AWS-hosted Nodum](https://nodum.54-173-165-46.sslip.io/app/).
+It runs independently of the entrant computer. Scoped reviewer access, CSRF,
+signed simulation, real Bedrock/Nova tool use and database persistence after a
+full EC2 reboot passed. See [AWS hosting and recovery](AWS_HOSTING.md).
+The approved narrated [2:55 video](https://youtu.be/ITCj4CzEHEg) is published
+as unlisted, so judges can watch with the link. AWS credential rotation is complete;
+the old key is inactive and the application uses a restricted server role.
+
+Remaining owner actions: review the final saved Devpost preview and perform the
+final submission/any required legal acceptance before the deadline. Keep the AWS
+account, credits and public repository available through judging. No paid billing
+upgrade was enabled. The AWS Free plan is credit/time limited, not permanent hosting.
+
+The Railway procedures below are retained as historical recovery instructions.
+Railway billing/redeployment and the earlier laptop tunnel are not prerequisites
+for using the accepted AWS judge deployment. Do not reactivate old AWS credentials.
+
 ## 1. Railway billing — owner action
 
 1. Open the existing [Railway project](https://railway.com/project/72ebaa4a-9247-4771-8a75-ab46fd3e1113).

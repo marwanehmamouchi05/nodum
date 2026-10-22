@@ -30,7 +30,7 @@ The assistant receives authorized context. Write tools produce typed proposals; 
 
 ## How I built it
 
-The product uses React and TypeScript, a FastAPI backend and SQLite persistence. Sessions, exact-origin CSRF protection and resource permissions constrain application access. The prepared judge package serves the interface and APIs from one origin and supports a separate persistent synthetic database with private reviewer passwords. It is verified locally; hosted activation is still blocked by the Railway deployment incident.
+The product uses React and TypeScript, a FastAPI backend and SQLite persistence. Sessions, exact-origin CSRF protection and resource permissions constrain application access. The judge package serves the interface and APIs from one HTTPS origin on AWS EC2, with a separate persistent synthetic database and private reviewer passwords. Hosted role boundaries, signed simulation, real Bedrock tool use and persistence after a full server reboot were independently checked. The server uses a restricted IAM role rather than a stored AWS access key.
 
 Automated tests cover product workflows, scope boundaries, Ring signature/replay behavior, persistence and failure handling. External service verification is recorded separately from mocked regression tests.
 
@@ -48,4 +48,4 @@ Complete production Ring account linking and vendor-origin webhook verification,
 
 ## Verification note for final submission
 
-Before publishing this story, attach the final video and tested release URL. The local package has verified official Ring discovery and Bedrock inference; Railway activation was still blocked by its deployment incident during preparation. Do not claim the hosted chatbot or final website passed until that deployment is tested.
+The approved 2:55 video is published as an unlisted YouTube link and saved in the Devpost draft. The AWS-hosted judge installation has passed real inference and reboot checks. Official Ring discovery in the video is earlier sandbox evidence; it does not claim production linking or vendor-origin webhook delivery. Final owner review and submission remain pending.

@@ -8,6 +8,14 @@ verification, setup and separate Ring/pilot gates. Earlier reports are historica
 
 # Nodum
 
+**Hosted hackathon demo:** [Open Nodum](https://nodum.54-173-165-46.sslip.io/app/)
+and [watch the 2:55 walkthrough](https://youtu.be/ITCj4CzEHEg).
+Private synthetic reviewer accounts are supplied to judges through Devpost.
+The October 22 AWS deployment passed scoped login/CSRF checks, signed simulation,
+real Bedrock/Nova tool use, and persistence after a full server reboot.
+See [hosting and recovery](docs/submission/AWS_HOSTING.md) for the tested scope,
+credit-funded availability and remaining Ring integration limits.
+
 Hackathon preparation: [current submission work and owner actions](docs/submission/OWNER_STEPS.md),
 [current verification status](docs/submission/STATUS.md), [video script](docs/submission/VIDEO_SCRIPT.md), and [project story draft](docs/submission/DEVPOST_STORY.md).
 The optional judge package serves the product at `/app/` on the API origin; see
