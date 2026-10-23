@@ -187,7 +187,7 @@ class ResidentService:
                    and (b := self.repo.get_resource_binding("device", d.id)) and any(scope in self.auth.ancestors(b.scope_id) for scope in homes)
                    for d in self.repo.list_building_devices()):
                 result.append({"id": event.id, "at": event.occurred_at, "message": "Someone is at your doorbell. Identity not verified.",
-                    "simulated": event.account_id == "simulation.playground" or event.source.startswith("simulation:")})
+                    "simulated": event.account_id == "simulation.playground" or event.source.startswith(("simulation:", "playground:"))})
         return sorted(result, key=lambda e: e["at"], reverse=True)[:10]
 
     def snapshot(self):

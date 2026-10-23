@@ -41,9 +41,8 @@ def require_ring_principal(request: Request, user=Depends(get_current_user),
 
 
 def receive_verified_ring_code() -> str:
-    # Public docs specify server-to-server POST delivery but do not specify the
-    # incoming encoding/auth contract. Install a Ring-confirmed adapter here.
-    # Do not guess that this delivery has the webhook envelope/signature.
+    # Production code delivery is separate from the hardware-free Playground.
+    # Keep this closed until its vendor transport contract is verified.
     raise DomainError(503, "Ring token delivery adapter is not configured")
 
 
@@ -51,6 +50,25 @@ Service = Annotated[RingService, Depends(get_ring_service)]
 Simulation = Annotated[RingSimulationService, Depends(get_ring_simulation)]
 Principal = Annotated[RingPrincipal, Depends(require_ring_principal)]
 Now = Annotated[datetime, Depends(utc_now)]
+
+
+def playground_service(service):
+    import os
+    from dataclasses import replace
+    from app.config import boolean
+    from app.services.ring_playground import PlaygroundService
+    if (service.settings.mode != "simulation" or
+            (os.getenv("APP_ENV", "development") != "development" and not boolean("NODUM_JUDGE_DEMO"))):
+        raise DomainError(403, "Official Playground checks are restricted to an explicit synthetic demo")
+    return PlaygroundService(service.repository, replace(service.settings, api_base_url="https://api.amazonvision.com"))
+
+
+def playground_scope(request, service):
+    authorization = getattr(request.state, "authorization", None)
+    if authorization:
+        authorization.require(P.SIMULATION_RUN, "simulation", "ring")
+        return service.repository.get_resource_binding("simulation", "ring").scope_id
+    return "legacy-demo"
 
 
 def require_simulation_operator(principal: Principal, request: Request, repository=Depends(get_repository)):
@@ -106,9 +124,44 @@ def token_exchange(service: Service, now: Now,
     return service.receive_code(code, now)
 
 
+@router.get("/playground/evidence")
+def playground_evidence(request: Request, principal: SimulationOperator, service: Service):
+    return playground_service(service).evidence(playground_scope(request, service))
+
+
+@router.post("/playground/sync")
+def sync_playground(request: Request, principal: SimulationOperator, service: Service, now: Now):
+    import os
+    playground = playground_service(service)
+    scope_id = playground_scope(request, service)
+    guard = getattr(request.app.state, "usage_guard", None)
+    if guard:
+        try:
+            guard.reserve([("ring-playground-minute", now.strftime("%Y-%m-%dT%H:%M"), "all", 1, 2)])
+        except DomainError as exc:
+            if exc.status_code == 429:
+                raise DomainError(429, "Official sandbox sync is limited to two checks per minute. Stored evidence remains available.") from None
+            raise
+    return playground.sync(os.getenv("RING_PLAYGROUND_TOKEN", "").strip(), scope_id, now,
+                           authorize=lambda: playground_scope(request, service))
+
+
 @router.post("/link")
-def claim_account(payload: RingLinkInput, principal: Principal, service: Service, now: Now):
-    return service.claim(payload, principal, now)
+def claim_account(payload: RingLinkInput, principal: Principal, service: Service, now: Now, request: Request):
+    result = service.claim(payload, principal, now)
+    authorization = getattr(request.state, "authorization", None)
+    if authorization:
+        with service.repository.transaction():
+            authorization.require(P.RING_MANAGE, "ring_link", "installation")
+            scope_id = service.repository.get_resource_binding("ring_link", "installation").scope_id
+            from app.services.ring import identity
+            bind_created(service.repository, "ring_account", identity(service.settings.environment, result["account_id"]), scope_id)
+            # Ring may deliver device events before the user finishes linking.
+            # Only this independently verified account inherits the chosen scope.
+            for event in service.repository.list_ring_events():
+                if event.environment == service.settings.environment and event.account_id == result["account_id"]:
+                    bind_created(service.repository, "ring_event", event.id, scope_id)
+    return result
 
 
 def link_redirect_input(nonce: Annotated[str, Query()],
@@ -153,8 +206,16 @@ async def webhook(request: Request, service: Service, now: Now):
         body.extend(chunk)
         if len(body) > 1_048_576:
             raise DomainError(413, "Ring webhook exceeds maximum size")
-    return await run_in_threadpool(service.receive_event, bytes(body),
-                                   request.headers.get("x-signature"), now)
+    result = await run_in_threadpool(service.receive_event, bytes(body),
+                                    request.headers.get("x-signature"), now)
+    from app.services.ring import identity
+    with service.repository.transaction():
+        event = service.repository.get_ring_event(result["id"])
+        account = service.repository.get_ring_account(identity(event.environment, event.account_id))
+        binding = service.repository.get_resource_binding("ring_account", identity(event.environment, event.account_id))
+        if account and account.status == "completed" and binding:
+            bind_created(service.repository, "ring_event", event.id, binding.scope_id)
+    return result
 
 
 @router.get("/accounts/{account_id}/events")

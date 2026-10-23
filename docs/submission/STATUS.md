@@ -8,7 +8,7 @@
   input/output bounds and one concurrent question. Ordinary forms remain available.
   Public size/header checks, controlled local rate rejection, actual hosted AI
   and ledger persistence across a container restart passed.
-- Current backend verification: **1,118 passed, 4 skipped**; Python correctness
+- Current backend verification: **1,132 passed, 4 skipped**; Python correctness
   lint and whitespace checks passed. See [abuse protection](../abuse-protection.md)
   for exact limits and operational constraints.
 - AWS Free plan remains active with $119.99 displayed credits on October 22.
@@ -35,8 +35,18 @@
 - Existing AWS credits fund this deployment; no paid plan upgrade or subscription
   was purchased. The current Free plan ends March 28, 2027 or at credit exhaustion.
   Approximate base hosting consumption is $13/month before model usage and backups.
-- Official Ring discovery remains historical, temporary sandbox evidence. Production
-  linking, vendor-origin webhook delivery and physical unlocking remain unverified.
+- Official Ring Playground history now drives the hosted scoped Ring inbox: one
+  device and two on-demand/live-view records imported from the actual official API.
+  The dated evidence is stored; temporary token expiry does not erase it. Resident
+  and business denials and invalid-CSRF rejection passed. See [Playground integration](../ring-playground.md).
+  Production linking, vendor-origin webhooks and physical unlocking remain unverified.
+- October 23 final hosted acceptance: the two official records survived the app
+  restart; a repeat official import read both and saved zero duplicates. Manager
+  Security and Activity display their source. Fresh hosted Bedrock returned
+  `completed`; database integrity, the AI usage ledger and the backup timer passed.
+  Devpost story, judge instructions and a third screenshot are saved; final legal
+  acceptance and submission remain with the owner. Final presentation checks:
+  34 frontend tests, lint/build/typecheck and 32 Manager tests passed.
 
 See [AWS hosting and recovery](AWS_HOSTING.md). The dated sections below preserve
 earlier evidence and blockers; they do not override this current acceptance.

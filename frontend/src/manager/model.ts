@@ -13,7 +13,7 @@ export type Snapshot = { at: string; operator_name: string; buildings: Node[]; n
   maintenance: Maintenance[]; announcements: { id: string; title: string; message: string; audience: string; location_id: string; publish_at: string; expires_at: string | null; demo: boolean }[];
   visitors: Visitor[]; devices: { id: string; name: string; status: string; location: string; simulated: boolean }[];
   incidents: { id: string; description: string; status: string; severity: string; locations: string[] }[];
-  ring: { id: string; at: string; signal: string; status: string; simulated: boolean; description: string; location_id?: string | null }[];
+  ring: { id: string; at: string; signal: string; status: string; simulated: boolean; source?: string; description: string; location_id?: string | null }[];
   activity: { id: string; at: string; what: string; who: string; where: string; result: string; simulated: boolean }[];
   access_people: { id: string; name: string }[]; access_zones: { id: string; name: string }[];
   permissions: { id: string; person: string; zones: string[]; start: string; end: string; reason: string }[];

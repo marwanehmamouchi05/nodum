@@ -20,7 +20,7 @@ Hackathon preparation: [current submission work and owner actions](docs/submissi
 [current verification status](docs/submission/STATUS.md), [video script](docs/submission/VIDEO_SCRIPT.md), and [project story draft](docs/submission/DEVPOST_STORY.md).
 The optional judge package serves the product at `/app/` on the API origin; see
 `tools/package_submission.py` and the documented explicit synthetic installation.
-Official Playground discovery is distinct from the custom signed event demonstration.
+The [official Ring Playground integration](docs/ring-playground.md) now imports sandbox history into the hosted Manager Security and Activity views. Its stored, dated evidence survives token expiry; custom signed arrival scenarios remain separately labeled.
 
 Nodum brings building configuration, daily operations, resident services and business tenants into one permission-controlled product. Building teams manage visitors, maintenance and notices; occupants see only information relevant to them.
 
@@ -54,7 +54,7 @@ npm run dev -- --host 127.0.0.1 --port 5178 --strictPort
 
 Open **http://127.0.0.1:5178**, choose Sign in, and use a synthetic account printed by the launcher. demo-presenter has genuine Admin, Manager, Resident and Business roles and a workspace selector. Single-role accounts demonstrate narrower boundaries. The disposable demo never opens the audited runtime database.
 
-**Real versus simulated:** scoped authorization, accounts, visitor/maintenance/notices workflows, persistence and the signed Ring pipeline are implemented. This demo explicitly uses synthetic Ring events and local Guide fallback. Ring cloud and Bedrock integrations exist; live linking/delivery, physical hardware and real AWS inference are not verified by this demo. Nodum Edge is **Not installed**. Logical visitor authorization does not automatically create physical access.
+**Real versus simulated:** scoped authorization, accounts, visitor/maintenance/notices workflows, persistence and the signed Ring pipeline are implemented. The hosted judge installation has verified real Bedrock/Nova inference and official Ring Playground history imports. Custom arrival scenarios use separately labeled synthetic events; production Ring linking/webhook delivery and physical hardware remain unverified. The local Guide is available as a fallback. Nodum Edge is **Not installed**. Logical visitor authorization does not automatically create physical access.
 
 ## Architecture and first run
 

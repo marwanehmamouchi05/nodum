@@ -366,6 +366,46 @@ def test_http_adapters_fail_closed(api):
     assert api("POST", "/ring/link", {"person_id": "manager-1"})[0] == 401
 
 
+def test_scoped_admin_can_claim_only_with_installation_grant(service, monkeypatch):
+    monkeypatch.setenv("NODUM_AUTHORIZATION_MODE", "scoped")
+    from app.models.auth import NodumUser
+    from app.models.authorization import Scope, ScopeKind, ResourceBinding, RoleAssignment, Role, Permission
+    repo = service.repository
+    repo.save_auth_user(NodumUser(id="ring-admin", username="ring-admin", person_id="resident-1",
+        password_hash="fixture-not-used-for-login", created_at=NOW))
+    repo.save_scope(Scope(id="ring-org", organization_id="ring-org", kind=ScopeKind.ORGANIZATION))
+    repo.save_resource_binding(ResourceBinding(resource_type="ring_link", resource_id="installation", scope_id="ring-org"))
+    principal = RingPrincipal(person_id="resident-1", user_id="ring-admin", masked_account_identifier="r***n")
+    service.receive_code("code", NOW)
+    time_ms = int(NOW.timestamp()*1000)
+    payload = RingLinkInput(time=time_ms, nonce=nonce_for(service.settings.signing_key, time_ms, ACCOUNT))
+    with pytest.raises(DomainError) as exc:
+        service.claim(payload, principal, NOW)
+    assert exc.value.status_code == 403
+    service.client.confirm.assert_not_called()
+    repo.save_role_assignment(RoleAssignment(id="ring-admin-grant", user_id="ring-admin", role=Role.ADMIN,
+        scope_id="ring-org", permissions=[Permission.RING_MANAGE]))
+    assert service.claim(payload, principal, NOW)["status"] == "completed"
+
+
+def test_webhook_scope_inherits_only_completed_linked_account(api, service):
+    from app.models.authorization import Scope, ScopeKind, ResourceBinding
+    repo = service.repository
+    app.dependency_overrides[get_ring_service] = lambda: service
+    repo.save_scope(Scope(id="ring-org", organization_id="ring-org", kind=ScopeKind.ORGANIZATION))
+    repo.save_resource_binding(ResourceBinding(resource_type="ring_account", resource_id=service.account_key(ACCOUNT), scope_id="ring-org"))
+    raw, signature = signed(service, event(event_id="before-link", request_id="before-link"))
+    _, before = api("POST", "/ring/webhooks", raw=raw, headers=[(b"x-signature", signature.encode())])
+    assert repo.get_resource_binding("ring_event", before["id"]) is None
+    link(service)
+    raw, signature = signed(service, event(event_id="after-link", request_id="after-link"))
+    _, after = api("POST", "/ring/webhooks", raw=raw, headers=[(b"x-signature", signature.encode())])
+    assert repo.get_resource_binding("ring_event", after["id"]).scope_id == "ring-org"
+    raw, signature = signed(service, event(event_id="other-account", request_id="other-account", account_id="other-ring-account"))
+    _, other = api("POST", "/ring/webhooks", raw=raw, headers=[(b"x-signature", signature.encode())])
+    assert repo.get_resource_binding("ring_event", other["id"]) is None
+
+
 def test_http_verified_adapter_and_link(api, service):
     app.dependency_overrides[get_ring_service] = lambda: service
     app.dependency_overrides[receive_verified_ring_code] = lambda: "verified-code"

@@ -141,7 +141,7 @@ class BusinessService:
                     and self.allowed(P.HARDWARE_READ,'device',d.id) and (b:=self.repo.get_resource_binding('device',d.id))
                     and node.scope_id in self.auth.ancestors(b.scope_id) for d in self.repo.list_building_devices()):
                 result.append({'id':e.id,'at':e.occurred_at,'message':f'Someone is at the doorbell assigned to {node.name}. Identity not verified.',
-                    'simulated':e.account_id=='simulation.playground' or e.source.startswith('simulation:')})
+                    'simulated':e.account_id=='simulation.playground' or e.source.startswith(('simulation:', 'playground:'))})
         return sorted(result,key=lambda r:r['at'],reverse=True)[:10]
 
     def devices(self):

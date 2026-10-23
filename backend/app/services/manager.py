@@ -198,7 +198,8 @@ class ManagerService:
                 "location": place(n.parent_id), "simulated": n.demo or n.connection_path.value == "simulation"}
                 for n in nodes if n.kind == K.DEVICE and n.id not in existing)
             ring = [{"id": e.id, "at": e.occurred_at, "signal": e.signal, "status": e.status,
-                "simulated": (e.source.startswith("simulation:") or e.account_id == "simulation.playground"), "source": "Ring",
+                "simulated": (e.source.startswith(("simulation:", "playground:")) or e.account_id == "simulation.playground"),
+                "source": "Official Ring sandbox" if e.account_id == "official.playground" else "Ring",
                 "description": "Arrival signal; visitor identity and destination are not established by this event. No door was unlocked." if e.signal in {"doorbell", "person", "motion"} else "Recorded Ring signal for operator review. This signal does not establish physical readiness or grant access."}
                 for e in scoped.list_ring_events()]
             from app.services.ring import identity
@@ -226,7 +227,8 @@ class ManagerService:
                     binding = self.repo.get_resource_binding("device", mapped.id) if mapped else None
                     labels = {"doorbell": "Visitor arrival signal", "person": "Person detected", "motion": "Motion detected", "package": "Package detected"}
                     activity.append({"id": e["id"], "at": e["at"], "what": labels.get(e["signal"], e["signal"].replace("_", " ")),
-                        "who": "Ring", "where": place(binding.scope_id) if binding else "Ring device (location unverified)", "result": e["status"], "simulated": e["simulated"]})
+                        "who": "Official Ring sandbox" if event and event.account_id == "official.playground" else "Ring",
+                        "where": place(binding.scope_id) if binding else "Ring device (location unverified)", "result": e["status"], "simulated": e["simulated"]})
             from app.services.activity import ActivityService
             for e in ActivityService(auth, ai_context=self.ai_context).page()["items"]:
                 activity.append({"id": e["id"], "at": e["at"], "what": e["action"].replace(".", " ").replace("_", " "),

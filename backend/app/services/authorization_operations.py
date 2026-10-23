@@ -53,7 +53,7 @@ def authorize_operation(authorization, route, body, params=None):
     elif route == "/agent/actions/{action_id}/confirm":
         # Exact proposal ownership and fresh scope checks occur before consumption.
         pass
-    elif route == "/ring/simulation/scenarios/{scenario}":
+    elif route in {"/ring/simulation/scenarios/{scenario}", "/ring/playground/sync"}:
         require(P.SIMULATION_RUN, "simulation", "ring")
     elif route == "/ring/events/{event_id}/process":
         require(P.RING_PROCESS, "ring_event", params.get("event_id"))

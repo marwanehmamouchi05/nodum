@@ -3,6 +3,7 @@ import json
 from urllib.error import HTTPError, URLError
 from urllib.parse import urlencode
 from urllib.request import HTTPRedirectHandler, Request, build_opener
+from uuid import NAMESPACE_URL, uuid5
 
 from app.services.errors import DomainError
 
@@ -24,7 +25,8 @@ class RingClient:
         self.transport = build_opener(NoRedirect())
 
     def _request(self, method, url, *, token=None, form=None, payload=None):
-        headers = {"Accept": "application/json"}
+        headers = {"Accept": "application/json", "Content-Type": "application/json", "User-Agent": "Nodum/1.0",
+                   "Hardware_Id": str(uuid5(NAMESPACE_URL, "nodum:ring:" + (token or self.settings.client_id)))}
         body = None
         if token:
             headers["Authorization"] = "Bearer " + token

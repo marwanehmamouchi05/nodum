@@ -16,9 +16,9 @@ The building view shows configured floors, apartments, businesses and device loc
 
 ## How Ring is used
 
-Nodum contains a server-side Ring REST adapter and a signed event ingestion pipeline. I verified official Ring Developers Playground device discovery from inside Nodum using a temporary Playground credential and the documented device-list API. The credential stays on the server; it is not returned to the browser or stored as a customer-linked account.
+Nodum imports official Ring Developers Playground events into its hosted, scoped Ring inbox. The backend discovers the sandbox device and reads its documented event-history API. I verified one device and two on-demand live-view records arriving in Nodum on AWS. Manager Security and Activity label their source as Official Ring sandbox. The dated evidence persists after token expiry and app restart; it does not claim a continuously connected device. The temporary credential stays on the server and is never returned to the browser or stored as a customer-linked account. No physical camera is required for this sandbox workflow.
 
-The arrival demonstration uses a separately labeled Nodum custom simulator. Its signed synthetic motion, doorbell and person events pass through signature verification, normalization, persistence and scoped operator review. These synthetic events are not presented as vendor-origin webhook deliveries. Official Playground discovery and custom event replay are distinct evidence paths.
+The arrival demonstration uses a separately labeled Nodum custom simulator. Its signed synthetic motion, doorbell and person events pass through signature verification, normalization, persistence and scoped operator review. These synthetic events are not presented as vendor-origin webhook deliveries. Official Playground history imports and custom event replay are distinct evidence paths. On-demand records are labeled live view, not motion or an identified visitor.
 
 A Ring signal does not establish visitor identity, select a destination or unlock a door. The manager reviews the expected visit and explicitly records the arrival.
 
@@ -38,7 +38,7 @@ Automated tests cover product workflows, scope boundaries, Ring signature/replay
 
 I learned to distinguish a configured integration from one that actually responds. Bedrock worked on the development computer while the hosted service returned unavailable because the deployment lacked the same credential configuration. Restoring configuration and verifying a real request are separate steps; a hosting outage can delay activation.
 
-I also separated official Ring Playground discovery from the custom signed-event simulation. This made the demo's claims more precise and kept temporary sandbox tokens out of customer account-linking flows.
+I also connected official Ring Playground history to durable, permission-scoped application context while keeping it separate from the custom signed-event simulation. This made the demo's claims more precise and kept temporary sandbox tokens out of customer account-linking flows.
 
 Recent scenario work corrected future event timestamps and delayed Manager refresh so newly generated signals appear promptly and in the right order.
 

@@ -66,3 +66,11 @@ signed visitor-arrival simulation, actual Bedrock/Nova tool use and reboot persi
 The video labels earlier official Ring Playground discovery separately from custom
 event simulation. Temporary discovery tokens do not establish production linking,
 vendor webhook delivery, visitor identity or physical door control.
+
+## Official sandbox history, October 23
+
+The hosted Ring inbox now stores official Playground API history with its source
+and import date. The evidence panel remains available after token expiry and app
+restart. Fresh sync requires a temporary server-only Playground token. The
+installation remains in simulation mode; production linking and vendor-origin
+webhooks are not claimed. See [Playground integration](../ring-playground.md).

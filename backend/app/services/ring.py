@@ -174,7 +174,14 @@ class RingService:
         return {"status": "unclaimed"}
 
     def claim(self, payload, principal, now):
-        validate_operator(self.repository, principal.person_id)
+        from app.services.authorization import authorization_mode
+        if authorization_mode() != "scoped" or principal.user_id is None:
+            validate_operator(self.repository, principal.person_id)
+        else:
+            from app.models.authorization import Principal, Permission
+            from app.services.authorization import AuthorizationService
+            AuthorizationService(self.repository, Principal(user_id=principal.user_id,
+                person_id=principal.person_id), now).require(Permission.RING_MANAGE, "ring_link", "installation")
         if not self.settings.signing_key:
             raise DomainError(503, "Ring signing key is not configured")
         age = int(now.timestamp() * 1000) - payload.time

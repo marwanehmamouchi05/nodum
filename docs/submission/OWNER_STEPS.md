@@ -1,6 +1,6 @@
 # Actions requiring the owner or external recovery
 
-## Current state — October 22
+## Current state — October 23
 
 The active judge deployment is [AWS-hosted Nodum](https://nodum.54-173-165-46.sslip.io/app/).
 It runs independently of the entrant computer. Scoped reviewer access, CSRF,
@@ -9,6 +9,12 @@ full EC2 reboot passed. See [AWS hosting and recovery](AWS_HOSTING.md).
 The approved narrated [2:55 video](https://youtu.be/ITCj4CzEHEg) is published
 as unlisted, so judges can watch with the link. AWS credential rotation is complete;
 the old key is inactive and the application uses a restricted server role.
+
+Official sandbox history now appears in hosted Manager Security and Activity.
+Open Demo Mode to view its dated, stored evidence. A fresh sync needs a renewed
+temporary Playground token; stored evidence and custom scenarios do not.
+No physical device or Ring plan is needed for this sandbox path.
+See [Playground workflow](../ring-playground.md).
 
 Remaining owner actions: review the final saved Devpost preview and perform the
 final submission/any required legal acceptance before the deadline. Keep the AWS
@@ -79,7 +85,7 @@ An official token was generated with the owner's explicit approval and tested su
 1. In the [Ring developer console](https://developer.amazon.com/ring/console/apps), open Playground.
 2. Generate a fresh temporary token close to recording time. Do not film its value.
 3. Configure it privately as the backend's `RING_PLAYGROUND_TOKEN`. It is used only by the explicit synthetic demo's restricted discovery endpoint, not by the live account-link adapter or custom event signer.
-4. Restart/redeploy the backend as appropriate, sign in as a permitted demo operator, and select Demo Mode → Verify official Ring API.
+4. Restart/redeploy the backend as appropriate, sign in as a permitted demo operator, and select Demo Mode → Sync official sandbox events. Verify official Ring API performs discovery only.
 5. Expect a sandbox device response. If expired or unavailable, report that honestly and renew it. Do not claim this verifies vendor-origin webhooks, physical control or durable live linking.
 6. Do not put the token into public source, videos, Devpost fields or frontend variables. The stored preparation token is in ignored local secret storage.
 
