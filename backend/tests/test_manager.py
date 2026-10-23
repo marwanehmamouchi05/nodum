@@ -42,6 +42,28 @@ def test_manager_is_operational_not_admin(manager):
     assert not snapshot["visitors"] and not snapshot["people"]
 
 
+def test_activity_orders_mixed_ring_and_operational_timestamps(manager):
+    from app.models.ring import RingEvent
+    from app.services.scoped_repository import bind_created
+
+    report(manager)
+    for identifier, offset in (("earlier-ring", -1), ("later-ring", 1)):
+        occurred = NOW + timedelta(hours=offset)
+        manager.repo.save_ring_event(RingEvent(
+            id=identifier, environment="playground", account_id="official.playground",
+            request_id=identifier, event_id=identifier, event_type="on_demand",
+            source="playground:device", source_type="camera", occurred_at=occurred,
+            received_at=occurred, signal="live_view", raw_payload="{}"))
+        bind_created(manager.repo, "ring_event", identifier, ROOT + "building")
+
+    activity = manager.snapshot()["activity"]
+    assert len(activity) == 3
+    assert activity[0]["id"] == "later-ring"
+    assert activity[1]["what"] == "maintenance created"
+    assert activity[2]["id"] == "earlier-ring"
+    assert activity[0]["who"] == "Official Ring sandbox"
+
+
 @pytest.mark.parametrize("kind", ["announcement", "maintenance"])
 @pytest.mark.parametrize("target", ["missing", "demo-org", ROOT + "simulation", "lobby"])
 def test_default_deny_wrong_or_unbound_target(manager, kind, target):

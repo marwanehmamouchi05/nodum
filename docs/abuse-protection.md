@@ -15,8 +15,8 @@ not prompts or credentials. Restarting the app does not reset allowances.
 | Concurrent AI questions | 1, with immediate busy response rather than a queue |
 | Questions per account | 5 per UTC minute, 20 per UTC day |
 | Questions across the installation | 60 per UTC day |
-| Actual model-call attempts across the installation | 40 per UTC day, 200 per UTC calendar month |
-| Reserved serialized input across model calls | 1 MB per UTC day, 4 MB per UTC calendar month |
+| Actual model-call attempts across the installation | 40 per UTC day, 1,000 per UTC calendar month |
+| Reserved serialized input across model calls | 1 MB per UTC day, 32 MB per UTC calendar month |
 | Each serialized provider context | 65,536 bytes including a 4,096-byte accounting margin |
 | Output | At most 1,000 tokens per call; existing five-round/tool limits still apply |
 

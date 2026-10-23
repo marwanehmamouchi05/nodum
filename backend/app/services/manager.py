@@ -1,5 +1,5 @@
 """Scoped operational projection. No inferred ownership or hardware telemetry."""
-from datetime import timedelta
+from datetime import datetime, timedelta, timezone
 from uuid import uuid4
 from app.models.authorization import Permission as P
 from app.models.structure import NodeKind as K
@@ -240,7 +240,11 @@ class ManagerService:
                 if a.checked_in_at and self.allowed(P.ACTIVITY_READ, "appointment", a.id):
                     activity.append({"id": a.id, "at": a.checked_in_at, "what": "Visitor checked in", "who": a.visitor_name,
                         "where": place(a.destination_zone_id), "result": "Arrived", "simulated": False})
-            activity.sort(key=lambda e: str(e["at"]), reverse=True)
+            def activity_time(entry):
+                value = entry["at"]
+                timestamp = datetime.fromisoformat(value) if isinstance(value, str) else value
+                return timestamp.astimezone(timezone.utc)
+            activity.sort(key=activity_time, reverse=True)
             open_requests = [r for r in maintenance if r["status"] not in {"resolved", "closed"}]
             active_incidents = [i for i in incidents if i.status != "resolved"]
             offline = [d for d in devices if d["status"] == "offline"]

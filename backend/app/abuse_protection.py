@@ -22,9 +22,9 @@ class Allowances:
     questions_per_user_day: int = 20
     questions_per_day: int = 60
     calls_per_day: int = 40
-    calls_per_month: int = 200
+    calls_per_month: int = 1000
     input_bytes_per_day: int = 1_000_000
-    input_bytes_per_month: int = 4_000_000
+    input_bytes_per_month: int = 32_000_000
     call_bytes: int = 65_536
 
 
